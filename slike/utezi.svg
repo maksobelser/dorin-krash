@@ -12,7 +12,7 @@
     <circle cx="73" cy="132" r="11" fill="#f3c7ae"/>
     <circle cx="183" cy="132" r="11" fill="#f3c7ae"/>
     <!-- obraz -->
-    <ellipse cx="128" cy="124" rx="56" ry="62" fill="#f8d5c0"/>
+    <ellipse cx="128" cy="126" rx="58" ry="60" fill="#f8d5c0"/>
     <!-- lasje spredaj, prečka na strani -->
     <path d="M70 124 C64 80 94 58 130 58 C166 58 192 80 186 124 C178 100 164 88 146 84 C128 100 100 108 70 124 Z" fill="#6b432b"/>
     <!-- prameni čez ramena -->
@@ -37,27 +37,37 @@
   <circle cx="72" cy="146" r="4.5" fill="#f2c14e" stroke="#9a6b12" stroke-width="2"/>
   <circle cx="184" cy="146" r="4.5" fill="#f2c14e" stroke="#9a6b12" stroke-width="2"/>
   <!-- obrvi -->
-  <path d="M88 104 Q103 92 118 101" fill="none" stroke="#3a2416" stroke-width="7" stroke-linecap="round"/>
-  <path d="M138 101 Q153 92 168 104" fill="none" stroke="#3a2416" stroke-width="7" stroke-linecap="round"/>
-  <!-- oči (modro-zelene) -->
-  <ellipse cx="104" cy="123" rx="14" ry="12.5" fill="#fff"/>
-  <ellipse cx="152" cy="123" rx="14" ry="12.5" fill="#fff"/>
-  <circle cx="105" cy="124" r="9.5" fill="#4fa3a5"/>
-  <circle cx="151" cy="124" r="9.5" fill="#4fa3a5"/>
-  <circle cx="105" cy="124" r="4.6" fill="#1a1a1a"/>
-  <circle cx="151" cy="124" r="4.6" fill="#1a1a1a"/>
-  <circle cx="109" cy="120" r="3.2" fill="#fff"/>
-  <circle cx="155" cy="120" r="3.2" fill="#fff"/>
-  <path d="M89 118 Q104 106 119 117" fill="none" stroke="#2a1b14" stroke-width="4" stroke-linecap="round"/>
-  <path d="M137 117 Q152 106 167 118" fill="none" stroke="#2a1b14" stroke-width="4" stroke-linecap="round"/>
-  <!-- nos -->
-  <path d="M128 130 Q123 144 131 147" fill="none" stroke="#c98f78" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M93 97 Q104 90 115 95" fill="none" stroke="#5a3825" stroke-width="5" stroke-linecap="round"/>
+  <path d="M141 95 Q152 90 163 97" fill="none" stroke="#5a3825" stroke-width="5" stroke-linecap="round"/>
+  <!-- oči (velike, modro-zelene, z dvema leskoma) -->
+  <ellipse cx="104" cy="127" rx="15" ry="16" fill="#fff"/>
+  <ellipse cx="152" cy="127" rx="15" ry="16" fill="#fff"/>
+  <ellipse cx="105" cy="129" rx="11.5" ry="12.5" fill="#3f9a9c"/>
+  <ellipse cx="151" cy="129" rx="11.5" ry="12.5" fill="#3f9a9c"/>
+  <ellipse cx="105" cy="134" rx="8" ry="6" fill="#7fd1cc" opacity=".75"/>
+  <ellipse cx="151" cy="134" rx="8" ry="6" fill="#7fd1cc" opacity=".75"/>
+  <circle cx="105" cy="129" r="5.6" fill="#1a1a1a"/>
+  <circle cx="151" cy="129" r="5.6" fill="#1a1a1a"/>
+  <circle cx="110" cy="122.5" r="4.4" fill="#fff"/>
+  <circle cx="156" cy="122.5" r="4.4" fill="#fff"/>
+  <circle cx="100.5" cy="135" r="2.1" fill="#fff"/>
+  <circle cx="146.5" cy="135" r="2.1" fill="#fff"/>
+  <path d="M88 124 Q104 100 120 122" fill="none" stroke="#2a1b14" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M136 122 Q152 100 168 124" fill="none" stroke="#2a1b14" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- trepalnice -->
+  <path d="M89 121 L81 117 M92 115 L86 108" fill="none" stroke="#2a1b14" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M167 121 L175 117 M164 115 L170 108" fill="none" stroke="#2a1b14" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- nos (droben) -->
+  <path d="M124.5 147 Q128 150.5 131.5 147" fill="none" stroke="#c98f78" stroke-width="3" stroke-linecap="round"/>
   <!-- lička -->
-  <ellipse cx="90" cy="150" rx="11" ry="7" fill="#ff8f8f" opacity=".45"/>
-  <ellipse cx="166" cy="150" rx="11" ry="7" fill="#ff8f8f" opacity=".45"/>
-  <!-- nasmeh -->
-  <path d="M104 158 Q128 184 152 158 Q128 168 104 158 Z" fill="#fff" stroke="#2a1b14" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M110 162 Q128 170 146 162" fill="none" stroke="#e7a3a3" stroke-width="2"/>
+  <ellipse cx="86" cy="153" rx="13" ry="8" fill="#ff8fa8" opacity=".42"/>
+  <ellipse cx="170" cy="153" rx="13" ry="8" fill="#ff8fa8" opacity=".42"/>
+  <circle cx="82" cy="150" r="2" fill="#fff" opacity=".7"/>
+  <circle cx="166" cy="150" r="2" fill="#fff" opacity=".7"/>
+  <!-- nasmeh (odprt, z jezičkom) -->
+  <path d="M111 158 Q128 178 145 158 Q128 164 111 158 Z" fill="#b8344f" stroke="#2a1b14" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M119 166 Q128 174 137 166 Q128 169 119 166 Z" fill="#ff8fa3"/>
+  <path d="M114 159 Q128 164 142 159" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
   <!-- verižica -->
   <path d="M112 206 Q128 222 144 206" fill="none" stroke="#f2c14e" stroke-width="2.5"/>
 </g><g fill="#7fd3ff" stroke="#2a6f99" stroke-width="2"><path d="M208 112 q7 11 0 15 q-7 -4 0 -15z"/><path d="M44 122 q6 9 0 13 q-6 -4 0 -13z"/></g><g stroke="#ffd23f" stroke-width="5" stroke-linecap="round"><path d="M96 20 L104 34"/><path d="M128 12 L128 30"/><path d="M160 20 L152 34"/></g></svg>
