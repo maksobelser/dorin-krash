@@ -13,7 +13,7 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 
 ## Igra
 
-- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/plosca.js` (mehanika), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln), `js/aplikacija.js` (zasloni, 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
+- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln), `js/aplikacija.js` (zasloni, 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
 - Slike in stopnje se menjajo samo v `js/nastavitve.js`.
 - Brez ES modulov (`type="module"`), ker se ne naložijo, ko `index.html` odpreš z dvoklikom.
 

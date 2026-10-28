@@ -149,22 +149,26 @@ button.majhen::after { top: 3px; }
   padding: max(10px, env(safe-area-inset-top)) 14px 10px;
 }
 .naslov-zemljevida {
-  flex: 1; font-family: var(--naslov); font-size: 26px;
+  flex: 1; min-width: 0; white-space: nowrap; font-family: var(--naslov); font-size: clamp(20px, 6.4vw, 26px);
   text-shadow: 0 2px 0 #0b6c7c, 0 4px 8px rgba(0,0,0,.3);
 }
 .zivljenja {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--krema); color: #7a1f45; border-radius: 999px;
-  padding: 4px 14px 4px 4px; font-size: 18px;
+  display: flex; align-items: center; gap: 2px;
+  padding: 6px 10px; border: 0; border-radius: 999px; cursor: pointer;
+  background: #fffdf6;
   box-shadow: 0 4px 0 rgba(0,0,0,.15), 0 6px 14px rgba(0,0,0,.2);
 }
-.zivljenja .srce {
-  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
-  font-size: 22px; color: #fff; background: radial-gradient(circle at 35% 30%, #ff9ab9, var(--koral) 55%, var(--koral-temna));
-  box-shadow: inset 0 -2px 0 rgba(0,0,0,.2);
+.zivljenja::after { display: none; }
+.zivljenja svg { width: 22px; height: 22px; display: block; }
+.zivljenja .poln { fill: #e8173a; stroke: #8a0a20; }
+.zivljenja .prazen { fill: #e6ddd0; stroke: #b9ad9c; }
+.zivljenja .poln + .odsev { display: block; }
+.zivljenja svg.prihaja { animation: srce-utrip 1.2s ease-in-out infinite; }
+@keyframes srce-utrip { 50% { transform: scale(1.18); } }
+button.zvok {
+  position: absolute; z-index: 3; left: 14px; bottom: max(14px, env(safe-area-inset-bottom));
+  width: 44px; height: 44px; padding: 0; font-size: 20px; border-radius: 50%;
 }
-.zivljenja b { font-family: var(--naslov); font-weight: 800; font-size: 22px; }
-.zivljenja small { font-weight: 800; font-size: 12px; font-variant-numeric: tabular-nums; opacity: .85; }
 
 /* ---------- 3D zemljevid ---------- */
 
@@ -188,11 +192,18 @@ button.majhen::after { top: 3px; }
 .oblaki span:nth-child(3) { top: 8%; left: 70%; transform: scale(.55); animation-duration: 80s; animation-delay: -50s; }
 .oblaki span:nth-child(4) { top: 26%; left: 10%; transform: scale(.45); animation-duration: 100s; animation-delay: -10s; }
 @keyframes oblak { from { translate: -30vw 0; } to { translate: 130vw 0; } }
-.napis-reka3d {
-  position: absolute; z-index: 2; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
-  font-family: var(--naslov); font-size: 18px; letter-spacing: 1px; color: #0b5a86;
-  background: rgba(255,255,255,.85); padding: 6px 16px; border-radius: 99px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.15); pointer-events: none;
+.odklenjena {
+  position: absolute; z-index: 4; left: 50%; top: 30%; translate: -50% -50%;
+  font-family: var(--naslov); font-size: clamp(22px, 7vw, 40px); white-space: nowrap; color: #fff;
+  text-shadow: 0 3px 0 #c9184a, 0 6px 0 #7a1f45, 0 10px 18px rgba(0,0,0,.35);
+  pointer-events: none; animation: odklenjena 2s cubic-bezier(.3,1.6,.5,1) forwards;
+}
+@keyframes odklenjena {
+  0% { scale: .2; opacity: 0; rotate: -10deg; }
+  18% { scale: 1.15; opacity: 1; rotate: 3deg; }
+  28% { scale: 1; rotate: 0deg; }
+  80% { opacity: 1; translate: -50% -50%; }
+  100% { opacity: 0; translate: -50% -90%; }
 }
 
 /* ---------- 2D zemljevid (rezerva brez WebGL) ---------- */
@@ -271,7 +282,7 @@ button.majhen::after { top: 3px; }
 }
 .hud-tocke b { font-family: var(--naslov); font-weight: 800; font-size: 22px; color: #0b6c7c; }
 .hud small { font-size: 11px; font-weight: 900; text-transform: uppercase; opacity: .7; letter-spacing: .5px; }
-.hud-sredina { min-width: 0; }
+.hud-sredina { min-width: 0; padding: 0 14px 0 6px; }
 .hud-cilj { margin-top: 6px; font-size: 12px; font-weight: 900; text-align: center; opacity: .8; }
 
 .napredek {
@@ -307,7 +318,7 @@ button.majhen::after { top: 3px; }
 .ploscica {
   position: absolute; left: 0; top: 0;
   width: 12.5%; height: 12.5%;
-  transition: transform .3s cubic-bezier(.3, .1, .4, 1);
+  transition: transform .34s cubic-bezier(.34, 1.45, .64, 1);
 }
 
 /* Sijoč 3D element */
@@ -495,3 +506,60 @@ button.majhen::after { top: 3px; }
   box-shadow: 0 4px 0 #8f1010, 0 6px 12px rgba(0,0,0,.3);
 }
 .okno-zapri::after { top: 3px; }
+
+/* ---------- Dinamika na plošči ---------- */
+
+.iskrica {
+  position: absolute; z-index: 3; width: var(--v); height: var(--v); margin: calc(var(--v) / -2) 0 0 calc(var(--v) / -2);
+  border-radius: 50%; background: var(--b); box-shadow: 0 0 6px var(--b);
+  pointer-events: none; animation: razlet .65s cubic-bezier(.2, .7, .3, 1) forwards;
+}
+.iskrica.bela { background: #fff; box-shadow: 0 0 8px #fff; border-radius: 2px; rotate: 45deg; }
+@keyframes razlet {
+  0% { transform: translate(0, 0) scale(1.4); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+.tocke-plava {
+  position: absolute; z-index: 4; translate: -50% -50%;
+  font-family: var(--naslov); font-size: clamp(18px, 5.5vw, 28px); color: #fff;
+  -webkit-text-stroke: 1.5px #8e1048; text-shadow: 0 2px 0 #8e1048, 0 4px 8px rgba(0,0,0,.4);
+  pointer-events: none; animation: tocke-gor 1s ease-out forwards;
+}
+@keyframes tocke-gor {
+  0% { transform: translateY(0) scale(.4); opacity: 0; }
+  20% { transform: translateY(-10px) scale(1.25); opacity: 1; }
+  100% { transform: translateY(-60px) scale(1); opacity: 0; }
+}
+.tresi { animation: tresi .35s; }
+.tresi-mocno { animation: tresi-mocno .5s; }
+@keyframes tresi { 20% { translate: -4px 2px; } 40% { translate: 4px -2px; } 60% { translate: -3px -1px; } 80% { translate: 2px 1px; } }
+@keyframes tresi-mocno {
+  10% { translate: -9px 4px; rotate: -1deg; } 25% { translate: 8px -5px; rotate: 1deg; } 40% { translate: -7px -3px; }
+  55% { translate: 6px 4px; } 70% { translate: -4px 2px; } 85% { translate: 2px -1px; }
+}
+.blisk {
+  position: fixed; inset: 0; z-index: 20; pointer-events: none;
+  background: radial-gradient(circle at 50% 55%, rgba(255,255,255,.95), rgba(255,210,63,.6) 40%, rgba(255,79,139,0) 75%);
+  animation: blisk .45s ease-out forwards;
+}
+@keyframes blisk { from { opacity: 1; } to { opacity: 0; } }
+
+/* HUD */
+.hud-poteze.malo b { color: #e8173a; animation: malo .6s ease-in-out infinite; display: inline-block; }
+@keyframes malo { 50% { transform: scale(1.25); } }
+.hud b.bump { animation: bump .25s ease-out; display: inline-block; }
+@keyframes bump { 40% { transform: scale(1.35); } }
+.napredek-zvezda { transition: color .2s; color: #d8cbb6; }
+.napredek-zvezda.dosezena { color: var(--rumena); animation: zvezda-hud .6s cubic-bezier(.3,1.8,.5,1); }
+@keyframes zvezda-hud { 0% { transform: translate(-50%, -50%) scale(.3); } 60% { transform: translate(-50%, -50%) scale(1.8) rotate(20deg); } 100% { transform: translate(-50%, -50%) scale(1); } }
+.zmaga-zvezdice span.polna::after {
+  content: ""; position: absolute; inset: -30%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,240,170,.9), rgba(255,240,170,0) 60%);
+  animation: zvezda-sij .7s ease-out forwards; pointer-events: none;
+}
+.zmaga-zvezdice span { position: relative; }
+@keyframes zvezda-sij { from { transform: scale(.2); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+button { transition: transform .12s cubic-bezier(.3,1.6,.5,1), box-shadow .1s; }
+button:active { transform: translateY(3px) scale(.96); }
+#zmaga-naprej { animation: vabi 1.4s ease-in-out 1.6s infinite; }
+@keyframes vabi { 50% { transform: scale(1.06); } }

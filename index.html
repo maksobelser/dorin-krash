@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&display=swap">
-<link rel="stylesheet" href="css/stil.css?v=7">
+<link rel="stylesheet" href="css/stil.css?v=14">
 </head>
 <body data-zaslon="vstop">
   <div class="sky" id="sky"></div>
@@ -43,11 +43,11 @@
     <header class="vrstica">
       <button class="majhen" id="nazaj-vstop" aria-label="Nazaj">‹</button>
       <div class="naslov-zemljevida">Dorin Kraš</div>
-      <div class="zivljenja"><span class="srce">❤</span><b id="zivljenja-st">5</b><small id="zivljenja-ura">polno</small></div>
+      <button class="zivljenja" id="zivljenja" aria-label="Življenja"></button>
     </header>
+    <button class="majhen zvok" id="zvok" aria-label="Zvok">🔊</button>
     <div class="svet3d" id="svet3d" hidden>
       <div class="oblaki"><span></span><span></span><span></span><span></span></div>
-      <div class="napis-reka3d">Grosupeljščica</div>
     </div>
     <div class="zemljevid-ovoj" id="zemljevid-ovoj">
       <div class="zemljevid" id="zemljevid"></div>
@@ -103,9 +103,10 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/nastavitve.js?v=7"></script>
-  <script src="js/plosca.js?v=7"></script>
-  <script src="js/svet3d.js?v=7"></script>
-  <script src="js/aplikacija.js?v=7"></script>
+  <script src="js/nastavitve.js?v=14"></script>
+  <script src="js/zvok.js?v=14"></script>
+  <script src="js/plosca.js?v=14"></script>
+  <script src="js/svet3d.js?v=14"></script>
+  <script src="js/aplikacija.js?v=14"></script>
 </body>
 </html>

@@ -1,34 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
   <defs>
-    <linearGradient id="zganje" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#f6d77a"/>
-      <stop offset=".5" stop-color="#fff1b8"/>
-      <stop offset="1" stop-color="#e8bf4f"/>
+    <linearGradient id="slivovka" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c9c172"/>
+      <stop offset=".45" stop-color="#ece6a6"/>
+      <stop offset="1" stop-color="#b8ad5c"/>
     </linearGradient>
-    <linearGradient id="sliva" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8b5cc7"/>
-      <stop offset="1" stop-color="#3b1f6e"/>
+    <linearGradient id="steklo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset=".5" stop-color="#eaf6ff" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".5"/>
     </linearGradient>
+    <radialGradient id="sliva" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="#8c9bd6"/>
+      <stop offset=".55" stop-color="#4a5596"/>
+      <stop offset="1" stop-color="#262c5c"/>
+    </radialGradient>
   </defs>
-  <!-- štamprl -->
-  <g stroke="#2b4a63" stroke-width="5" stroke-linejoin="round">
-    <path d="M56 50 L164 50 L150 216 C150 224 70 224 70 216 Z" fill="#eaf8ff" fill-opacity=".75"/>
-    <!-- šljivovica -->
-    <path d="M62 96 L158 96 L150 196 C150 204 70 204 70 196 Z" fill="url(#zganje)" stroke="none"/>
-    <ellipse cx="110" cy="96" rx="48" ry="9" fill="#fff6d0" stroke="#d9b04a" stroke-width="3"/>
-    <!-- debelo dno štamprla -->
-    <path d="M70 196 C70 204 150 204 150 196 L150 216 C150 224 70 224 70 216 Z" fill="#cfeefc" fill-opacity=".9"/>
-    <ellipse cx="110" cy="50" rx="54" ry="10" fill="#ffffff" fill-opacity=".6"/>
+  <!-- senca -->
+  <ellipse cx="120" cy="226" rx="88" ry="12" fill="#000" opacity=".18"/>
+  <!-- štamprl: nizek, rahlo širši zgoraj, debelo dno -->
+  <g stroke="#3d4a55" stroke-width="5" stroke-linejoin="round">
+    <path d="M50 86 L170 86 L162 214 C162 224 58 224 58 214 Z" fill="url(#steklo)"/>
   </g>
-  <!-- lesk na steklu -->
-  <path d="M72 64 L84 196" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity=".85"/>
-  <path d="M140 66 L136 110" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".6"/>
-  <!-- slivа ob štamprlu -->
-  <g stroke="#1f0f3d" stroke-width="5" stroke-linejoin="round">
-    <path d="M186 140 C210 128 238 146 236 178 C234 208 206 222 184 212 C162 202 160 152 186 140 Z" fill="url(#sliva)"/>
-    <path d="M200 140 C204 128 206 120 212 112" fill="none" stroke-linecap="round"/>
-    <path d="M212 114 C226 102 242 106 246 112 C236 124 222 124 212 114 Z" fill="#57cc6f"/>
+  <!-- šljivovka skoraj do roba -->
+  <path d="M54 104 L166 104 L160 194 L60 194 Z" fill="url(#slivovka)"/>
+  <ellipse cx="110" cy="104" rx="56" ry="9" fill="#f6f1c4" stroke="#b8ad5c" stroke-width="2.5"/>
+  <!-- debelo stekleno dno -->
+  <path d="M60 194 L160 194 L162 214 C162 224 58 224 58 214 Z" fill="#dff1fb" opacity=".85"/>
+  <path d="M60 194 L160 194" stroke="#a9c3cf" stroke-width="2.5"/>
+  <!-- rob kozarca -->
+  <ellipse cx="110" cy="86" rx="60" ry="10" fill="none" stroke="#3d4a55" stroke-width="5"/>
+  <ellipse cx="110" cy="86" rx="54" ry="7" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>
+  <!-- lesk -->
+  <path d="M66 98 L72 204" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".85"/>
+  <path d="M150 102 L147 140" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".6"/>
+  <!-- sliva z listom -->
+  <g stroke="#1b1f45" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M194 134 C224 128 248 152 244 184 C240 214 210 228 186 218 C162 208 160 142 194 134 Z" fill="url(#sliva)"/>
+    <path d="M206 136 C208 124 212 114 220 106" fill="none" stroke="#5b3a1e"/>
+    <path d="M220 106 C232 90 252 92 254 100 C244 116 228 118 220 106 Z" fill="#6cbf4a" stroke="#2f6b25"/>
   </g>
-  <path d="M190 156 C186 170 188 186 194 196" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".5"/>
-  <path d="M196 146 C200 170 202 192 198 212" fill="none" stroke="#2a1452" stroke-width="3" opacity=".5"/>
+  <path d="M206 146 C198 164 198 186 206 202" fill="none" stroke="#1b1f45" stroke-width="3" opacity=".45"/>
+  <ellipse cx="200" cy="158" rx="9" ry="14" fill="#fff" opacity=".28" transform="rotate(-20 200 158)"/>
 </svg>

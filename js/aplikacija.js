@@ -48,10 +48,30 @@ function izgubiZivljenje() {
   shrani();
 }
 
+// V glavi so samo srčki: polni, prazni; naslednji, ki prihaja, utripa.
+const SRCE = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.6h2c.7-1.4 2.2-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z';
+let prikazanaZivljenja = -1;
 function osveziZivljenja() {
   obnoviZivljenja();
-  $('zivljenja-st').textContent = napredek.zivljenja;
-  $('zivljenja-ura').textContent = napredek.zivljenja >= ZIVLJENJA.najvec ? 'polno' : '+1 čez ' + doNaslednjega();
+  if (prikazanaZivljenja === napredek.zivljenja) return;
+  prikazanaZivljenja = napredek.zivljenja;
+  $('zivljenja').innerHTML = Array.from({ length: ZIVLJENJA.najvec }, (_, i) => {
+    const poln = i < napredek.zivljenja;
+    return `<svg viewBox="0 0 24 24" class="${!poln && i === napredek.zivljenja ? 'prihaja' : ''}">` +
+      `<path d="${SRCE}" class="${poln ? 'poln' : 'prazen'}" stroke-width="1.6"/>` +
+      (poln ? '<ellipse cx="7.6" cy="8.6" rx="2.2" ry="1.5" fill="#fff" opacity=".75" transform="rotate(-30 7.6 8.6)"/>' : '') +
+      '</svg>';
+  }).join('');
+}
+function oknoZivljenj() {
+  osveziZivljenja();
+  const polno = napredek.zivljenja >= ZIVLJENJA.najvec;
+  okno({
+    naslov: 'Življenja',
+    besedilo: polno ? 'Vsa življenja so polna. ❤️' : `Imaš ${napredek.zivljenja} od ${ZIVLJENJA.najvec}.<br>Naslednje čez <b>${doNaslednjega()}</b>.`,
+    zapri: true,
+    gumbi: [{ tekst: 'V redu' }],
+  });
 }
 setInterval(osveziZivljenja, 1000);
 
@@ -90,19 +110,39 @@ function okno({ naslov, besedilo = '', zvezdice = null, gumbi, zapri = false }) 
 
 function zapriOkno() { $('okno').classList.remove('odprto'); }
 
+// Število, ki se prešteje navzgor
+function stej(od, doN, ms, pisi) {
+  const zac = performance.now();
+  const korak = t => {
+    const k = Math.min(1, (t - zac) / ms);
+    pisi(Math.round(od + (doN - od) * (1 - Math.pow(1 - k, 3))));
+    if (k < 1) requestAnimationFrame(korak);
+  };
+  requestAnimationFrame(korak);
+  setTimeout(() => pisi(doN), ms + 60); // če brskalnik animacij ne riše, vsaj končna vrednost
+}
+
+function bump(el) {
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
+
 // ---------- Zaslon zmage (s proslavo) ----------
 
 let stProslave = 0;
 function zaslonZmage({ st, tocke, bonus, zvezdice, zadnja }) {
   const p = PROSLAVE[stProslave++ % PROSLAVE.length];
   $('zmaga-pod').textContent = p.besedilo;
-  $('zmaga-tocke').innerHTML = `${tocke} točk` + (bonus ? `<small>bonus za poteze: ${bonus}</small>` : '');
+  const podnapis = bonus ? `<small>bonus za poteze: ${bonus}</small>` : '';
+  stej(0, tocke, 1400, n => { $('zmaga-tocke').innerHTML = `${n} točk` + podnapis; });
+  Zvok.zmaga();
   const lik = $('zmaga-lik');
   lik.className = 'zmaga-lik ' + p.animacija;
   lik.innerHTML = `<span>${vsebina(p)}</span>`;
   [...$('zmaga-zvezdice').children].forEach((z, i) => {
     z.className = '';
-    if (i < zvezdice) setTimeout(() => { z.className = 'polna'; }, 500 + i * 350);
+    if (i < zvezdice) setTimeout(() => { z.className = 'polna'; Zvok.zvezda(i); }, 700 + i * 380);
   });
   const konfeti = $('konfeti');
   const barve = ['#ffd23f', '#ff4f8b', '#19b5c9', '#ffffff', '#b388ff', '#57cc99'];
@@ -207,6 +247,15 @@ function odpriZemljevid() {
       zvezdice: napredek.zvezdice,
       prejsnje: prejsnjeOdklenjeno,
       onStopnja: odpriPredstopnjo,
+      onOdklep: st => {
+        Zvok.odklep();
+        const b = document.createElement('div');
+        b.className = 'odklenjena';
+        b.textContent = `Stopnja ${st} odklenjena!`;
+        $('svet3d').appendChild(b);
+        setTimeout(() => b.remove(), 2100);
+        setTimeout(() => { if (document.body.dataset.zaslon === 'zemljevid' && !$('okno').classList.contains('odprto')) odpriPredstopnjo(st); }, 1900);
+      },
     });
   } else {
     narisiZemljevid();
@@ -216,7 +265,7 @@ function odpriZemljevid() {
 
 // ---------- Stopnja ----------
 
-let trenutna = null;
+let trenutna = null, hudTocke = 0;
 
 function odpriPredstopnjo(st) {
   const s = STOPNJE[st - 1];
@@ -247,16 +296,31 @@ function zacniStopnjo(st) {
   $('hud-stopnja').textContent = st;
   $('hud-cilj').textContent = s.cilj;
   pokazi('igra');
+  const zvezdeHud = [...document.querySelectorAll('.napredek-zvezda')];
+  zvezdeHud.forEach((z, i) => {
+    z.style.left = (ZVEZDICE[i] / ZVEZDICE[2] * 100) + '%';
+    z.classList.remove('dosezena');
+  });
+  hudTocke = 0;
   Plosca.zacni(s, {
     tocke: n => {
-      $('hud-tocke').textContent = n;
+      if (n > hudTocke) { stej(hudTocke, n, 450, v => { $('hud-tocke').textContent = v; }); bump($('hud-tocke')); }
+      else $('hud-tocke').textContent = n;
+      hudTocke = n;
       $('napredek-polnilo').style.width = Math.min(100, n / (s.cilj * ZVEZDICE[2]) * 100) + '%';
+      zvezdeHud.forEach((z, i) => {
+        if (n >= s.cilj * ZVEZDICE[i] && !z.classList.contains('dosezena')) {
+          z.classList.add('dosezena');
+          Zvok.zvezda(i);
+        }
+      });
     },
-    poteze: n => { $('hud-poteze').textContent = n; },
+    poteze: n => {
+      $('hud-poteze').textContent = n;
+      $('hud-poteze').parentElement.classList.toggle('malo', n <= 5);
+      bump($('hud-poteze'));
+    },
     konec: zmaga => (zmaga ? zmagal(st) : izgubil(st)),
-  });
-  document.querySelectorAll('.napredek-zvezda').forEach((z, i) => {
-    z.style.left = (ZVEZDICE[i] / ZVEZDICE[2] * 100) + '%';
   });
 }
 
@@ -270,13 +334,28 @@ async function zmagal(st) {
   napredek.zvezdice[st] = Math.max(napredek.zvezdice[st] || 0, zv);
   if (st >= napredek.odklenjeno && st < STOPNJE.length) napredek.odklenjeno = st + 1;
   shrani();
-  await sleep(700);
+  // »Dorin kraš!«: preostale poteze se razstrelijo za bonus
+  const poteze = stanje.poteze, osnova = stanje.tocke;
+  await sleep(400);
+  await Plosca.finale(i => {
+    $('hud-poteze').textContent = poteze - i;
+    const n = osnova + i * BONUS_ZA_POTEZO;
+    $('hud-tocke').textContent = n;
+    bump($('hud-tocke'));
+    $('napredek-polnilo').style.width = Math.min(100, n / (s.cilj * ZVEZDICE[2]) * 100) + '%';
+    document.querySelectorAll('.napredek-zvezda').forEach((z, k) => {
+      if (n >= s.cilj * ZVEZDICE[k] && !z.classList.contains('dosezena')) { z.classList.add('dosezena'); Zvok.zvezda(k); }
+    });
+  });
+  $('hud-tocke').textContent = tocke;
+  await sleep(300);
   zaslonZmage({ st, tocke, bonus, zvezdice: zv, zadnja: st === STOPNJE.length });
 }
 
 function izgubil(st) {
   const s = STOPNJE[st - 1];
   izgubiZivljenje();
+  Zvok.poraz();
   const manjka = s.cilj - Plosca.stanje().tocke;
   okno({
     naslov: 'Zmanjkalo je potez',
@@ -358,4 +437,8 @@ $('play').addEventListener('click', odpriZemljevid);
 $('nazaj-vstop').addEventListener('click', () => pokazi('vstop'));
 $('nazaj-zemljevid').addEventListener('click', zapustiStopnjo);
 $('okno-zapri').addEventListener('click', zapriOkno);
+$('zivljenja').addEventListener('click', oknoZivljenj);
+$('zvok').textContent = Zvok.vklopljen ? '🔊' : '🔇';
+$('zvok').addEventListener('click', () => { $('zvok').textContent = Zvok.preklopi() ? '🔊' : '🔇'; });
+document.addEventListener('click', e => { if (e.target.closest('button') && e.target.id !== 'zvok') Zvok.klik(); });
 osveziZivljenja();

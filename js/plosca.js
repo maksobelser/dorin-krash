@@ -5,7 +5,7 @@ const Plosca = (() => {
   const N = 8;
   const CAS = { menjava: 200, pok: 260, padec: 320, namig: 6000 };
   const TOCKE_NA_ELEMENT = 20;
-  const KOMBO_BESEDILA = ['', '', 'Super!', 'Odlično!', 'Fantastično!', 'Neverjetno!'];
+  const KOMBO_BESEDILA = ['', '', 'Super!', 'Odlično!', 'Bravo, Dora!', 'Noro!', 'Dorin kraš!'];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   let el, ovoj, grid = [], stEl = 6, stanje = null, povratni = {};
@@ -140,12 +140,14 @@ const Plosca = (() => {
     const id = igraId;
     zaseden = true;
     pocistiNamig();
+    Zvok.menjava();
     zamenjajVMrezi(a, b);
     await sleep(CAS.menjava);
     if (id !== igraId) return;
     const dore = [a, b].filter(p => grid[p.r][p.c].tip === 'dora');
     if (!dore.length && !najdiSkupine(tipi()).length) {
       zamenjajVMrezi(a, b);
+      Zvok.ne();
       grid[a.r][a.c].el.classList.add('ne');
       grid[b.r][b.c].el.classList.add('ne');
       await sleep(CAS.menjava + 150);
@@ -204,10 +206,30 @@ const Plosca = (() => {
 
       stanje.tocke += pok.size * TOCKE_NA_ELEMENT * kombo;
       povratni.tocke(stanje.tocke);
-      if (kombo >= 2) obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)]);
-      if (sprozene.size) obvestilo('Dora! ⚡');
+      if (sprozene.size) {
+        obvestilo('Dora! ⚡');
+        Zvok.dora();
+        blisk();
+        tresi(true);
+        const [b] = sprozene;
+        plavajoceTocke(razstreljeno.size * TOCKE_NA_ELEMENT * kombo, Math.floor(b / N), b % N);
+      } else if (kombo >= 2) {
+        obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)]);
+      }
+      if (kombo >= 3 && !sprozene.size) tresi(false);
+      Zvok.pok(kombo);
+      if (nove.length) setTimeout(() => Zvok.nastala(), 120);
+      skupine.forEach(sk => {
+        const sredina = sk[Math.floor(sk.length / 2)];
+        plavajoceTocke(sk.length * TOCKE_NA_ELEMENT * kombo, Math.floor(sredina / N), sredina % N);
+      });
 
-      pok.forEach(k => grid[Math.floor(k / N)][k % N].el.classList.add('pok'));
+      const naIskro = Math.max(2, Math.floor(160 / Math.max(1, pok.size)));
+      pok.forEach(k => {
+        const t = grid[Math.floor(k / N)][k % N];
+        t.el.classList.add('pok');
+        iskre(Math.floor(k / N), k % N, barvaTipa(t.tip), Math.min(8, naIskro));
+      });
       nove.forEach(k => {
         const t = grid[Math.floor(k / N)][k % N];
         t.tip = 'dora';
@@ -281,6 +303,79 @@ const Plosca = (() => {
     l.style.top = (r * 100 / N) + '%';
     el.appendChild(l);
     setTimeout(() => l.remove(), 600);
+  }
+
+  function barvaTipa(tip) { return tip === 'dora' ? DORA.barva : ELEMENTI[tip].barva; }
+
+  // Razlet barvnih iskric iz polja (r, c)
+  function iskre(r, c, barva, koliko = 7) {
+    const w = el.clientWidth / N;
+    for (let i = 0; i < koliko; i++) {
+      const d = document.createElement('i');
+      const kot = Math.random() * Math.PI * 2, dolzina = w * (0.6 + Math.random() * 1.1);
+      d.className = 'iskrica' + (i % 3 === 0 ? ' bela' : '');
+      d.style.left = ((c + 0.5) * 100 / N) + '%';
+      d.style.top = ((r + 0.5) * 100 / N) + '%';
+      d.style.setProperty('--b', barva);
+      d.style.setProperty('--dx', Math.cos(kot) * dolzina + 'px');
+      d.style.setProperty('--dy', Math.sin(kot) * dolzina + 'px');
+      d.style.setProperty('--v', (w * (0.14 + Math.random() * 0.14)) + 'px');
+      ovoj.appendChild(d);
+      setTimeout(() => d.remove(), 700);
+    }
+  }
+
+  function plavajoceTocke(n, r, c) {
+    const d = document.createElement('div');
+    d.className = 'tocke-plava';
+    d.textContent = '+' + n;
+    d.style.left = ((c + 0.5) * 100 / N) + '%';
+    d.style.top = ((r + 0.5) * 100 / N) + '%';
+    ovoj.appendChild(d);
+    setTimeout(() => d.remove(), 1000);
+  }
+
+  function tresi(mocno) {
+    const razred = mocno ? 'tresi-mocno' : 'tresi';
+    ovoj.classList.remove('tresi', 'tresi-mocno');
+    void ovoj.offsetWidth;
+    ovoj.classList.add(razred);
+    setTimeout(() => ovoj.classList.remove(razred), 500);
+  }
+
+  function blisk() {
+    const b = document.createElement('div');
+    b.className = 'blisk';
+    document.body.appendChild(b);
+    setTimeout(() => b.remove(), 450);
+  }
+
+  // Zaključek zmage: vsaka neporabljena poteza razstreli eno polje (bonus).
+  async function finale(naKorak) {
+    if (!stanje) return;
+    const id = igraId;
+    pocistiNamig();
+    const ostale = Math.min(stanje.poteze, 15);
+    if (!ostale) return;
+    obvestilo('Dorin kraš!');
+    tresi(true);
+    Zvok.nastala();
+    await sleep(700);
+    const proste = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]) proste.push([r, c]);
+    for (let i = 0; i < ostale && proste.length; i++) {
+      if (id !== igraId) return;
+      const [r, c] = proste.splice(Math.floor(Math.random() * proste.length), 1)[0];
+      const t = grid[r][c];
+      t.el.classList.add('pok');
+      iskre(r, c, barvaTipa(t.tip), 9);
+      plavajoceTocke(BONUS_ZA_POTEZO, r, c);
+      if (i % 4 === 3) laser(r);
+      Zvok.bonus(i);
+      naKorak(i + 1);
+      await sleep(140);
+    }
+    await sleep(400);
   }
 
   function obvestilo(besedilo) {
@@ -385,5 +480,5 @@ const Plosca = (() => {
     if (stanje) stanje.konec = true;
   }
 
-  return { init, zacni, ustavi, stanje: () => stanje };
+  return { init, zacni, ustavi, finale, stanje: () => stanje };
 })();

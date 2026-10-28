@@ -9,7 +9,7 @@
     <path d="M90 132 Q128 122 166 132 L172 198 Q128 208 84 198 Z" fill="#2d3038"/>
   </g>
   <path d="M128 132 L128 198" stroke="#7b8494" stroke-width="3"/>
-  <path d="M112 130 Q128 140 144 130" fill="none" stroke="#7b8494" stroke-width="3"/><rect x="104" y="166" width="48" height="26" rx="4" fill="#fff" stroke="#2a1b14" stroke-width="3"/><text x="128" y="186" font-family="Arial Black, Arial, sans-serif" font-size="16" font-weight="900" fill="#e63946" text-anchor="middle">42K</text><path d="M110 128 L128 156 L146 128" fill="none" stroke="#e63946" stroke-width="8" stroke-linejoin="round"/><circle cx="128" cy="158" r="12" fill="#d7dbe2" stroke="#2a1b14" stroke-width="3"/><path d="M122 158 L128 152 L134 158 L128 164 Z" fill="#9aa3ad"/>
+  <path d="M112 130 Q128 140 144 130" fill="none" stroke="#7b8494" stroke-width="3"/><rect x="104" y="166" width="48" height="26" rx="4" fill="#fff" stroke="#2a1b14" stroke-width="3"/><text x="128" y="186" font-family="Arial Black, Arial, sans-serif" font-size="16" font-weight="900" fill="#e63946" text-anchor="middle">21K</text><path d="M110 128 L128 156 L146 128" fill="none" stroke="#e63946" stroke-width="8" stroke-linejoin="round"/><circle cx="128" cy="158" r="12" fill="#d7dbe2" stroke="#2a1b14" stroke-width="3"/><path d="M122 158 L128 152 L134 158 L128 164 Z" fill="#9aa3ad"/>
   <g stroke="#2a1b14" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
     <circle cx="84" cy="84" r="9" fill="#f2c4a2"/>
     <circle cx="172" cy="84" r="9" fill="#f2c4a2"/>

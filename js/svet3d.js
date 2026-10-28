@@ -20,8 +20,12 @@ const Svet3D = (() => {
   let ovoj, renderer, scene, camera, svet, tla, vodaMat, kanu, veslo, sonce;
   let oznake = [], zastavica;
   let n = 0, odklenjeno = 1, zvezdice = {}, onStopnja = () => {};
-  let kot = 0, ciljKot = 0, hitrost = 0, tece = false, zadnji = 0, cas = 0;
-  let kanuKot = 0, kanuOd = 0, kanuDo = 0, kanuT = 1;
+  let kot = 0, ciljKot = 0, hitrost = 0, tece = false, zankaTece = false, zadnji = 0, cas = 0;
+  let kanuKot = 0, kanuOd = 0, kanuDo = 0;
+  // Potovanje čolna po zmagi: t < 0 čaka, 0..TRAJANJE pluje, nato odklep
+  const TRAJANJE = 3.4;
+  let potovanje = null, prikazano = 1, onOdklep = () => {}, odklep = null, razdalja = 40;
+  let liki = [], delci = [], teksturaKroga, teksturaZvezde, napisPlatno, napisTekstura, brazdaCas = 0;
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
 
   const kotStopnje = st => st * KORAK; // 0 = dom, 1..n = stopnje, n+1 = zastavica
@@ -100,7 +104,7 @@ const Svet3D = (() => {
 
   function narisiOznako(c, st) {
     const g = c.getContext('2d');
-    const zaklenjena = st > odklenjeno;
+    const zaklenjena = st > prikazano;
     const zv = zvezdice[st] || 0;
     g.clearRect(0, 0, c.width, c.height);
     g.textAlign = 'center';
@@ -126,6 +130,110 @@ const Svet3D = (() => {
         g.fillText('★', x, 200);
       }
     }
+  }
+
+  // ---------- Napis reke: diskretno na vodi, v smeri toka ----------
+
+  function narisiNapisReke() {
+    const g = napisPlatno.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, napisPlatno.width, napisPlatno.height);
+    g.translate(napisPlatno.width / 2, napisPlatno.height / 2);
+    g.rotate(-Math.PI / 2);
+    g.font = '800 84px "Baloo 2", system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    const sirina = g.measureText('Grosupeljščica').width;
+    const meja = napisPlatno.height * 0.94;
+    if (sirina > meja) g.scale(meja / sirina, 1);
+    g.fillStyle = 'rgba(255,255,255,0.5)';
+    g.fillText('Grosupeljščica', 0, 4);
+    napisTekstura.needsUpdate = true;
+  }
+
+  function napisReke(od, doKota) {
+    napisPlatno = document.createElement('canvas');
+    napisPlatno.width = 128;
+    napisPlatno.height = 1024;
+    napisTekstura = new THREE.CanvasTexture(napisPlatno);
+    const geo = trak(SIRINA * 0.6, R + 0.1, od, doKota, 60);
+    const uv = geo.attributes.uv, dolzina = uv.getY(uv.count - 1);
+    for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) / dolzina);
+    svet.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: napisTekstura, transparent: true, depthWrite: false, side: THREE.DoubleSide })));
+    narisiNapisReke();
+  }
+
+  // ---------- Delci: konfeti, iskre, brazda za čolnom ----------
+
+  function teksture() {
+    const krog = document.createElement('canvas');
+    krog.width = krog.height = 64;
+    let g = krog.getContext('2d');
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,.85)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 64);
+    teksturaKroga = new THREE.CanvasTexture(krog);
+    const zv = document.createElement('canvas');
+    zv.width = zv.height = 64;
+    g = zv.getContext('2d');
+    g.fillStyle = '#fff';
+    g.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const r = i % 2 ? 13 : 30, k = -Math.PI / 2 + i * Math.PI / 5;
+      g.lineTo(32 + r * Math.cos(k), 32 + r * Math.sin(k));
+    }
+    g.fill();
+    teksturaZvezde = new THREE.CanvasTexture(zv);
+  }
+
+  // th, x, r: kje; barve; koliko; moc: hitrost razleta
+  function razpok(th, x, r, barve, koliko, moc = 1, zvezde = false) {
+    const n0 = normala(th);
+    for (let i = 0; i < koliko; i++) {
+      const m = new THREE.SpriteMaterial({ map: zvezde && i % 2 ? teksturaZvezde : teksturaKroga, color: barve[i % barve.length], transparent: true, depthWrite: false });
+      const s = new THREE.Sprite(m);
+      const v = (0.35 + Math.random() * 0.5) * (zvezde ? 1.3 : 1);
+      s.scale.set(v, v, 1);
+      s.position.copy(tocka(th, x, r));
+      const smer = new THREE.Vector3((Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2).multiplyScalar(4 * moc);
+      const hitrostD = n0.clone().multiplyScalar((5 + Math.random() * 6) * moc).add(smer);
+      svet.add(s);
+      delci.push({ s, v: hitrostD, g: n0, zivi: 1.4 + Math.random() * 0.4, cas: 0, teza: 11, rast: 0 });
+    }
+  }
+
+  function brazda(th) {
+    const za = th - 0.022;
+    for (const stran of [-1, 1]) {
+      const m = new THREE.SpriteMaterial({ map: teksturaKroga, color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false });
+      const s = new THREE.Sprite(m);
+      s.scale.set(0.5, 0.5, 1);
+      s.position.copy(tocka(za, xNa(za) + stran * 0.45, R + 0.2));
+      const v = new THREE.Vector3(stran * (0.8 + Math.random() * 0.6), 0, 0);
+      svet.add(s);
+      delci.push({ s, v, g: normala(za), zivi: 1.1, cas: 0, teza: 0, rast: 1.2 });
+    }
+  }
+
+  function posodobiDelce(dt) {
+    delci = delci.filter(d => {
+      d.cas += dt;
+      if (d.cas >= d.zivi) {
+        svet.remove(d.s);
+        d.s.material.dispose();
+        return false;
+      }
+      if (d.teza) d.v.addScaledVector(d.g, -d.teza * dt);
+      d.v.multiplyScalar(1 - dt * 0.8);
+      d.s.position.addScaledVector(d.v, dt);
+      if (d.rast) { const k = d.s.scale.x + d.rast * dt; d.s.scale.set(k, k, 1); }
+      d.s.material.opacity = Math.min(1, 2.2 * (1 - d.cas / d.zivi));
+      d.s.material.rotation += dt * 3;
+      return true;
+    });
   }
 
   // ---------- Gradnja sveta ----------
@@ -277,9 +385,16 @@ const Svet3D = (() => {
     postavi(dom, 0.005, xDom);
     svet.add(dom);
     proste.push([0, xDom]);
-    const mirt = lik(MIRT, 3.4);
-    mirt.position.copy(tocka(-0.035, xDom + 2.6, R + 1.6));
-    svet.add(mirt);
+    liki = [];
+    let stLika = 0;
+    const dodajLik = (e, velikost, th, x, r) => {
+      const s = lik(e, velikost);
+      s.position.copy(tocka(th, x, r));
+      svet.add(s);
+      liki.push({ s, baza: s.position.clone(), n: normala(th), faza: Math.random() * 20, v: velikost });
+    };
+    dodajLik(MIRT, 3.4, -0.035, xDom + 2.6, R + 1.6);
+    napisReke(-0.125, 0.02);
 
     const barveSten = [0xffe5ec, 0xfff3b0, 0xd8f3dc, 0xe0f0ff, 0xffe8cc, 0xf3e5ff];
     const barveStreh = [0xc9184a, 0x3a86ff, 0x8338ec, 0xfb5607, 0x2a9d8f, 0xe76f51];
@@ -292,11 +407,13 @@ const Svet3D = (() => {
       svet.add(h);
       proste.push([th, xH]);
 
-      // Ob vsaki hišici Tupko ali Mirt (izmenično, v različnih pozah)
-      const poza = st % 2 ? TUPKO_POZE[Math.floor(st / 2) % TUPKO_POZE.length] : MIRT_POZE[(st / 2) % MIRT_POZE.length];
-      const ob = lik(poza, 3.2);
-      ob.position.copy(tocka(th - 0.035, xH - stranHise(st) * 1.2, R + 1.5));
-      svet.add(ob);
+      // Ob vsaki hišici Mirt ali Tupko v svoji situaciji, med lihimi hišicami še en
+      dodajLik(LIKI_OB_POTI[stLika++ % LIKI_OB_POTI.length], 3.2, th - 0.035, xH - stranHise(st) * 1.2, R + 1.5);
+      if (st % 2 && st < n) {
+        const thM = th + KORAK / 2, xM = xNa(thM) + stranHise(st) * (SIRINA / 2 + 1.9);
+        dodajLik(LIKI_OB_POTI[stLika++ % LIKI_OB_POTI.length], 2.9, thM, xM, R + 1.35);
+        proste.push([thM, xM]);
+      }
 
       // Plošček stopnje na vodi
       const disk = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.4, 40), new THREE.MeshPhongMaterial({ shininess: 90 }));
@@ -317,18 +434,6 @@ const Svet3D = (() => {
       svet.add(napis);
       disk.userData.st = napis.userData.st = st;
       oznake.push({ st, disk, plosk, platno, napis });
-    }
-
-    // Še nekaj Tupkov in Mirtov ob potoku med hišicami
-    for (let st = 1; st < n; st += 2) {
-      const th = kotStopnje(st) + KORAK / 2;
-      const stran = stranHise(st);
-      const poza = st % 4 === 1 ? TUPKO_POZE[(st + 1) % TUPKO_POZE.length] : MIRT_POZE[(st + 1) % MIRT_POZE.length];
-      const x = xNa(th) + stran * (SIRINA / 2 + 1.9);
-      const ob = lik(poza, 2.8);
-      ob.position.copy(tocka(th, x, R + 1.3));
-      svet.add(ob);
-      proste.push([th, x]);
     }
 
     // Zastavica na koncu
@@ -401,13 +506,14 @@ const Svet3D = (() => {
 
     kanu = zgradiKanu();
     svet.add(kanu);
+    teksture();
   }
 
   // ---------- Stanje ----------
 
   function osveziOznake() {
     oznake.forEach(o => {
-      const barva = o.st > odklenjeno ? 0x7d8ca3 : o.st === odklenjeno ? 0xff4f8b : 0xffc23d;
+      const barva = o.st > prikazano ? 0x7d8ca3 : o.st === prikazano ? 0xff4f8b : 0xffc23d;
       o.disk.material.color.setHex(barva);
       narisiOznako(o.platno, o.st);
       o.napis.material.map.needsUpdate = true;
@@ -416,10 +522,14 @@ const Svet3D = (() => {
 
   function postaviKanu(th) {
     postaviNaPotok(kanu, th, R + 0.08);
-    const nihaj = Math.sin(cas * 2.2);
-    kanu.position.addScaledVector(normala(th), nihaj * 0.06);
-    kanu.rotateZ(nihaj * 0.05);
-    veslo.rotation.x = Math.sin(cas * (kanuT < 1 ? 7 : 2)) * 0.6;
+    const pluje = potovanje && potovanje.t >= 0 && potovanje.t < TRAJANJE;
+    const nihaj = Math.sin(cas * (pluje ? 6 : 2.2));
+    let poskok = 0;
+    if (odklep && odklep.t < 0.6) poskok = Math.sin(odklep.t / 0.6 * Math.PI) * 0.9;
+    kanu.position.addScaledVector(normala(th), nihaj * (pluje ? 0.12 : 0.06) + poskok);
+    kanu.rotateZ(nihaj * (pluje ? 0.1 : 0.05));
+    if (pluje) kanu.rotateX(-0.06);
+    veslo.rotation.x = Math.sin(cas * (pluje ? 9 : 2)) * (pluje ? 0.9 : 0.6);
   }
 
   // ---------- Kamera in velikost ----------
@@ -430,15 +540,20 @@ const Svet3D = (() => {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     const fovH = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
-    const razdalja = THREE.MathUtils.clamp(8.5 / Math.tan(fovH / 2), 28, 70);
-    const smer = new THREE.Vector3(0, 0.7, 0.71).normalize();
-    camera.position.set(0, R, 0).addScaledVector(smer, razdalja);
-    camera.lookAt(0, R - 1, -razdalja * 0.32);
+    razdalja = THREE.MathUtils.clamp(8.5 / Math.tan(fovH / 2), 28, 70);
+    postaviKamero(1);
     camera.updateProjectionMatrix();
     scene.fog.near = razdalja * 1.05;
     scene.fog.far = razdalja * 1.9;
     sonce.position.set(20, R + 50, 30);
     sonce.target.position.set(0, R, -5);
+  }
+
+  function postaviKamero(f) {
+    const d = razdalja * f;
+    const smer = new THREE.Vector3(0, 0.7, 0.71).normalize();
+    camera.position.set(0, R, 0).addScaledVector(smer, d);
+    camera.lookAt(0, R - 1, -d * 0.32);
   }
 
   // ---------- Vnos ----------
@@ -455,12 +570,12 @@ const Svet3D = (() => {
 
   function priklopiVnos(platno) {
     platno.addEventListener('pointerdown', e => {
+      if (potovanje) return;
       vlece = true;
       zacY = zadnjiY = e.clientY;
       zacKot = ciljKot;
       premaknil = 0;
       hitrost = 0;
-      kanuT = 1;
       try { platno.setPointerCapture(e.pointerId); } catch (_) {}
     });
     platno.addEventListener('pointermove', e => {
@@ -486,29 +601,73 @@ const Svet3D = (() => {
   // ---------- Zanka ----------
 
   function zanka(t) {
-    if (!tece) return;
+    if (!tece) { zankaTece = false; return; }
     requestAnimationFrame(zanka);
     const dt = Math.min(0.05, (t - zadnji) / 1000 || 0.016);
     zadnji = t;
     cas += dt;
-    if (kanuT < 1) {
-      kanuT = Math.min(1, kanuT + dt / 2.4);
-      const e = kanuT < 0.5 ? 2 * kanuT * kanuT : 1 - Math.pow(-2 * kanuT + 2, 2) / 2;
+    let zoom = 1;
+    if (potovanje) {
+      const prej = potovanje.t;
+      potovanje.t += dt;
+      const t = potovanje.t;
+      if (prej < -0.5 && t >= -0.5) {
+        // opravljena stopnja: zlate zvezdice nad ploščkom
+        const th0 = kanuOd + 0.05;
+        razpok(th0, xNa(th0), R + 1, [0xffd23f, 0xffe98a, 0xffffff], 26, 0.9, true);
+        Zvok.zvezda(2);
+      }
+      if (prej < 0 && t >= 0) Zvok.pljusk();
+      const k = THREE.MathUtils.clamp(t / TRAJANJE, 0, 1);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
       kanuKot = kanuOd + (kanuDo - kanuOd) * e;
-      ciljKot = kanuKot;
+      ciljKot = kanuKot + 0.02 * Math.sin(k * Math.PI);
+      zoom = 1 - 0.16 * Math.sin(k * Math.PI);
+      if (t >= 0 && t < TRAJANJE) {
+        brazdaCas += dt;
+        if (brazdaCas > 0.07) { brazdaCas = 0; brazda(kanuKot); }
+      }
+      if (t >= TRAJANJE) {
+        potovanje = null;
+        prikazano = odklenjeno;
+        osveziOznake();
+        odklep = { t: 0, st: odklenjeno };
+        const th1 = kotStopnje(odklenjeno);
+        razpok(th1, xNa(th1), R + 1.2, [0xff4f8b, 0xffd23f, 0x19b5c9, 0xb388ff, 0x57cc99, 0xffffff], 70, 1.3, true);
+        onOdklep(odklenjeno);
+      }
     } else if (!vlece) {
       ciljKot += hitrost;
       hitrost *= 0.92;
     }
     ciljKot = THREE.MathUtils.clamp(ciljKot, 0, kotStopnje(n + 1));
-    kot += (ciljKot - kot) * Math.min(1, dt * 7);
+    kot += (ciljKot - kot) * Math.min(1, dt * (potovanje ? 4 : 7));
     svet.rotation.x = kot;
+    postaviKamero(zoom);
+    posodobiDelce(dt);
+    liki.forEach(l => {
+      const skok = Math.pow(Math.max(0, Math.sin(cas * 1.7 + l.faza)), 12) * 0.7;
+      l.s.position.copy(l.baza).addScaledVector(l.n, skok);
+      const dih = 1 + Math.sin(cas * 3 + l.faza) * 0.03;
+      l.s.scale.set(l.v / Math.sqrt(dih), l.v * dih, 1);
+    });
     vodaMat.uniforms.uCas.value = cas;
     postaviKanu(kanuKot);
+    if (odklep) odklep.t += dt;
     oznake.forEach(o => {
-      const s = o.st === odklenjeno ? 1 + Math.sin(cas * 4) * 0.07 : 1;
+      let s = o.st === prikazano ? 1 + Math.sin(cas * 4) * 0.07 : 1;
+      let velN = 3.6;
+      if (odklep && o.st === odklep.st && odklep.t < 1.2) {
+        // elastičen pok novega ploščka
+        const t = odklep.t / 1.2;
+        const el = 1 + Math.sin(t * Math.PI * 4) * Math.pow(1 - t, 2) * 0.7;
+        s *= el;
+        velN *= el;
+      }
       o.plosk.scale.set(s, 1, s);
+      o.napis.scale.set(velN, velN, 1);
     });
+    if (odklep && odklep.t > 1.5) odklep = null;
     zastavica.children[1].rotation.y = Math.sin(cas * 3) * 0.25;
     renderer.render(scene, camera);
   }
@@ -518,6 +677,7 @@ const Svet3D = (() => {
   // podatki: { stStopenj, odklenjeno, zvezdice, prejsnje, onStopnja }
   function prikazi(vsebnik, podatki) {
     ({ odklenjeno, zvezdice, onStopnja } = podatki);
+    onOdklep = podatki.onOdklep || (() => {});
     if (!renderer) {
       ovoj = vsebnik;
       n = podatki.stStopenj;
@@ -533,22 +693,25 @@ const Svet3D = (() => {
     if (podatki.prejsnje && podatki.prejsnje < odklenjeno) {
       kanuOd = kotStopnje(podatki.prejsnje) - 0.05;
       kanuDo = cilj;
-      kanuT = 0;
+      potovanje = { t: -0.9 };
+      prikazano = podatki.prejsnje;
       kanuKot = kanuOd;
       kot = ciljKot = kanuOd;
     } else {
+      potovanje = null;
+      prikazano = odklenjeno;
       kanuKot = cilj;
-      kanuT = 1;
       kot = ciljKot = cilj;
     }
     hitrost = 0;
-    const narisi = () => osveziOznake();
+    const narisi = () => { osveziOznake(); if (napisPlatno) narisiNapisReke(); };
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(narisi);
     narisi();
     tece = true;
     velikost();
     zadnji = performance.now();
-    requestAnimationFrame(zanka);
+    // največ ena zanka hkrati, tudi če se zemljevid odpre večkrat zapored
+    if (!zankaTece) { zankaTece = true; requestAnimationFrame(zanka); }
   }
 
   function ustavi() { tece = false; }

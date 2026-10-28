@@ -29,6 +29,9 @@ const MIRT_POZE = [
   { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-maha.svg' },
   { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-medalja.svg' },
   { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-pivo.svg' },
+  { ime: 'Mirt', emoji: '🚴', slika: 'slike/mirt-kolo.svg' },
+  { ime: 'Mirt', emoji: '🏋️', slika: 'slike/mirt-fitnes.svg' },
+  { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-tupko.svg' },  // se igra s Tupkom
 ];
 const MIRT = MIRT_POZE[0];
 const TUPKO_POZE = [
@@ -36,6 +39,13 @@ const TUPKO_POZE = [
   { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-lezi.svg' },
   { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-hodi.svg' },
   { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-spi.svg' },
+  { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-lacen.svg' }, // prazna skledica
+  { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-skatla.svg' },
+];
+// Vrstni red likov ob poti (za domom): Mirt in Tupko pomešana, vsak v drugi situaciji.
+const LIKI_OB_POTI = [
+  MIRT_POZE[1], TUPKO_POZE[4], MIRT_POZE[3], TUPKO_POZE[1], MIRT_POZE[5], TUPKO_POZE[5],
+  MIRT_POZE[4], TUPKO_POZE[2], MIRT_POZE[2], TUPKO_POZE[3], TUPKO_POZE[0],
 ];
 
 // Stopnje: poteze = število potez, cilj = točke za 1 zvezdico,
