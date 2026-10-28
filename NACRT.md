@@ -1,0 +1,71 @@
+# Dorin Kraš — načrt igre
+
+**Dorin Kraš** je Dorin Candy Crush. Mehanika ostane ista: menjaš sosednja elementa, trije ali več enakih v vrsto izginejo. Namesto bonbonov so Dorini elementi, namesto poti med stopnjami je potoček **Grosupeljščica**, po katerem Dora vesla s kanujem.
+
+Vir: zapiski sestanka (2 strani v zvezku) in odločitve z dne 28. 10. 2026.
+
+## Vsebina igre — potrjeno
+
+Zemljevid, življenja, mehanika, stopnje s proslavami, dizajn in logo.
+
+Dizajn: sladek, sijoč, risankast videz, kot je značilen za ta žanr. Logo in grafika sta lastna (ne posnemata logotipa ali grafike Candy Crusha).
+
+## Ogrodje (scaffold)
+
+- [x] Spletna aplikacija (Vercel: https://dorin-krash-p4rv.vercel.app)
+- [x] Skupni repo → `AGENTS.md`
+- [ ] Osnovna igra (base game)
+- [ ] Zemljevid stopenj (level roadmap): Grosupeljščica, Dora na kanuju
+- [ ] Življenja → zavzetost + ura (ko jih zmanjka, se obnavljajo s časom)
+- [ ] Prijava (sign-up)
+- [ ] Lestvica najboljših (leaderboard)
+- [ ] Možnost namestitve na telefon (PWA: ikona na domačem zaslonu)
+
+**Dodatno:** prijava z Google računom
+
+## Elementi (kuglce) — potrjeno
+
+1. burek
+2. rakija
+3. per
+4. aperol
+5. uteži
+6. domačica
+
+## Posebna bomba — potrjeno
+
+- **Slika Dore**, ki strelja strele iz oči. Sproži se kot bomba in razbije elemente okoli sebe.
+
+## Proslave (celebrations) — potrjeno
+
+- **Mičko dela stojo**
+- **Urbi bog**
+
+## Zemljevid ob Grosupeljščici — potrjeno
+
+- Potoček se vije navzgor, ob njem hišice (stopnje), na vrhu zastavica. Dora vesla s kanujem od hišice do hišice.
+- **Na začetku:** Mirt pri domu.
+- **Pri naslednjih hišicah (stopnjah):** Tupko (maček) v različnih pozah.
+- »Ilustrativno« (ročno narisan videz)
+- Animacija za vrtenje (?)
+- Podnaslov / šala: **Dora (a) Explora**
+
+## Življenja (lajfi)
+
+- Ko jih zmanjka, prosiš prijatelje
+
+## Glasba
+
+- Magnifico
+- Vlado Kreslin
+- Predlog: gumb za glasbo z vdelanim YouTube predvajalnikom uradnih posnetkov (pesmi niso shranjene v repoju)
+
+## Iz zapiskov, zaenkrat ne gre v igro
+
+faca, tupko kot element (je zdaj na zemljevidu), VLADO!, Liši, Pom (bombo je prevzela Dora)
+
+## Odprta vprašanja
+
+- Kdo pripravi slike: 6 elementov, Dora (bomba), Mičko, Urbi, Mirt, Tupko v pozah, Dora na kanuju?
+- Kaj mora biti narejeno do sobote, 31. 10., ob 18:00?
+- Prijava in lestvica potrebujeta strežnik in bazo (npr. Supabase ali Firebase). To je večji kos dela; predlog je, da pride po soboti.
