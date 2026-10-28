@@ -50,7 +50,7 @@ async function lestvicaStreznik() {
 }
 
 const varno = t => String(t).replace(/[&<>"']/g, z => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[z]);
-const stopenj = n => `${n} ${n === 1 ? 'stopnja' : n === 2 ? 'stopnji' : n < 5 ? 'stopnje' : 'stopenj'}`;
+const stopenj = n => `${n} ${n === 1 ? 'stopnja' : n === 2 ? 'stopnji' : n === 3 || n === 4 ? 'stopnje' : 'stopenj'}`;
 
 let lestvicaOdkod = 'vstop';
 async function odpriLestvico(odkod) {

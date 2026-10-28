@@ -169,8 +169,11 @@ button.drugotni:active { box-shadow: 0 2px 0 #0b6c7c; }
 button.majhen {
   width: 46px; height: 46px; padding: 0 0 4px; flex: none;
   font-size: 32px; line-height: 1;
-  background: linear-gradient(180deg, #7fe0ec, var(--turkizna) 55%, #0e8fa3);
-  box-shadow: 0 4px 0 #0b6c7c, 0 6px 12px rgba(0,0,0,.25);
+  /* bel z vidnim temnim robom: dovolj kontrasta na nebu, vodi in travi */
+  color: #0b6c7c; text-shadow: none;
+  background: linear-gradient(180deg, #ffffff, #e3f6f9);
+  border: 3px solid #0b6c7c;
+  box-shadow: 0 4px 0 #0b6c7c, 0 6px 12px rgba(0,0,0,.3);
 }
 button.majhen::after { top: 3px; }
 
@@ -746,3 +749,5 @@ body.noc .nebo-zvezde {
 }
 @keyframes zvezde { 50% { opacity: .55; } }
 body.noc .oblaki span { opacity: .18; }
+
+button.majhen:active { box-shadow: 0 1px 0 #0b6c7c; }
