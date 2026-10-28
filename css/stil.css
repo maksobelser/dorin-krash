@@ -187,12 +187,13 @@ button.majhen::after { top: 3px; }
 }
 .zivljenja {
   display: flex; align-items: center; gap: 2px;
-  padding: 6px 10px; border: 0; border-radius: 999px; cursor: pointer;
+  padding: 5px 10px 5px 8px; border: 0; border-radius: 999px; cursor: pointer;
   background: #fffdf6;
   box-shadow: 0 4px 0 rgba(0,0,0,.15), 0 6px 14px rgba(0,0,0,.2);
 }
 .zivljenja::after { display: none; }
-.zivljenja svg { width: 22px; height: 22px; display: block; }
+.zivljenja svg { width: 26px; height: 26px; display: block; }
+.zivljenja b { font-family: var(--naslov); font-size: 22px; line-height: 1; color: #c9184a; margin: 0 4px 0 4px; text-shadow: none; }
 .zivljenja .poln { fill: #e8173a; stroke: #8a0a20; }
 .zivljenja .prazen { fill: #e6ddd0; stroke: #b9ad9c; }
 .zivljenja .poln + .odsev { display: block; }

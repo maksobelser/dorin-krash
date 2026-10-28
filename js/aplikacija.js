@@ -131,20 +131,19 @@ function izgubiZivljenje() {
   shrani();
 }
 
-// V glavi so samo srčki: polni, prazni; naslednji, ki prihaja, utripa.
+// V glavi je en srček s številom življenj; ko jih ni vseh, srček utripa.
 const SRCE = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.6h2c.7-1.4 2.2-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z';
 let prikazanaZivljenja = -1;
 function osveziZivljenja() {
   obnoviZivljenja();
   if (prikazanaZivljenja === napredek.zivljenja) return;
   prikazanaZivljenja = napredek.zivljenja;
-  $('zivljenja').innerHTML = Array.from({ length: ZIVLJENJA.najvec }, (_, i) => {
-    const poln = i < napredek.zivljenja;
-    return `<svg viewBox="0 0 24 24" class="${!poln && i === napredek.zivljenja ? 'prihaja' : ''}">` +
-      `<path d="${SRCE}" class="${poln ? 'poln' : 'prazen'}" stroke-width="1.6"/>` +
-      (poln ? '<ellipse cx="7.6" cy="8.6" rx="2.2" ry="1.5" fill="#fff" opacity=".75" transform="rotate(-30 7.6 8.6)"/>' : '') +
-      '</svg>';
-  }).join('');
+  const n = napredek.zivljenja;
+  $('zivljenja').innerHTML =
+    `<svg viewBox="0 0 24 24" class="${n < ZIVLJENJA.najvec ? 'prihaja' : ''}">` +
+    `<path d="${SRCE}" class="${n ? 'poln' : 'prazen'}" stroke-width="1.6"/>` +
+    (n ? '<ellipse cx="7.6" cy="8.6" rx="2.2" ry="1.5" fill="#fff" opacity=".75" transform="rotate(-30 7.6 8.6)"/>' : '') +
+    `</svg><b>${n}</b>`;
 }
 function oknoZivljenj() {
   osveziZivljenja();
