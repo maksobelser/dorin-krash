@@ -318,6 +318,19 @@ function narisiZemljevid() {
 
 let prejsnjeOdklenjeno = null;
 
+// Dan ali noč na zemljevidu: privzeto po uri, izbira se zapomni
+const KLJUC_NOCI = 'dorin-kras-noc';
+let noc = (() => {
+  try { const v = localStorage.getItem(KLJUC_NOCI); if (v !== null) return v === '1'; } catch (_) {}
+  const ura = new Date().getHours();
+  return ura >= 20 || ura < 7;
+})();
+function nastaviNoc(b) {
+  noc = b;
+  document.body.classList.toggle('noc', noc);
+  if (Svet3D.podprt) Svet3D.nastaviNoc(noc);
+}
+
 function odpriZemljevid() {
   pokazi('zemljevid');
   osveziZivljenja();
@@ -544,6 +557,11 @@ $('vpis').addEventListener('submit', igraj);
 $('nisem-jaz').addEventListener('click', () => { igralec.ime = ''; shraniIgralca(); osveziVpis(); $('vpis-ime').value = ''; $('vpis-ime').focus(); });
 $('odpri-lestvico').addEventListener('click', () => odpriLestvico('vstop'));
 $('pokal').addEventListener('click', () => odpriLestvico('zemljevid'));
+$('dan-noc').addEventListener('click', () => {
+  nastaviNoc(!noc);
+  try { localStorage.setItem(KLJUC_NOCI, noc ? '1' : '0'); } catch (_) {}
+});
+nastaviNoc(noc);
 $('nazaj-lestvica').addEventListener('click', () => (lestvicaOdkod === 'zemljevid' ? odpriZemljevid() : pokazi('vstop')));
 osveziVpis();
 $('nazaj-zemljevid').addEventListener('click', zapustiStopnjo);

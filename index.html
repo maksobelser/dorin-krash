@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&display=swap">
-<link rel="stylesheet" href="css/stil.css?v=26">
+<link rel="stylesheet" href="css/stil.css?v=28">
 </head>
 <body data-zaslon="vstop">
   <div class="sky" id="sky"></div>
@@ -48,10 +48,14 @@
     <header class="vrstica">
       <button class="pokal" id="pokal">🏆 Lestvica</button>
       <span class="razmik"></span>
+      <button class="dan-noc" id="dan-noc" aria-label="Dan ali noč"><span class="ikona-sonce">☀️</span><span class="ikona-luna">🌙</span></button>
       <button class="zivljenja" id="zivljenja" aria-label="Življenja"></button>
     </header>
     <button class="majhen zvok" id="zvok" aria-label="Zvok">🔊</button>
     <div class="svet3d" id="svet3d" hidden>
+      <div class="nebo-sonce"></div>
+      <div class="nebo-luna"></div>
+      <div class="nebo-zvezde"></div>
       <div class="oblaki"><span></span><span></span><span></span><span></span></div>
     </div>
     <div class="zemljevid-ovoj" id="zemljevid-ovoj">
@@ -123,10 +127,10 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/nastavitve.js?v=26"></script>
-  <script src="js/zvok.js?v=26"></script>
-  <script src="js/plosca.js?v=26"></script>
-  <script src="js/svet3d.js?v=26"></script>
-  <script src="js/aplikacija.js?v=26"></script>
+  <script src="js/nastavitve.js?v=28"></script>
+  <script src="js/zvok.js?v=28"></script>
+  <script src="js/plosca.js?v=28"></script>
+  <script src="js/svet3d.js?v=28"></script>
+  <script src="js/aplikacija.js?v=28"></script>
 </body>
 </html>
