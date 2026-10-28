@@ -8,10 +8,10 @@
 const ELEMENTI = [
   { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#f6bd60', slika: null },
   { id: 'rakija',   ime: 'Rakija',   emoji: '🍶', barva: '#4cc9f0', slika: null },
-  { id: 'per',      ime: 'Per',      emoji: null, barva: '#b388ff', slika: null }, // emoji ni, zato se izpiše ime
+  { id: 'pivo',     ime: 'Pivo',     emoji: '🍺', barva: '#b388ff', slika: null },
   { id: 'aperol',   ime: 'Aperol',   emoji: '🍹', barva: '#ff6b35', slika: null },
   { id: 'utezi',    ime: 'Uteži',    emoji: '🏋️', barva: '#57cc99', slika: null },
-  { id: 'domacica', ime: 'Domačica', emoji: '🍪', barva: '#b5835a', slika: null },
+  { id: 'domacica', ime: 'Domačica', emoji: '🍪', barva: '#b5835a', slika: null }, // piškoti Domačica
 ];
 
 // Posebna bomba: nastane, ko poravnaš 4 ali več enakih (v vrsto ali v obliki L/T).

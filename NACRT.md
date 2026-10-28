@@ -27,10 +27,10 @@ Dizajn: sladek, sijoč, risankast videz, kot je značilen za ta žanr. Logo in g
 
 1. burek
 2. rakija
-3. per
+3. pivo
 4. aperol
 5. uteži
-6. domačica
+6. domačica (piškoti)
 
 ## Posebna bomba — potrjeno
 
