@@ -48,7 +48,7 @@ Dizajn: sladek, sijoč, risankast videz, kot je značilen za ta žanr. Logo in g
 - **Pri naslednjih hišicah (stopnjah):** Tupko (maček) v različnih pozah.
 - »Ilustrativno« (ročno narisan videz)
 - Animacija za vrtenje (?)
-- Podnaslov / šala: **Dora (a) Explora**
+- Podnaslov / šala: **Dora Explora**
 
 ## Življenja (lajfi)
 
