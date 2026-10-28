@@ -27,15 +27,20 @@ const Svet3D = (() => {
   let potovanje = null, prikazano = 1, onOdklep = () => {}, odklep = null, razdalja = 40;
   let liki = [], delci = [], teksturaKroga, teksturaZvezde, napisPlatno, napisTekstura, brazdaCas = 0;
   let zar = null, dimCas = 0, balin = null, valovi = [];
+  // Ovire: [th, x, pol dolžine vzdolž potoka, pol širine] v enotah; hiše, liki in prigode se jim izognejo
+  let ovire = [];
+  const vOviri = (th, x, r = 0) => ovire.some(([t, xx, a, b]) => Math.abs((th - t) * R) < a + r && Math.abs(x - xx) < b + r);
+  // Prigode ob poti (naključno razporejene) in Tupkovi »mjav«
+  let race = [], baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
   // Dan in noč
   let noc = false, hemi, oknoMat, luc, dnevni, nocni, metulji = [], oci = [], kresnice = [], temni = [];
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
 
   // 0 = dom, 1..n = stopnje, n+1 = zastavica; za mostom je malo več prostora
-  const MOST = 8.42, PIKNIK = 16;
+  const MOST = 8.42, PIKNIK = 5;
   const kotStopnje = st => (st + (st > MOST ? 1.2 : 0)) * KORAK;
   const xNa = th => 3.5 * Math.sin(th * 9.5);
-  // Most čez potok (med stopnjama 8 in 9) in jasa s piknikom (okoli stopnje 16).
+  // Most čez potok (med stopnjama 8 in 9) in jasa s piknikom (okoli stopnje 5).
   const stranPiknika = () => (xNa(kotStopnje(PIKNIK)) > 0 ? -1 : 1); // stran z več prostora
   const vPikniku = st => Math.abs(st - PIKNIK) <= 1.4;
   // ob pikniku so hišice na drugem bregu
@@ -247,42 +252,158 @@ const Svet3D = (() => {
 
   // ---------- Most ----------
 
+  // Kamnita tekstura: nepravilni bloki, malta, mah
+  function teksturaKamna(mah = true) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const g = c.getContext('2d');
+    g.fillStyle = '#7d7466';
+    g.fillRect(0, 0, 256, 256);
+    const barve = ['#cdbfa6', '#bfb095', '#d8ccb4', '#b4a588', '#c7b694', '#a99a80'];
+    for (let y = 0; y < 256; y += 32) {
+      let x = -Math.random() * 40;
+      while (x < 256) {
+        const w = 38 + Math.random() * 40;
+        g.fillStyle = barve[Math.floor(Math.random() * barve.length)];
+        g.beginPath();
+        g.roundRect ? g.roundRect(x + 2, y + 2, w - 4, 28, 6) : g.rect(x + 2, y + 2, w - 4, 28);
+        g.fill();
+        g.fillStyle = 'rgba(255,255,255,.18)';
+        g.fillRect(x + 5, y + 4, w - 12, 4);
+        g.fillStyle = 'rgba(0,0,0,.12)';
+        g.fillRect(x + 4, y + 24, w - 8, 4);
+        x += w;
+      }
+    }
+    if (mah) for (let i = 0; i < 26; i++) {
+      g.fillStyle = `rgba(${70 + Math.random() * 30},${120 + Math.random() * 40},50,${0.25 + Math.random() * 0.3})`;
+      g.beginPath();
+      g.arc(Math.random() * 256, 140 + Math.random() * 116, 4 + Math.random() * 12, 0, Math.PI * 2);
+      g.fill();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }
+
+  function teksturaTlakovcev() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.fillStyle = '#857a69';
+    g.fillRect(0, 0, 128, 128);
+    for (let y = 0; y < 128; y += 16) for (let x = (y / 16) % 2 ? -8 : 0; x < 128; x += 16) {
+      g.fillStyle = ['#cfc3ad', '#bdb099', '#d9cfba', '#b3a690'][Math.floor(Math.random() * 4)];
+      g.beginPath();
+      g.ellipse(x + 8, y + 8, 6.5, 6, Math.random(), 0, Math.PI * 2);
+      g.fill();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }
+
   function zgradiMost(th, proste) {
     const g = new THREE.Group();
-    const kamen = mat(0xcfc5b3), temen = mat(0x9c9284);
+    const tKamen = teksturaKamna();
+    tKamen.repeat.set(0.28, 0.28);
+    const kamen = mat(0xffffff, { map: tKamen });
     const P = 4.6, V = 4.5, L = SIRINA / 2 + 1.2, H = 4.0, K = 3.6; // pol dolžine, višina, lok, klančina
     const o = new THREE.Shape();
     o.moveTo(-P - K, -0.4);
     o.lineTo(-P - K, 0.1);
-    o.lineTo(-P, V);
+    o.quadraticCurveTo(-P - K * 0.35, V * 0.95, -P, V);
     o.lineTo(P, V);
-    o.lineTo(P + K, 0.1);
+    o.quadraticCurveTo(P + K * 0.35, V * 0.95, P + K, 0.1);
     o.lineTo(P + K, -0.4);
     o.lineTo(L, -0.4);
     o.absellipse(0, -0.4, L, H, 0, Math.PI, false);
     o.lineTo(-P - K, -0.4);
-    const geo = new THREE.ExtrudeGeometry(o, { depth: 1.9, bevelEnabled: false });
+    const geo = new THREE.ExtrudeGeometry(o, { depth: 1.9, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.08, bevelSegments: 1, curveSegments: 20 });
     geo.translate(0, 0, -0.95);
     const lok = new THREE.Mesh(geo, kamen);
     lok.castShadow = lok.receiveShadow = true;
     g.add(lok);
-    // obrobe loka na obeh straneh
-    for (const zz of [-0.98, 0.98]) {
-      const obroba = new THREE.Mesh(new THREE.TorusGeometry(1, 0.16, 6, 28, Math.PI), temen);
-      obroba.scale.set(L, H, 1);
-      obroba.position.set(0, -0.4, zz);
-      g.add(obroba);
+
+    // Klinasti kamni loka (voussoirs) in sklepnik na vrhu
+    const barveKlin = [0xd9ccb2, 0xc4b597, 0xe2d6bd, 0xb9a98b];
+    const N = 17;
+    for (const zz of [-1.0, 1.0]) {
+      for (let i = 0; i <= N; i++) {
+        const a = Math.PI * i / N;
+        const sklepnik = i === Math.floor(N / 2) || i === Math.ceil(N / 2) - 0;
+        const klin = new THREE.Mesh(new THREE.BoxGeometry(0.5, sklepnik && i === Math.round(N / 2) ? 1.05 : 0.8, 0.22), mat(barveKlin[i % barveKlin.length]));
+        const nx = Math.cos(a) / L, ny = Math.sin(a) / H, dol = Math.hypot(nx, ny);
+        klin.position.set((L + 0.34 * nx / dol) * Math.cos(a), -0.4 + (H + 0.34 * ny / dol) * Math.sin(a), zz);
+        klin.rotation.z = Math.atan2(ny, nx) - Math.PI / 2;
+        klin.castShadow = true;
+        g.add(klin);
+      }
     }
-    // ograji in pot po vrhu
-    for (const zz of [-0.85, 0.85]) {
-      const ograja = new THREE.Mesh(new THREE.BoxGeometry(2 * P, 0.55, 0.22), temen);
-      ograja.position.set(0, V + 0.27, zz);
+
+    // Kamnita ograja s pokrovnimi ploščami, stebrički na koncih
+    const tOgraja = teksturaKamna(false);
+    tOgraja.repeat.set(0.5, 0.5);
+    const ograjaMat = mat(0xffffff, { map: tOgraja });
+    const pokrovMat = mat(0xe6dcc6);
+    for (const zz of [-0.82, 0.82]) {
+      const ograja = new THREE.Mesh(new THREE.BoxGeometry(2 * P, 0.7, 0.26), ograjaMat);
+      ograja.position.set(0, V + 0.35, zz);
       ograja.castShadow = true;
-      g.add(ograja);
+      const pokrov = new THREE.Mesh(new THREE.BoxGeometry(2 * P + 0.1, 0.12, 0.38), pokrovMat);
+      pokrov.position.set(0, V + 0.76, zz);
+      g.add(ograja, pokrov);
+      for (const xx of [-P, P]) {
+        const steber = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.1, 0.5), ograjaMat);
+        steber.position.set(xx, V + 0.55, zz);
+        const kapa = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.3, 4), pokrovMat);
+        kapa.rotation.y = Math.PI / 4;
+        kapa.position.set(xx, V + 1.25, zz);
+        g.add(steber, kapa);
+      }
     }
-    const pot = new THREE.Mesh(new THREE.BoxGeometry(2 * P, 0.06, 1.5), mat(0xe2cfa0));
+    // Stare svetilke na stebričkih (ponoči svetijo)
+    lucMat = new THREE.MeshLambertMaterial({ color: 0xfff1c4, emissive: 0x332a10 });
+    const zelezo = mat(0x2b2b30);
+    for (const zz of [-0.82, 0.82]) for (const xx of [-P, P]) {
+      const drog = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 1.1, 6), zelezo);
+      drog.position.set(xx, V + 1.9, zz);
+      const lucka = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.38, 0.3), lucMat);
+      lucka.position.set(xx, V + 2.6, zz);
+      const streha = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.22, 4), zelezo);
+      streha.rotation.y = Math.PI / 4;
+      streha.position.set(xx, V + 2.9, zz);
+      g.add(drog, lucka, streha);
+    }
+    // Tlakovana pot po vrhu
+    const tTlak = teksturaTlakovcev();
+    tTlak.repeat.set(4, 0.8);
+    const pot = new THREE.Mesh(new THREE.BoxGeometry(2 * P, 0.06, 1.38), mat(0xffffff, { map: tTlak }));
     pot.position.set(0, V + 0.03, 0);
     g.add(pot);
+    // Bršljan, ki visi z ograje, in korita z rožami
+    const listMat = mat(0x3f8f3a), list2 = mat(0x5aad45);
+    for (const zz of [-1.12, 1.12]) {
+      for (let i = 0; i < 9; i++) {
+        const x0 = -P + 0.4 + Math.random() * (2 * P - 0.8);
+        const dolzina = 2 + Math.floor(Math.random() * 5);
+        for (let k = 0; k < dolzina; k++) {
+          const list = new THREE.Mesh(new THREE.IcosahedronGeometry(0.17 + Math.random() * 0.06, 0), k % 2 ? listMat : list2);
+          list.position.set(x0 + Math.sin(k * 1.7) * 0.12, V + 0.6 - k * 0.3, zz);
+          g.add(list);
+        }
+      }
+      for (const xx of [-2.4, 0, 2.4]) {
+        const korito = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.22, 0.28), mat(0x9a5b2e));
+        korito.position.set(xx, V + 0.93, zz * 0.73);
+        g.add(korito);
+        for (let k = 0; k < 5; k++) {
+          const cvet = new THREE.Mesh(new THREE.SphereGeometry(0.11, 6, 4), mat([0xff4f8b, 0xffffff, 0xff8fb8, 0xd62839][(k + (xx > 0 ? 1 : 0)) % 4]));
+          cvet.position.set(xx - 0.34 + k * 0.17, V + 1.1 + (k % 2) * 0.05, zz * 0.73);
+          g.add(cvet);
+        }
+      }
+    }
     postaviNaPotok(g, th, R);
     svet.add(g);
     for (let x = -P - K; x <= P + K; x += 2.5) proste.push([th, xNa(th) + x]);
@@ -383,23 +504,25 @@ const Svet3D = (() => {
       rob.position.set(px, 0.11, pz);
       igrisce.add(rob);
     }
-    const krogla = barva => {
-      const m = new THREE.Mesh(new THREE.SphereGeometry(0.15, 14, 10), new THREE.MeshPhongMaterial({ color: barva, shininess: 120, specular: 0xffffff }));
+    // tanke plastične ploščice (balinčki) in majhen cilj
+    const plosca = barva => {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.05, 20), new THREE.MeshPhongMaterial({ color: barva, shininess: 90 }));
       m.castShadow = true;
       return m;
     };
-    const lucka = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), mat(0xffffff));
-    lucka.position.set(0.05, 0.16, -1.7);
-    igrisce.add(lucka);
-    [[0xd62839, 0.32, -1.35], [0xd62839, -0.42, -1.1], [0x3a86ff, 0.12, -1.95], [0x3a86ff, -0.25, 0.4]].forEach(([b, px, pz]) => {
-      const k = krogla(b);
-      k.position.set(px, 0.24, pz);
+    const cilj = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 14), mat(0xffd23f));
+    cilj.position.set(0.05, 0.12, -1.7);
+    igrisce.add(cilj);
+    [[0xff3b5c, 0.32, -1.35], [0xff3b5c, -0.42, -1.1], [0x2ec4b6, 0.12, -1.95], [0x2ec4b6, -0.25, 0.4]].forEach(([b, px, pz]) => {
+      const k = plosca(b);
+      k.position.set(px, 0.12, pz);
+      k.rotation.z = (Math.random() - 0.5) * 0.08;
       igrisce.add(k);
     });
-    const kotalka = krogla(0x3a86ff);
-    kotalka.position.set(0, 0.24, 2.1);
-    igrisce.add(kotalka);
-    balin = { k: kotalka, t: 0 };
+    const letalka = plosca(0x2ec4b6);
+    letalka.position.set(0, 0.12, 2.1);
+    igrisce.add(letalka);
+    balin = { k: letalka, t: 0 };
     [th, x] = mesto(5.4, 1.3);
     postaviNaPotok(igrisce, th, R, x);
     svet.add(igrisce);
@@ -414,6 +537,226 @@ const Svet3D = (() => {
         svet.add(s);
         liki.push({ s, baza: s.position.clone(), n: normala(t), faza: Math.random() * 20, v });
       });
+  }
+
+  // ---------- Prigode ob poti: race, baloni, šotor z ognjem, Tupko na gugalnici ----------
+
+  function zgradiPrigode(proste) {
+    // naključne stopnje, ki niso pri mostu ali pikniku
+    const stopnje = [];
+    for (let st = 2; st < n; st++) if (Math.abs(st - MOST) > 1.6 && !vPikniku(st)) stopnje.push(st + 0.5);
+    stopnje.sort(() => Math.random() - 0.5);
+    const mestoNaBregu = (st, odmik) => {
+      for (const sp of [-stranHise(Math.floor(st)), stranHise(Math.floor(st))]) {
+        for (const d of [0, 0.03, -0.03]) {
+          const th = kotStopnje(st) + d, x = xNa(th) + sp * odmik;
+          if (!vOviri(th, x, 1.6)) return [th, x];
+        }
+      }
+      return null;
+    };
+    const zasedi = (th, x, a, b) => { ovire.push([th, x, a, b]); proste.push([th, x]); };
+
+    // Račja družina (dve): mama in mladički plavajo gor in dol
+    const raca = mama => {
+      const g = new THREE.Group();
+      const telo = new THREE.Mesh(new THREE.SphereGeometry(0.34, 12, 8), mat(mama ? 0x9c7a55 : 0xffd93b));
+      telo.scale.set(1, 0.7, 1.35);
+      telo.position.y = 0.14;
+      const glava = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 8), mat(mama ? 0x1f7a3a : 0xffe25a));
+      glava.position.set(0, 0.44, 0.32);
+      const kljun = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.2, 6), mat(0xff8c1a));
+      kljun.rotation.x = Math.PI / 2;
+      kljun.position.set(0, 0.42, 0.55);
+      const rep = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.25, 5), mat(mama ? 0x7a5c3d : 0xffd93b));
+      rep.rotation.x = -2.2;
+      rep.position.set(0, 0.28, -0.44);
+      g.add(telo, glava, kljun, rep);
+      for (const sx of [-0.1, 0.1]) {
+        const oko = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 4), mat(0x111111));
+        oko.position.set(sx, 0.5, 0.48);
+        g.add(oko);
+      }
+      g.scale.setScalar(mama ? 1.25 : 0.62);
+      return g;
+    };
+    stopnje.slice(0, 2).forEach((st, i) => {
+      const druzina = [raca(true), raca(false), raca(false), raca(false)];
+      druzina.forEach(d => svet.add(d));
+      race.push({ druzina, th: kotStopnje(st) + 0.035, pas: (i % 2 ? 1 : -1) * 1.0, faza: Math.random() * 10 });
+    });
+
+    // Balona na vroč zrak visoko nad potjo
+    const teksBalona = barve => {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 64;
+      const g = c.getContext('2d');
+      barve.forEach((b, i) => { g.fillStyle = b; g.fillRect(i * 256 / barve.length, 0, 256 / barve.length + 1, 64); });
+      return new THREE.CanvasTexture(c);
+    };
+    [['#ff4f8b', '#ffd23f', '#19b5c9', '#ffffff', '#ff4f8b', '#ffd23f', '#19b5c9', '#ffffff'],
+     ['#8338ec', '#ffb300', '#8338ec', '#ffb300', '#8338ec', '#ffb300', '#8338ec', '#ffb300']].forEach((barve, i) => {
+      const st = stopnje[2 + i];
+      if (!st) return;
+      const g = new THREE.Group();
+      const kupola = new THREE.Mesh(new THREE.SphereGeometry(1.7, 16, 12), new THREE.MeshLambertMaterial({ map: teksBalona(barve) }));
+      kupola.scale.y = 1.18;
+      kupola.position.y = 3;
+      const vrat = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.35, 0.9, 12, 1, true), new THREE.MeshLambertMaterial({ map: teksBalona(barve), side: THREE.DoubleSide }));
+      vrat.position.y = 1.15;
+      const kosara = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.55, 0.7), mat(0xa0662b));
+      kosara.position.y = 0.1;
+      g.add(kupola, vrat, kosara);
+      for (const [sx, sz] of [[-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]]) {
+        const vrv = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.9, 3), mat(0x5b3a1e));
+        vrv.position.set(sx * 1.2, 0.75, sz * 1.2);
+        g.add(vrv);
+      }
+      svet.add(g);
+      baloni.push({ g, th: kotStopnje(st) + 0.08, x: xNa(kotStopnje(st)) + (i ? 7 : -7), faza: Math.random() * 10 });
+    });
+
+    // Šotor s tabornim ognjem; Tupko spi ob ognju
+    const mOgnja = stopnje[4] && mestoNaBregu(stopnje[4], SIRINA / 2 + 5.2);
+    if (mOgnja) {
+      const [th, x] = mOgnja;
+      const g = new THREE.Group();
+      const sotor = new THREE.Mesh(new THREE.ConeGeometry(1.4, 1.9, 4), mat(0xff8c1a));
+      sotor.rotation.y = Math.PI / 4;
+      sotor.position.set(-1.2, 0.95, 0);
+      const vhod = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.1, 3), mat(0x5b2e0a));
+      vhod.position.set(-1.2, 0.55, 0.62);
+      g.add(sotor, vhod);
+      for (let i = 0; i < 4; i++) {
+        const poleno = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.8, 6), mat(0x6b3f1d));
+        poleno.rotation.set(Math.PI / 2, 0, i * Math.PI / 4);
+        poleno.position.set(1, 0.08, 0.6);
+        g.add(poleno);
+      }
+      const plamen = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.8, 7), new THREE.MeshBasicMaterial({ color: 0xffa31a }));
+      plamen.position.set(1, 0.5, 0.6);
+      const jedro = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.5, 6), new THREE.MeshBasicMaterial({ color: 0xffe066 }));
+      jedro.position.set(1, 0.4, 0.6);
+      g.add(plamen, jedro);
+      postavi(g, th, x);
+      svet.add(g);
+      const sij = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, color: 0xffa040, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+      sij.scale.setScalar(4);
+      sij.position.copy(tocka(th + 0.6 / R, x + 1, R + 0.9));
+      sij.userData.svetel = true;
+      nocni.add(sij);
+      const spi = lik(TUPKO_POZE[3], 2.2);
+      spi.position.copy(tocka(th + 1.6 / R, x + 2.2, R + 1.0));
+      svet.add(spi);
+      zasedi(th, x, 2.5, 2.8);
+      ogenj = { plamen, jedro, sij };
+    }
+
+    // Gugalnica na veliki lipi, na njej se guga Tupko
+    const mGug = stopnje[5] && mestoNaBregu(stopnje[5], SIRINA / 2 + 4.6);
+    if (mGug) {
+      const [th, x] = mGug;
+      const g = new THREE.Group();
+      const deblo = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 4, 8), mat(0x7a4a24));
+      deblo.position.set(-1.6, 2, 0);
+      const veja = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, 3.2, 6), mat(0x7a4a24));
+      veja.rotation.z = Math.PI / 2;
+      veja.position.set(-0.2, 3.6, 0);
+      g.add(deblo, veja);
+      [[-1.6, 5, 0, 2.1], [-0.4, 4.6, 0.6, 1.5], [-2.6, 4.4, -0.4, 1.5], [0.6, 4.3, -0.3, 1.3]].forEach(([px, py, pz, r]) => {
+        const k = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), mat(0x4f9d3a));
+        k.position.set(px, py, pz);
+        k.castShadow = true;
+        g.add(k);
+      });
+      const nihalo = new THREE.Group();
+      nihalo.position.set(0.3, 3.55, 0);
+      for (const sz of [-0.32, 0.32]) {
+        const vrv = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.4, 4), mat(0xd9c39a));
+        vrv.position.set(0, -1.2, sz);
+        nihalo.add(vrv);
+      }
+      const sedez = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.8), mat(0xa0662b));
+      sedez.position.y = -2.4;
+      const gugalec = lik(TUPKO_POZE[0], 1.4);
+      gugalec.position.y = -1.75;
+      nihalo.add(sedez, gugalec);
+      g.add(nihalo);
+      postavi(g, th, x);
+      g.rotateY(Math.PI / 2);
+      svet.add(g);
+      zasedi(th, x, 2.4, 2.4);
+      gugalnica = nihalo;
+    }
+  }
+
+  function animirajPrigode() {
+    race.forEach(r => {
+      const u = Math.sin(cas * 0.11 + r.faza) * 5;               // položaj vzdolž potoka (enote)
+      const smer = Math.cos(cas * 0.11 + r.faza) > 0 ? 1 : -1;   // kam plavajo
+      r.druzina.forEach((d, i) => {
+        const th = r.th + (u - smer * i * 0.85) / R;
+        postaviNaPotok(d, th, R + 0.06, xNa(th) + r.pas + (i ? Math.sin(cas * 2 + i) * 0.12 : 0));
+        if (smer > 0) d.rotateY(Math.PI);
+        d.position.addScaledVector(normala(th), Math.sin(cas * 3 + i) * 0.04);
+      });
+    });
+    baloni.forEach(b => {
+      const x = b.x + Math.sin(cas * 0.07 + b.faza) * 3;
+      b.g.position.copy(tocka(b.th, x, R + 17 + Math.sin(cas * 0.5 + b.faza) * 0.8));
+      b.g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normala(b.th));
+    });
+    if (ogenj) {
+      const f = 1 + Math.sin(cas * 17) * 0.12 + Math.sin(cas * 23) * 0.08;
+      ogenj.plamen.scale.set(1, f, 1);
+      ogenj.jedro.scale.set(1, 2 - f, 1);
+      ogenj.sij.material.opacity = 0.55 + Math.sin(cas * 11) * 0.12;
+    }
+    if (gugalnica) gugalnica.rotation.x = Math.sin(cas * 1.8) * 0.45;
+    // Tupko: občasno »mjav« v oblačku pri enem od Tupkov, ki so na zaslonu
+    mjavCas -= 0.016;
+    if (mjavCas < 0 && !potovanje) {
+      const blizu = tupki.filter(t => Math.abs(t.th - kot) < 0.22);
+      if (blizu.length) mjavni(blizu[Math.floor(Math.random() * blizu.length)], false);
+      mjavCas = 3 + Math.random() * 4;
+    }
+    if (oblacek) {
+      oblacek.t += 0.016;
+      const k = oblacek.t;
+      const s = k < 0.2 ? k / 0.2 * 1.15 : k < 0.3 ? 1.15 - (k - 0.2) * 1.5 : 1;
+      oblacek.s.scale.set(2.4 * s, 1.2 * s, 1);
+      oblacek.s.material.opacity = k > 1.6 ? Math.max(0, 1 - (k - 1.6) * 3) : 1;
+      if (k > 2) { svet.remove(oblacek.s); oblacek = null; }
+    }
+  }
+
+  const MJAVI = ['Mjav!', 'Mjaaav!', 'Mrrrr…', 'Mjav?', 'Mijav!', 'Prrr ♥', 'Mjav mjav!', 'Lačen!'];
+  function mjavni(t, zvok) {
+    if (oblacek) svet.remove(oblacek.s);
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 128;
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff';
+    g.strokeStyle = '#2a1b14';
+    g.lineWidth = 6;
+    g.beginPath();
+    g.roundRect ? g.roundRect(8, 8, 240, 86, 36) : g.rect(8, 8, 240, 86);
+    g.moveTo(110, 92); g.lineTo(128, 122); g.lineTo(146, 92);
+    g.fill(); g.stroke();
+    g.fillStyle = '#fff';
+    g.fillRect(112, 86, 32, 10);
+    g.fillStyle = '#c2185b';
+    g.font = '800 46px "Baloo 2", system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(MJAVI[Math.floor(Math.random() * MJAVI.length)], 128, 54);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthTest: false }));
+    s.position.copy(t.s.position).addScaledVector(normala(t.th), t.v * 0.55 + 0.9);
+    s.renderOrder = 10;
+    s.userData.svetel = true;
+    svet.add(s);
+    oblacek = { s, t: 0 };
+    if (zvok && Zvok.mjav) Zvok.mjav();
   }
 
   function animirajPiknik(dt) {
@@ -431,12 +774,13 @@ const Svet3D = (() => {
       }
     }
     if (balin) {
-      // krogla se zakotali proti lučki, počaka in začne znova
+      // ploščica poleti v loku, zdrsne po pesku proti cilju, počaka in začne znova
       balin.t = (balin.t + dt) % 4.5;
-      const k = Math.min(1, balin.t / 2.4), e = 1 - Math.pow(1 - k, 3);
+      const k = Math.min(1, balin.t / 2.2), e = 1 - Math.pow(1 - k, 2.4);
       balin.k.position.z = 2.1 - e * 3.5;
-      balin.k.position.x = Math.sin(e * 2) * 0.12;
-      balin.k.rotation.x = -e * 18;
+      balin.k.position.x = Math.sin(e * 2) * 0.14;
+      balin.k.position.y = 0.12 + Math.max(0, Math.sin(Math.min(1, k / 0.55) * Math.PI)) * 1.1 * (k < 0.55 ? 1 : 0);
+      balin.k.rotation.y = e * 14;
     }
   }
 
@@ -523,6 +867,10 @@ const Svet3D = (() => {
 
     svet = new THREE.Group();
     scene.add(svet);
+    teksture();
+    dnevni = new THREE.Group();   // samo podnevi (metulji)
+    nocni = new THREE.Group();    // samo ponoči (oči, kresnice, sij ognja, Mirt s svetilko)
+    svet.add(dnevni, nocni);
     const konec = kotStopnje(n + 1);
 
     // Tla: travnik z odtenki
@@ -597,6 +945,7 @@ const Svet3D = (() => {
       s.position.copy(tocka(th, x, r));
       svet.add(s);
       liki.push({ s, baza: s.position.clone(), n: normala(th), faza: Math.random() * 20, v: velikost });
+      if (e.ime === 'Tupko') { s.userData.tupko = true; tupki.push({ s, th, v: velikost }); }
     };
     dodajLik(MIRT, 3.4, -0.035, xDom + 2.6, R + 1.6);
     napisReke(-0.125, 0.02);
@@ -604,20 +953,44 @@ const Svet3D = (() => {
     const barveSten = [0xffe5ec, 0xfff3b0, 0xd8f3dc, 0xe0f0ff, 0xffe8cc, 0xf3e5ff];
     const barveStreh = [0xc9184a, 0x3a86ff, 0x8338ec, 0xfb5607, 0x2a9d8f, 0xe76f51];
     oznake = [];
+    // Most in piknik najprej zasedeta svoj prostor
+    const thMost = MOST * KORAK, thPik = kotStopnje(PIKNIK), spPik = stranPiknika();
+    ovire = [
+      [thMost, xNa(thMost), 1.8, 9.2],
+      [thPik + 0.5 / R, xNa(thPik) + spPik * (SIRINA / 2 + 6.4), 10, 5.2],
+    ];
+    // liki ob poti so vsakič v drugem vrstnem redu
+    const likiOb = [...LIKI_OB_POTI].sort(() => Math.random() - 0.5);
     for (let st = 1; st <= n; st++) {
       const th = kotStopnje(st);
-      const xH = xNa(th) + stranHise(st) * ODMIK_HISE;
-      const h = hisa(barveSten[st % 6], barveStreh[st % 6]);
-      postavi(h, th + 0.01, xH);
-      svet.add(h);
-      proste.push([th, xH]);
-
-      // Ob vsaki hišici Mirt ali Tupko v svoji situaciji, med lihimi hišicami še en
-      dodajLik(LIKI_OB_POTI[stLika++ % LIKI_OB_POTI.length], 3.2, th - 0.02, xH + stranHise(st) * 1.9, R + 1.5);
-      if (st % 2 && st < n && !vPikniku(st + 0.5) && Math.abs(st + 0.5 - MOST) > 0.6) {
+      // hišica: najprej ob stopnji, sicer malo prej ali kasneje, sicer na drugem bregu
+      let stran = stranHise(st), thH = null;
+      for (const s2 of [stran, -stran]) {
+        const d = [0.01, -0.035, 0.045, -0.055].find(d => !vOviri(th + d, xNa(th + d) + s2 * ODMIK_HISE, 1.4));
+        if (d !== undefined) { thH = th + d; stran = s2; break; }
+      }
+      if (thH !== null) {
+        const xH = xNa(thH) + stran * ODMIK_HISE;
+        const h = hisa(barveSten[st % 6], barveStreh[st % 6]);
+        postavi(h, thH, xH);
+        svet.add(h);
+        proste.push([thH, xH]);
+        ovire.push([thH, xH, 1.3, 1.3]);
+        // Ob vsaki hišici Mirt ali Tupko v svoji situaciji
+        const xL = xH + stran * 1.9;
+        if (!vOviri(thH - 0.03, xL, 0.4)) {
+          dodajLik(likiOb[stLika++ % likiOb.length], 3.2, thH - 0.03, xL, R + 1.5);
+          ovire.push([thH - 0.03, xL, 0.8, 0.8]);
+        }
+      }
+      // med lihimi hišicami še en lik
+      if (st % 2 && st < n) {
         const thM = th + KORAK / 2, xM = xNa(thM) + stranHise(st) * (SIRINA / 2 + 2.6);
-        dodajLik(LIKI_OB_POTI[stLika++ % LIKI_OB_POTI.length], 2.9, thM, xM, R + 1.35);
-        proste.push([thM, xM]);
+        if (!vOviri(thM, xM, 0.6)) {
+          dodajLik(likiOb[stLika++ % likiOb.length], 2.9, thM, xM, R + 1.35);
+          proste.push([thM, xM]);
+          ovire.push([thM, xM, 0.8, 0.8]);
+        }
       }
 
       // Plošček stopnje na vodi
@@ -655,6 +1028,7 @@ const Svet3D = (() => {
 
     zgradiMost(MOST * KORAK, proste);
     zgradiPiknik(proste);
+    zgradiPrigode(proste);
 
     // Zastavica na koncu
     zastavica = new THREE.Group();
@@ -747,7 +1121,6 @@ const Svet3D = (() => {
 
     kanu = zgradiKanu();
     svet.add(kanu);
-    teksture();
     zgradiDanInNoc(od, doKota, proste);
     // liki, ki se ponoči potemnijo (Dora, napisi in nočni liki ostanejo svetli)
     svet.traverse(o => { if (o.isSprite && !o.userData.svetel) temni.push(o); });
@@ -764,9 +1137,6 @@ const Svet3D = (() => {
   }
 
   function zgradiDanInNoc(od, doKota, proste) {
-    dnevni = new THREE.Group();
-    nocni = new THREE.Group();
-    svet.add(dnevni, nocni);
     const nakljucnoObPoti = (min, max) => {
       for (let i = 0; i < 40; i++) {
         const th = od + 0.1 + Math.random() * (doKota - od - 0.2);
@@ -826,8 +1196,10 @@ const Svet3D = (() => {
       if (st > n) return;
       const th = kotStopnje(st), stran = -stranHise(Math.floor(st));
       const e = { ime: 'Mirt', emoji: '🔦', slika: i % 2 ? 'slike/mirt-svetilka-tupko.svg' : 'slike/mirt-svetilka.svg' };
+      const xS = xNa(th) + stran * (SIRINA / 2 + 2.2);
+      if (vOviri(th, xS, 0.5)) return;
       const s = lik(e, 3.8);
-      s.position.copy(tocka(th, xNa(th) + stran * (SIRINA / 2 + 2.2), R + 1.8));
+      s.position.copy(tocka(th, xS, R + 1.8));
       s.userData.svetel = true;
       nocni.add(s);
     });
@@ -880,6 +1252,7 @@ const Svet3D = (() => {
     luc.intensity = noc ? 1.8 : 0;
     oknoMat.color.setHex(noc ? 0xffe08a : 0xbfe9ff);
     oknoMat.emissive.setHex(noc ? 0xffb43a : 0x334455);
+    if (lucMat) lucMat.emissive.setHex(noc ? 0xffc866 : 0x332a10);
     vodaMat.uniforms.uNoc.value = noc ? 1 : 0;
     temni.forEach(o => o.material.color.setHex(noc ? 0x6a76a0 : 0xffffff));
     dnevni.visible = !noc;
@@ -940,7 +1313,9 @@ const Svet3D = (() => {
     const mis = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     const ray = new THREE.Raycaster();
     ray.setFromCamera(mis, camera);
-    const zadetki = ray.intersectObjects([tla, ...oznake.map(o => o.disk), ...oznake.map(o => o.napis)]);
+    const zadetki = ray.intersectObjects([tla, ...oznake.map(o => o.disk), ...oznake.map(o => o.napis), ...tupki.map(t => t.s)]);
+    const tupko = zadetki.length && tupki.find(t => t.s === zadetki[0].object);
+    if (tupko) { mjavni(tupko, true); return; }
     const st = zadetki.length && zadetki[0].object.userData.st;
     if (st && st <= odklenjeno) onStopnja(st);
   }
@@ -1022,6 +1397,7 @@ const Svet3D = (() => {
     svet.rotation.x = kot;
     postaviKamero(zoom);
     animirajPiknik(dt);
+    animirajPrigode();
     animirajDanInNoc();
     posodobiDelce(dt);
     liki.forEach(l => {

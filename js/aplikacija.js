@@ -50,7 +50,7 @@ async function lestvicaStreznik() {
 }
 
 const varno = t => String(t).replace(/[&<>"']/g, z => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[z]);
-const stopenj = n => `${n} ${n === 1 ? 'stopnja' : n === 2 ? 'stopnji' : n === 3 || n === 4 ? 'stopnje' : 'stopenj'}`;
+const doStopnje = n => (n ? `do ${n}. stopnje` : 'še na začetku');
 
 let lestvicaOdkod = 'vstop';
 async function odpriLestvico(odkod) {
@@ -69,7 +69,7 @@ async function odpriLestvico(odkod) {
   seznam.innerHTML = igralci.map((p, i) => `
     <li class="${p.id === igralec.id ? 'jaz' : ''} ${i === 0 ? 'prvi' : ''}" style="animation-delay:${i * 70}ms">
       <span class="mesto">${['🥇', '🥈', '🥉'][i] || i + 1}</span>
-      <span class="kdo">${varno(p.ime)}<small>${stopenj(p.stopnja || 0)}</small></span>
+      <span class="kdo">${varno(p.ime)}<small>${doStopnje(p.stopnja || 0)}</small></span>
       <span class="rezultat"><b>★ ${p.zvezdice}</b><small>${p.tocke} točk</small></span>
     </li>`).join('') || '<li><span class="mesto">🏝️</span><span class="kdo">Še nihče. Bodi prvi!</span></li>';
 }
@@ -317,13 +317,10 @@ function narisiZemljevid() {
 
 let prejsnjeOdklenjeno = null;
 
-// Dan ali noč na zemljevidu: privzeto po uri, izbira se zapomni
+// Dan ali noč na zemljevidu: privzeto dan, izbira se zapomni
 const KLJUC_NOCI = 'dorin-kras-noc';
-let noc = (() => {
-  try { const v = localStorage.getItem(KLJUC_NOCI); if (v !== null) return v === '1'; } catch (_) {}
-  const ura = new Date().getHours();
-  return ura >= 20 || ura < 7;
-})();
+let noc = false;
+try { noc = localStorage.getItem(KLJUC_NOCI) === '1'; } catch (_) {}
 function nastaviNoc(b) {
   noc = b;
   document.body.classList.toggle('noc', noc);

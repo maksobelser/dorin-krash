@@ -726,16 +726,15 @@ body.noc .ikona-luna { opacity: 1; }
 .svet3d { transition: background .6s; }
 body.noc .svet3d { background: linear-gradient(180deg, #0b1030 0%, #1b2557 40%, #2c3a72 56%, #1b2547 100%); }
 body.noc .nebo-sonce { display: none; }
+/* krajec: senca kroga, iz katere je izrezan sam krog */
 body.noc .nebo-luna {
-  display: block; position: absolute; top: 76px; right: 30px; width: 62px; height: 62px; border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #fffbe6, #f2e7b8 70%);
-  box-shadow: 0 0 40px 10px rgba(255,248,210,.35), inset -8px -6px 0 rgba(200,190,140,.35);
+  display: block; position: absolute; top: 70px; right: 54px; width: 56px; height: 56px; border-radius: 50%;
+  box-shadow: 16px 8px 0 0 #fff1b8;
+  filter: drop-shadow(0 0 10px rgba(255, 240, 180, .65)) drop-shadow(0 0 26px rgba(255, 240, 180, .35));
+  rotate: -18deg;
+  animation: luna 6s ease-in-out infinite;
 }
-body.noc .nebo-luna::before, body.noc .nebo-luna::after {
-  content: ""; position: absolute; border-radius: 50%; background: rgba(200,190,140,.45);
-}
-body.noc .nebo-luna::before { width: 12px; height: 12px; top: 16px; left: 18px; }
-body.noc .nebo-luna::after { width: 8px; height: 8px; top: 36px; left: 34px; }
+@keyframes luna { 50% { translate: 0 -4px; } }
 body.noc .nebo-zvezde {
   display: block; position: absolute; inset: 0 0 45% 0; pointer-events: none;
   background-image:
