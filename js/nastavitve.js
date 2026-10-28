@@ -6,8 +6,8 @@
 // Dokler je slika null, se pokaže emoji (začasno).
 
 const ELEMENTI = [
-  { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#f6bd60', slika: null },
-  { id: 'rakija',   ime: 'Rakija',   emoji: '🍶', barva: '#4cc9f0', slika: null },
+  { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#c2185b', slika: 'slike/burek.svg' },
+  { id: 'rakija',   ime: 'Rakija',   emoji: '🥃', barva: '#4cc9f0', slika: 'slike/rakija.svg' },
   { id: 'pivo',     ime: 'Pivo',     emoji: '🍺', barva: '#b388ff', slika: null },
   { id: 'aperol',   ime: 'Aperol',   emoji: '🍹', barva: '#ff6b35', slika: null },
   { id: 'utezi',    ime: 'Uteži',    emoji: '🏋️', barva: '#57cc99', slika: null },

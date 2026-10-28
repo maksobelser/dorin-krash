@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="skorja" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7c46a"/>
+      <stop offset=".55" stop-color="#e59a3a"/>
+      <stop offset="1" stop-color="#c8742a"/>
+    </linearGradient>
+    <linearGradient id="nadev" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="1" stop-color="#f1e2c4"/>
+    </linearGradient>
+  </defs>
+  <!-- krožnik -->
+  <ellipse cx="128" cy="190" rx="118" ry="46" fill="#ffffff" stroke="#b9c3cc" stroke-width="5"/>
+  <ellipse cx="128" cy="186" rx="84" ry="28" fill="none" stroke="#dfe5ea" stroke-width="4"/>
+  <g stroke="#7a4214" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- prerezana stran z nadevom (sir in plasti testa) -->
+    <path d="M40 112 L190 150 L194 196 C150 204 96 196 46 166 Z" fill="url(#nadev)"/>
+    <!-- desni rob kose -->
+    <path d="M190 150 L232 108 C236 128 228 160 194 196 Z" fill="#d88a35"/>
+    <!-- zapečen vrh -->
+    <path d="M40 112 C34 92 50 72 82 62 C120 50 176 52 214 74 C230 84 236 98 232 108 L190 150 Z" fill="url(#skorja)"/>
+  </g>
+  <!-- plasti testa na prerezu -->
+  <g fill="none" stroke="#e6c48e" stroke-width="3.5" stroke-linecap="round">
+    <path d="M52 128 C90 140 140 150 186 160"/>
+    <path d="M50 146 C92 160 140 170 188 176"/>
+    <path d="M58 164 C100 180 146 188 190 188"/>
+  </g>
+  <!-- koščki sira -->
+  <g fill="#ffffff" stroke="#e0d2b4" stroke-width="2">
+    <path d="M78 140 q8 -6 16 0 q-6 8 -16 0z"/>
+    <path d="M126 158 q9 -7 18 0 q-8 9 -18 0z"/>
+    <path d="M100 172 q8 -5 14 1 q-7 6 -14 -1z"/>
+    <path d="M156 176 q7 -5 13 0 q-6 7 -13 0z"/>
+  </g>
+  <!-- zapečene lise in lesk na vrhu -->
+  <g fill="#a85a1c" opacity=".7">
+    <circle cx="96" cy="86" r="4"/><circle cx="150" cy="78" r="3"/><circle cx="188" cy="96" r="4"/>
+    <circle cx="120" cy="104" r="3"/><circle cx="168" cy="118" r="3.5"/><circle cx="72" cy="100" r="3"/>
+  </g>
+  <path d="M70 80 C100 66 140 62 176 70" fill="none" stroke="#fff3c9" stroke-width="7" stroke-linecap="round" opacity=".75"/>
+  <!-- luskaste plasti na robu skorje -->
+  <path d="M52 76 C46 86 44 96 46 106 M212 78 C222 86 228 96 228 104" fill="none" stroke="#fff0c0" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+</svg>

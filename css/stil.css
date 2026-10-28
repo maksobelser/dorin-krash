@@ -331,7 +331,7 @@ button.majhen::after { top: 3px; }
 
 /* Vsak element ima svojo obliko, da se ločijo tudi brez barv */
 .el-burek    { border-radius: 50%; }
-.el-rakija   { border-radius: 38% 38% 26% 26% / 46% 46% 24% 24%; inset: 4% 12%; }
+.el-rakija   { border-radius: 30%; }
 .el-pivo     { border-radius: 24%; }
 .el-aperol   { border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
 .el-utezi    { border-radius: 30% / 50%; inset: 14% 4%; }
