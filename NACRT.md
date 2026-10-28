@@ -14,9 +14,9 @@ Dizajn: sladek, sijoč, risankast videz, kot je značilen za ta žanr. Logo in g
 
 - [x] Spletna aplikacija (Vercel: https://dorin-krash-p4rv.vercel.app)
 - [x] Skupni repo → `AGENTS.md`
-- [ ] Osnovna igra (base game)
-- [ ] Zemljevid stopenj (level roadmap): Grosupeljščica, Dora na kanuju
-- [ ] Življenja → zavzetost + ura (ko jih zmanjka, se obnavljajo s časom)
+- [x] Osnovna igra (base game) — veja `igra`, začasne slike
+- [x] Zemljevid stopenj (level roadmap): Grosupeljščica, Dora na kanuju — veja `igra`, 12 stopenj
+- [x] Življenja → zavzetost + ura (5 življenj, +1 vsakih 20 minut) — veja `igra`
 - [ ] Prijava (sign-up)
 - [ ] Lestvica najboljših (leaderboard)
 - [ ] Možnost namestitve na telefon (PWA: ikona na domačem zaslonu)
@@ -52,7 +52,7 @@ Dizajn: sladek, sijoč, risankast videz, kot je značilen za ta žanr. Logo in g
 
 ## Življenja (lajfi)
 
-- Ko jih zmanjka, prosiš prijatelje
+- Ko jih zmanjka, prosiš prijatelje (gumb deli povezavo; življenja od prijateljev še ne dobiš, za to rabimo strežnik)
 
 ## Glasba
 

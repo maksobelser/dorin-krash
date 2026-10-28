@@ -12,6 +12,10 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 
 ## Igra
 
+- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/plosca.js` (mehanika), `js/aplikacija.js` (zemljevid, življenja, shranjevanje, proslave).
+- Slike in stopnje se menjajo samo v `js/nastavitve.js`.
+- Brez ES modulov (`type="module"`), ker se ne naložijo, ko `index.html` odpreš z dvoklikom.
+
 - Najprej mora delovati na telefonu (dotik, potegi s prstom), šele nato na računalniku.
 - Vsa besedila v igri so v slovenščini.
 - Mehanika je kot pri Candy Crushu (menjava, trije v vrsto, padanje, stopnje na zemljevidu, življenja). Elementi, posebni elementi, videz in stopnje so naši (glej `NACRT.md`). Ne uporabljamo slik, logotipa ali grafike iz Candy Crusha.

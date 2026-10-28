@@ -5,171 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2b1055">
 <title>Dorin Kraš</title>
-<style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    color: #fff;
-    background: linear-gradient(160deg, #2b1055 0%, #5b2a86 50%, #d8579b 100%);
-    min-height: 100dvh;
-    display: grid;
-    place-items: center;
-    padding: 16px;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  /* Bonboni, ki padajo v ozadju */
-  .sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
-  .drop {
-    position: absolute; top: -60px;
-    width: var(--s); height: var(--s);
-    animation: fall var(--d) linear var(--delay) infinite;
-    opacity: .85;
-  }
-  @keyframes fall {
-    to { transform: translateY(calc(100dvh + 120px)) rotate(360deg); }
-  }
-
-  .candy { position: relative; width: 100%; height: 100%; }
-  .candy::after {
-    content: ""; position: absolute; left: 22%; top: 16%;
-    width: 30%; height: 18%; border-radius: 50%;
-    background: rgba(255,255,255,.55); transform: rotate(-20deg);
-  }
-  .c0 { background: radial-gradient(circle at 35% 30%, #ffb3c1, #ff4d6d 45%, #c9184a); border-radius: 50%; }
-  .c1 { background: radial-gradient(circle at 35% 30%, #ffe0b0, #ff9f1c 45%, #e85d04); border-radius: 24%; }
-  .c2 { background: radial-gradient(circle at 40% 35%, #fff3b0, #ffd60a 45%, #f4a100);
-        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
-  .c3 { background: radial-gradient(circle at 40% 30%, #c8ffe6, #38d39f 45%, #0f9d6e);
-        clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
-  .c4 { background: radial-gradient(circle at 35% 30%, #d4f6ff, #4cc9f0 45%, #1d7fc4);
-        clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); }
-  .c5 { background: radial-gradient(circle at 35% 30%, #eadcff, #b388ff 45%, #7b3fe4);
-        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
-
-  .card {
-    position: relative;
-    width: min(100%, 440px);
-    text-align: center;
-    padding: 32px 20px 28px;
-    border-radius: 28px;
-    background: rgba(255,255,255,.12);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 20px 60px rgba(0,0,0,.25);
-  }
-  .logo { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
-  .logo .candy { width: 34px; height: 34px; animation: bob 1.6s ease-in-out infinite; }
-  .logo .candy:nth-child(2) { animation-delay: .2s; }
-  .logo .candy:nth-child(3) { animation-delay: .4s; }
-  @keyframes bob { 50% { transform: translateY(-8px); } }
-
-  h1 {
-    margin: 0;
-    font-size: clamp(40px, 12vw, 60px);
-    font-weight: 900;
-    letter-spacing: .5px;
-    text-shadow: 0 4px 0 rgba(0,0,0,.25);
-  }
-  .sub { margin: 6px 0 24px; font-size: 18px; opacity: .9; }
-
-  .label { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: .85; margin-bottom: 10px; }
-  .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 26px; }
-  .unit { background: rgba(255,255,255,.16); border-radius: 16px; padding: 12px 4px 8px; }
-  .num { display: block; font-size: clamp(26px, 8vw, 36px); font-weight: 900; font-variant-numeric: tabular-nums; }
-  .unit small { font-size: 12px; opacity: .85; }
-
-  .bar { height: 12px; border-radius: 99px; background: rgba(255,255,255,.16); overflow: hidden; margin: -12px 0 26px; }
-  .bar > div { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, #ffd60a, #ff4d6d); transition: width 1s linear; }
-  body.done .bar { display: none; }
-
-  .party { display: none; font-size: clamp(26px, 8vw, 34px); font-weight: 900; margin: 4px 0 26px; }
-  body.done .countdown, body.done .label { display: none; }
-  body.done .party { display: block; animation: bob 1.2s ease-in-out infinite; }
-
-  button {
-    font: inherit; font-size: 22px; font-weight: 800;
-    color: #5b1a3a;
-    background: linear-gradient(180deg, #ffe066, #ffb703);
-    border: 0; border-radius: 999px;
-    padding: 16px 48px;
-    box-shadow: 0 6px 0 #c77d00, 0 10px 20px rgba(0,0,0,.25);
-    cursor: pointer;
-    transition: transform .1s, box-shadow .1s;
-  }
-  button:active { transform: translateY(4px); box-shadow: 0 2px 0 #c77d00, 0 4px 10px rgba(0,0,0,.25); }
-  .soon { min-height: 22px; margin: 14px 0 0; font-size: 15px; opacity: .9; }
-</style>
+<link rel="stylesheet" href="css/stil.css">
 </head>
-<body>
+<body data-zaslon="vstop">
   <div class="sky" id="sky"></div>
 
-  <main class="card">
-    <div class="logo">
-      <div class="candy c0"></div>
-      <div class="candy c2"></div>
-      <div class="candy c4"></div>
+  <!-- Vstopni zaslon -->
+  <section class="zaslon aktiven" id="zaslon-vstop">
+    <main class="card">
+      <div class="logo">
+        <div class="candy c0"></div>
+        <div class="candy c2"></div>
+        <div class="candy c4"></div>
+      </div>
+      <h1>Dorin Kraš</h1>
+      <p class="sub">Dora Explora 🛶</p>
+
+      <div class="label">Do Dorinega rojstnega dne</div>
+      <div class="countdown">
+        <div class="unit"><span class="num" id="d">0</span><small>dni</small></div>
+        <div class="unit"><span class="num" id="h">00</span><small>ur</small></div>
+        <div class="unit"><span class="num" id="m">00</span><small>minut</small></div>
+        <div class="unit"><span class="num" id="s">00</span><small>sekund</small></div>
+      </div>
+      <div class="bar"><div id="bar"></div></div>
+      <div class="party">Vse najboljše, Dora! 🎉</div>
+
+      <button id="play">Igraj</button>
+    </main>
+  </section>
+
+  <!-- Zemljevid ob Grosupeljščici -->
+  <section class="zaslon" id="zaslon-zemljevid">
+    <header class="vrstica">
+      <button class="majhen" id="nazaj-vstop" aria-label="Nazaj">‹</button>
+      <div class="naslov-zemljevida">Dorin Kraš</div>
+      <div class="zivljenja">❤️ <b id="zivljenja-st">5</b> <small id="zivljenja-ura">polno</small></div>
+    </header>
+    <div class="zemljevid-ovoj" id="zemljevid-ovoj">
+      <div class="zemljevid" id="zemljevid"></div>
     </div>
-    <h1>Dorin Kraš</h1>
-    <p class="sub">Dora Explora 🛶</p>
+  </section>
 
-    <div class="label">Do Dorinega rojstnega dne</div>
-    <div class="countdown">
-      <div class="unit"><span class="num" id="d">0</span><small>dni</small></div>
-      <div class="unit"><span class="num" id="h">00</span><small>ur</small></div>
-      <div class="unit"><span class="num" id="m">00</span><small>minut</small></div>
-      <div class="unit"><span class="num" id="s">00</span><small>sekund</small></div>
+  <!-- Igra -->
+  <section class="zaslon" id="zaslon-igra">
+    <header class="vrstica">
+      <button class="majhen" id="nazaj-zemljevid" aria-label="Na zemljevid">‹</button>
+      <div class="hud">
+        <div class="stat"><div class="oznaka">Stopnja</div><div class="vrednost" id="hud-stopnja">1</div></div>
+        <div class="stat"><div class="oznaka">Cilj</div><div class="vrednost" id="hud-cilj">0</div></div>
+        <div class="stat"><div class="oznaka">Točke</div><div class="vrednost" id="hud-tocke">0</div></div>
+        <div class="stat"><div class="oznaka">Poteze</div><div class="vrednost" id="hud-poteze">0</div></div>
+      </div>
+    </header>
+    <div class="napredek">
+      <div class="napredek-polnilo" id="napredek-polnilo"></div>
+      <span class="napredek-zvezda">★</span><span class="napredek-zvezda">★</span><span class="napredek-zvezda">★</span>
     </div>
-    <div class="bar"><div id="bar"></div></div>
-    <div class="party">Vse najboljše, Dora! 🎉</div>
+    <div class="plosca-ovoj" id="plosca-ovoj">
+      <div class="plosca" id="plosca"></div>
+    </div>
+    <p class="navodilo">Potegni element na sosednje polje. Štirje v vrsto pokličejo Doro ⚡</p>
+  </section>
 
-    <button id="play">Igraj</button>
-    <p class="soon" id="soon"></p>
-  </main>
+  <!-- Proslava in okno -->
+  <div class="proslava" id="proslava"></div>
+  <div class="okno" id="okno">
+    <div class="okno-kartica">
+      <h2 id="okno-naslov"></h2>
+      <div class="okno-zvezdice" id="okno-zvezdice"></div>
+      <p id="okno-besedilo"></p>
+      <div class="okno-gumbi" id="okno-gumbi"></div>
+    </div>
+  </div>
 
-<script>
-  // Sobota, 31. oktober 2026, ob 18:00 (lokalni čas)
-  const BIRTHDAY = new Date(2026, 9, 31, 18, 0, 0);
-  // Začetek odštevanja: torek, 27. oktober 2026, ob 20:49
-  const START = new Date(2026, 9, 27, 20, 49, 0);
-  const pad = n => String(n).padStart(2, '0');
-
-  function tick() {
-    const left = BIRTHDAY - Date.now();
-    if (left <= 0) {
-      document.body.classList.add('done');
-      return;
-    }
-    const sec = Math.floor(left / 1000);
-    document.getElementById('d').textContent = Math.floor(sec / 86400);
-    document.getElementById('h').textContent = pad(Math.floor(sec / 3600) % 24);
-    document.getElementById('m').textContent = pad(Math.floor(sec / 60) % 60);
-    document.getElementById('s').textContent = pad(sec % 60);
-    const done = Math.min(1, Math.max(0, (Date.now() - START) / (BIRTHDAY - START)));
-    document.getElementById('bar').style.width = (done * 100).toFixed(2) + '%';
-    setTimeout(tick, 1000 - (Date.now() % 1000));
-  }
-  tick();
-
-  // Padajoči bonboni v ozadju
-  const sky = document.getElementById('sky');
-  for (let i = 0; i < 18; i++) {
-    const d = document.createElement('div');
-    d.className = 'drop';
-    d.style.left = Math.random() * 100 + 'vw';
-    d.style.setProperty('--s', 18 + Math.random() * 22 + 'px');
-    d.style.setProperty('--d', 6 + Math.random() * 8 + 's');
-    d.style.setProperty('--delay', -Math.random() * 14 + 's');
-    d.innerHTML = '<div class="candy c' + (i % 6) + '"></div>';
-    sky.appendChild(d);
-  }
-
-  document.getElementById('play').addEventListener('click', () => {
-    document.getElementById('soon').textContent = 'Igra prihaja kmalu! 🍭';
-  });
-</script>
+  <script src="js/nastavitve.js"></script>
+  <script src="js/plosca.js"></script>
+  <script src="js/aplikacija.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ Dorin Candy Crush, za njen rojstni dan. Načrt igre je v `NACRT.md`, navodila za
 ## Kaj je narejeno
 
 - Vstopni zaslon z odštevalnikom do sobote, 31. 10. 2026, ob 18:00
-- Gumb »Igraj« (igre še ni, zato izpiše »Igra prihaja kmalu!«)
+- Na veji `igra`: osnovna igra, zemljevid ob Grosupeljščici z 12 stopnjami, življenja, Dorina bomba, proslave (začasne slike, emoji)
 
 ## Kaj sledi
 
