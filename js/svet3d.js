@@ -110,7 +110,7 @@ const Svet3D = (() => {
       g.font = '70px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
       g.fillText('🔒', 128, 110);
     } else {
-      g.font = '110px "Lilita One", system-ui, sans-serif';
+      g.font = '800 110px "Baloo 2", system-ui, sans-serif';
       g.lineWidth = 16;
       g.strokeStyle = '#7a1f45';
       g.strokeText(st, 128, 105);
@@ -166,8 +166,8 @@ const Svet3D = (() => {
     const rob = new THREE.Mesh(robGeo, new THREE.MeshPhongMaterial({ color: 0xffd23f, shininess: 80 }));
     rob.scale.set(0.75, 1, 1.9);
     rob.position.y = 0.32;
-    const dora = lik(DORA, 1.9);
-    dora.position.y = 1.15;
+    const dora = lik(DORA, 2.2);
+    dora.position.y = 1.35;
     veslo = new THREE.Group();
     const drog = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.4, 6), mat(0x8b5a2b));
     const lopata = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.7), mat(0xffd23f));
@@ -277,8 +277,8 @@ const Svet3D = (() => {
     postavi(dom, 0.005, xDom);
     svet.add(dom);
     proste.push([0, xDom]);
-    const mirt = lik(MIRT, 2);
-    mirt.position.copy(tocka(-0.02, xDom + 2.1, R + 1));
+    const mirt = lik(MIRT, 3.4);
+    mirt.position.copy(tocka(-0.035, xDom + 2.6, R + 1.6));
     svet.add(mirt);
 
     const barveSten = [0xffe5ec, 0xfff3b0, 0xd8f3dc, 0xe0f0ff, 0xffe8cc, 0xf3e5ff];
@@ -292,9 +292,11 @@ const Svet3D = (() => {
       svet.add(h);
       proste.push([th, xH]);
 
-      const tupko = lik(TUPKO_POZE[(st - 1) % TUPKO_POZE.length], 1.7);
-      tupko.position.copy(tocka(th - 0.012, xH - stranHise(st) * 1.6, R + 0.85));
-      svet.add(tupko);
+      // Ob vsaki hišici Tupko ali Mirt (izmenično, v različnih pozah)
+      const poza = st % 2 ? TUPKO_POZE[Math.floor(st / 2) % TUPKO_POZE.length] : MIRT_POZE[(st / 2) % MIRT_POZE.length];
+      const ob = lik(poza, 3.2);
+      ob.position.copy(tocka(th - 0.035, xH - stranHise(st) * 1.2, R + 1.5));
+      svet.add(ob);
 
       // Plošček stopnje na vodi
       const disk = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.4, 40), new THREE.MeshPhongMaterial({ shininess: 90 }));
@@ -315,6 +317,18 @@ const Svet3D = (() => {
       svet.add(napis);
       disk.userData.st = napis.userData.st = st;
       oznake.push({ st, disk, plosk, platno, napis });
+    }
+
+    // Še nekaj Tupkov in Mirtov ob potoku med hišicami
+    for (let st = 1; st < n; st += 2) {
+      const th = kotStopnje(st) + KORAK / 2;
+      const stran = stranHise(st);
+      const poza = st % 4 === 1 ? TUPKO_POZE[(st + 1) % TUPKO_POZE.length] : MIRT_POZE[(st + 1) % MIRT_POZE.length];
+      const x = xNa(th) + stran * (SIRINA / 2 + 1.9);
+      const ob = lik(poza, 2.8);
+      ob.position.copy(tocka(th, x, R + 1.3));
+      svet.add(ob);
+      proste.push([th, x]);
     }
 
     // Zastavica na koncu

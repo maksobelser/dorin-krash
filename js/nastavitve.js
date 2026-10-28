@@ -16,23 +16,26 @@ const ELEMENTI = [
 
 // Posebna bomba: nastane, ko poravnaš 4 ali več enakih (v vrsto ali v obliki L/T).
 // Ko jo premakneš, Dora s strelami iz oči razbije svojo vrsto in vse okoli sebe.
-const DORA = { ime: 'Dora', emoji: '👧', barva: '#ff8fab', slika: null };
+const DORA = { ime: 'Dora', emoji: '👧', barva: '#ff8fab', slika: 'slike/dora.svg' };
 
 // Proslave ob zmagi stopnje (izmenično).
 const PROSLAVE = [
-  { besedilo: 'Mičko dela stojo!', emoji: '🧍', animacija: 'stoja', slika: null },
+  { besedilo: 'Mičko dela stojo!', emoji: '🧍', animacija: 'skok', slika: 'slike/micko-stoja.svg' },
   { besedilo: 'Urbi bog!',         emoji: '😇', animacija: 'sij',   slika: null },
 ];
 
-// Zemljevid: Mirt pri domu na začetku, Tupko v različnih pozah pri hišicah.
-const MIRT = { ime: 'Mirt', emoji: '🧑', slika: null };
+// Zemljevid: Mirt pri domu na začetku, ob hišicah se izmenjujeta Mirt in Tupko v različnih pozah.
+const MIRT_POZE = [
+  { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-maha.svg' },
+  { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-medalja.svg' },
+  { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-pivo.svg' },
+];
+const MIRT = MIRT_POZE[0];
 const TUPKO_POZE = [
-  { emoji: '🐈', slika: null },
-  { emoji: '😺', slika: null },
-  { emoji: '😸', slika: null },
-  { emoji: '😼', slika: null },
-  { emoji: '😻', slika: null },
-  { emoji: '🙀', slika: null },
+  { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-sedi.svg' },
+  { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-lezi.svg' },
+  { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-hodi.svg' },
+  { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-spi.svg' },
 ];
 
 // Stopnje: poteze = število potez, cilj = točke za 1 zvezdico,
