@@ -267,6 +267,18 @@ function odpriZemljevid() {
 
 let trenutna = null, hudTocke = 0;
 
+// Zvezdice na traku napredka so razporejene enakomerneje kot točke (sicer bi bile stisnjene na desni);
+// polnilo se med njimi raztegne tako, da zvezdica zasveti ravno, ko jo dosežeš.
+const TRAK_ZVEZDE = [0.45, 0.7, 0.93];
+function delezTraku(tocke, cilj) {
+  const meje = [[0, 0], ...ZVEZDICE.map((m, i) => [cilj * m, TRAK_ZVEZDE[i]]), [cilj * ZVEZDICE[2] * 1.2, 1]];
+  for (let i = 1; i < meje.length; i++) {
+    const [t0, d0] = meje[i - 1], [t1, d1] = meje[i];
+    if (tocke <= t1) return d0 + (d1 - d0) * (tocke - t0) / (t1 - t0);
+  }
+  return 1;
+}
+
 function odpriPredstopnjo(st) {
   const s = STOPNJE[st - 1];
   okno({
@@ -298,7 +310,7 @@ function zacniStopnjo(st) {
   pokazi('igra');
   const zvezdeHud = [...document.querySelectorAll('.napredek-zvezda')];
   zvezdeHud.forEach((z, i) => {
-    z.style.left = (ZVEZDICE[i] / ZVEZDICE[2] * 100) + '%';
+    z.style.left = (TRAK_ZVEZDE[i] * 100) + '%';
     z.classList.remove('dosezena');
   });
   hudTocke = 0;
@@ -307,7 +319,7 @@ function zacniStopnjo(st) {
       if (n > hudTocke) { stej(hudTocke, n, 450, v => { $('hud-tocke').textContent = v; }); bump($('hud-tocke')); }
       else $('hud-tocke').textContent = n;
       hudTocke = n;
-      $('napredek-polnilo').style.width = Math.min(100, n / (s.cilj * ZVEZDICE[2]) * 100) + '%';
+      $('napredek-polnilo').style.width = delezTraku(n, s.cilj) * 100 + '%';
       zvezdeHud.forEach((z, i) => {
         if (n >= s.cilj * ZVEZDICE[i] && !z.classList.contains('dosezena')) {
           z.classList.add('dosezena');
@@ -342,7 +354,7 @@ async function zmagal(st) {
     const n = osnova + i * BONUS_ZA_POTEZO;
     $('hud-tocke').textContent = n;
     bump($('hud-tocke'));
-    $('napredek-polnilo').style.width = Math.min(100, n / (s.cilj * ZVEZDICE[2]) * 100) + '%';
+    $('napredek-polnilo').style.width = delezTraku(n, s.cilj) * 100 + '%';
     document.querySelectorAll('.napredek-zvezda').forEach((z, k) => {
       if (n >= s.cilj * ZVEZDICE[k] && !z.classList.contains('dosezena')) { z.classList.add('dosezena'); Zvok.zvezda(k); }
     });
