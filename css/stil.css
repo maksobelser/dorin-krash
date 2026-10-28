@@ -204,7 +204,8 @@ button.majhen::after { top: 3px; }
 @keyframes srce-utrip { 50% { transform: scale(1.18); } }
 button.zvok {
   position: absolute; z-index: 3; left: 14px; bottom: max(14px, env(safe-area-inset-bottom));
-  width: 44px; height: 44px; padding: 0; font-size: 20px; border-radius: 50%;
+  width: 54px; height: 54px; padding: 0; font-size: 26px; border-radius: 50%; border-width: 4px;
+  box-shadow: 0 5px 0 #0b6c7c, 0 0 0 4px rgba(255,255,255,.55), 0 8px 16px rgba(0,0,0,.35);
 }
 
 /* ---------- 3D zemljevid ---------- */

@@ -163,6 +163,8 @@ function pokazi(ime) {
   document.querySelectorAll('.zaslon').forEach(z => z.classList.toggle('aktiven', z.id === 'zaslon-' + ime));
   document.body.dataset.zaslon = ime;
   if (ime !== 'zemljevid' && Svet3D.podprt) Svet3D.ustavi();
+  Glasba.nacin(ime === 'igra' ? 'igra' : 'zemljevid');
+  Glasba.napetost(0);
 }
 
 function vsebina(e) {
@@ -428,6 +430,7 @@ function zacniStopnjo(st) {
       $('hud-poteze').textContent = n;
       $('hud-poteze').parentElement.classList.toggle('malo', n <= 5);
       if (n === 5 && n < s.poteze) Plosca.napis('Še 5 potez!', 'vroce');
+      Glasba.napetost(n <= 5 ? 1 : 0);
       bump($('hud-poteze'));
     },
     konec: zmaga => (zmaga ? zmagal(st) : izgubil(st)),
@@ -563,7 +566,20 @@ osveziVpis();
 $('nazaj-zemljevid').addEventListener('click', zapustiStopnjo);
 $('okno-zapri').addEventListener('click', zapriOkno);
 $('zivljenja').addEventListener('click', oknoZivljenj);
-$('zvok').textContent = Zvok.vklopljen ? '🔊' : '🔇';
-$('zvok').addEventListener('click', () => { $('zvok').textContent = Zvok.preklopi() ? '🔊' : '🔇'; });
+// Zvok: okno z dvema stikaloma (glasba, zvočni učinki)
+function ikonaZvoka() { $('zvok').textContent = Zvok.vklopljen || Glasba.vklopljena ? '🔊' : '🔇'; }
+function oknoZvoka() {
+  okno({
+    naslov: 'Zvok',
+    zapri: true,
+    besedilo: 'Glasba se vsakič sestavi na novo.',
+    gumbi: [
+      { tekst: `🎵 Glasba: ${Glasba.vklopljena ? 'vklopljena' : 'izklopljena'}`, drugotni: !Glasba.vklopljena, akcija: () => { Glasba.nastavi(!Glasba.vklopljena); ikonaZvoka(); oknoZvoka(); } },
+      { tekst: `🔔 Zvoki: ${Zvok.vklopljen ? 'vklopljeni' : 'izklopljeni'}`, drugotni: !Zvok.vklopljen, akcija: () => { Zvok.nastavi(!Zvok.vklopljen); ikonaZvoka(); oknoZvoka(); } },
+    ],
+  });
+}
+ikonaZvoka();
+$('zvok').addEventListener('click', oknoZvoka);
 document.addEventListener('click', e => { if (e.target.closest('button') && e.target.id !== 'zvok') Zvok.klik(); });
 osveziZivljenja();
