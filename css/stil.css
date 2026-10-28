@@ -335,7 +335,14 @@ button.majhen::after { top: 3px; }
 .el-pivo     { border-radius: 24%; }
 .el-aperol   { border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
 .el-utezi    { border-radius: 30% / 50%; inset: 14% 4%; }
-.el-domacica { border-radius: 50%; inset: 8%; }
+.el-domacica {
+  border-radius: 22%; inset: 7%;
+  /* barve škatle Domačice: rumeno, belo, temno rjav vogal */
+  background:
+    radial-gradient(ellipse 42% 26% at 38% 20%, rgba(255,255,255,.8), rgba(255,255,255,0) 72%),
+    linear-gradient(135deg, #4a2412 0 16%, #ffb300 16% 58%, #fffaf0 58%);
+}
+.el-domacica img { width: 92%; height: 92%; }
 .el-dora {
   border-radius: 50%;
   background:
