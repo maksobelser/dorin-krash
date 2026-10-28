@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2b1055">
 <title>Dorin Kraš</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap">
 <link rel="stylesheet" href="css/stil.css">
 </head>
 <body data-zaslon="vstop">
@@ -40,8 +43,12 @@
     <header class="vrstica">
       <button class="majhen" id="nazaj-vstop" aria-label="Nazaj">‹</button>
       <div class="naslov-zemljevida">Dorin Kraš</div>
-      <div class="zivljenja">❤️ <b id="zivljenja-st">5</b> <small id="zivljenja-ura">polno</small></div>
+      <div class="zivljenja"><span class="srce">❤</span><b id="zivljenja-st">5</b><small id="zivljenja-ura">polno</small></div>
     </header>
+    <div class="svet3d" id="svet3d" hidden>
+      <div class="oblaki"><span></span><span></span><span></span><span></span></div>
+      <div class="napis-reka3d">Grosupeljščica</div>
+    </div>
     <div class="zemljevid-ovoj" id="zemljevid-ovoj">
       <div class="zemljevid" id="zemljevid"></div>
     </div>
@@ -49,29 +56,45 @@
 
   <!-- Igra -->
   <section class="zaslon" id="zaslon-igra">
-    <header class="vrstica">
+    <div class="voda-ozadje"></div>
+    <header class="vrstica igra-vrstica">
       <button class="majhen" id="nazaj-zemljevid" aria-label="Na zemljevid">‹</button>
       <div class="hud">
-        <div class="stat"><div class="oznaka">Stopnja</div><div class="vrednost" id="hud-stopnja">1</div></div>
-        <div class="stat"><div class="oznaka">Cilj</div><div class="vrednost" id="hud-cilj">0</div></div>
-        <div class="stat"><div class="oznaka">Točke</div><div class="vrednost" id="hud-tocke">0</div></div>
-        <div class="stat"><div class="oznaka">Poteze</div><div class="vrednost" id="hud-poteze">0</div></div>
+        <div class="hud-poteze"><b id="hud-poteze">0</b><small>potez</small></div>
+        <div class="hud-sredina">
+          <div class="napredek">
+            <div class="napredek-polnilo" id="napredek-polnilo"></div>
+            <span class="napredek-zvezda">★</span><span class="napredek-zvezda">★</span><span class="napredek-zvezda">★</span>
+          </div>
+          <div class="hud-cilj">Stopnja <span id="hud-stopnja">1</span> · cilj <span id="hud-cilj">0</span></div>
+        </div>
+        <div class="hud-tocke"><b id="hud-tocke">0</b><small>točk</small></div>
       </div>
     </header>
-    <div class="napredek">
-      <div class="napredek-polnilo" id="napredek-polnilo"></div>
-      <span class="napredek-zvezda">★</span><span class="napredek-zvezda">★</span><span class="napredek-zvezda">★</span>
-    </div>
     <div class="plosca-ovoj" id="plosca-ovoj">
       <div class="plosca" id="plosca"></div>
     </div>
     <p class="navodilo">Potegni element na sosednje polje. Štirje v vrsto pokličejo Doro ⚡</p>
   </section>
 
-  <!-- Proslava in okno -->
-  <div class="proslava" id="proslava"></div>
+  <!-- Zaslon zmage -->
+  <div class="zmaga" id="zmaga">
+    <div class="konfeti" id="konfeti"></div>
+    <h2 class="zmaga-naslov">Stopnja opravljena!</h2>
+    <p class="zmaga-pod" id="zmaga-pod"></p>
+    <div class="zmaga-zvezdice" id="zmaga-zvezdice"><span>★</span><span>★</span><span>★</span></div>
+    <div class="zmaga-tocke" id="zmaga-tocke"></div>
+    <div class="zmaga-gumbi">
+      <button id="zmaga-naprej">Naprej</button>
+      <button class="drugotni" id="zmaga-ponovi">Ponovi</button>
+    </div>
+    <div class="zmaga-lik" id="zmaga-lik"></div>
+  </div>
+
+  <!-- Okno (pred stopnjo, poraz, sporočila) -->
   <div class="okno" id="okno">
     <div class="okno-kartica">
+      <button class="okno-zapri" id="okno-zapri" aria-label="Zapri">✕</button>
       <h2 id="okno-naslov"></h2>
       <div class="okno-zvezdice" id="okno-zvezdice"></div>
       <p id="okno-besedilo"></p>
@@ -79,8 +102,10 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="js/nastavitve.js"></script>
   <script src="js/plosca.js"></script>
+  <script src="js/svet3d.js"></script>
   <script src="js/aplikacija.js"></script>
 </body>
 </html>

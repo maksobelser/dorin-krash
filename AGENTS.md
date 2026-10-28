@@ -5,6 +5,7 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 ## Tehnično
 
 - Navaden HTML, CSS in JavaScript. Brez gradnje (build), brez npm paketov, brez ogrodij (framework).
+- Izjema: three.js r128 s CDN (cdnjs) za 3D zemljevid in pisavi Lilita One ter Nunito z Google Fonts. Če WebGL ne dela, se pokaže 2D zemljevid.
 - Stran se objavi na Vercelu kot statična stran. `index.html` mora ostati v korenu repoja.
 - Imena datotek z malimi črkami, brez presledkov in šumnikov (`kanu.png`, ne `Kanu.PNG`). Vercel razlikuje velike in male črke.
 - Poti do slik in skript relativne (`slike/burek.png`, ne `/slike/burek.png`).
@@ -12,7 +13,7 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 
 ## Igra
 
-- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/plosca.js` (mehanika), `js/aplikacija.js` (zemljevid, življenja, shranjevanje, proslave).
+- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/plosca.js` (mehanika), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln), `js/aplikacija.js` (zasloni, 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
 - Slike in stopnje se menjajo samo v `js/nastavitve.js`.
 - Brez ES modulov (`type="module"`), ker se ne naložijo, ko `index.html` odpreš z dvoklikom.
 

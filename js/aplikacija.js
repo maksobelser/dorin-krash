@@ -60,6 +60,7 @@ setInterval(osveziZivljenja, 1000);
 function pokazi(ime) {
   document.querySelectorAll('.zaslon').forEach(z => z.classList.toggle('aktiven', z.id === 'zaslon-' + ime));
   document.body.dataset.zaslon = ime;
+  if (ime !== 'zemljevid' && Svet3D.podprt) Svet3D.ustavi();
 }
 
 function vsebina(e) {
@@ -69,7 +70,8 @@ function vsebina(e) {
 
 // ---------- Okno (sporočila) ----------
 
-function okno({ naslov, besedilo = '', zvezdice = null, gumbi }) {
+function okno({ naslov, besedilo = '', zvezdice = null, gumbi, zapri = false }) {
+  $('okno-zapri').hidden = !zapri;
   $('okno-naslov').textContent = naslov;
   $('okno-besedilo').innerHTML = besedilo;
   $('okno-zvezdice').innerHTML = zvezdice === null ? '' :
@@ -88,19 +90,28 @@ function okno({ naslov, besedilo = '', zvezdice = null, gumbi }) {
 
 function zapriOkno() { $('okno').classList.remove('odprto'); }
 
-// ---------- Proslava ----------
+// ---------- Zaslon zmage (s proslavo) ----------
 
 let stProslave = 0;
-function proslava() {
+function zaslonZmage({ st, tocke, bonus, zvezdice, zadnja }) {
   const p = PROSLAVE[stProslave++ % PROSLAVE.length];
-  const el = $('proslava');
-  el.innerHTML = `<div class="proslava-lik ${p.animacija}">${vsebina(p)}</div><div class="proslava-napis">${p.besedilo}</div>`;
-  el.classList.add('odprto');
-  return new Promise(resolve => {
-    const konec = () => { el.classList.remove('odprto'); el.onclick = null; clearTimeout(t); resolve(); };
-    const t = setTimeout(konec, 2600);
-    el.onclick = konec;
+  $('zmaga-pod').textContent = p.besedilo;
+  $('zmaga-tocke').innerHTML = `${tocke} točk` + (bonus ? `<small>bonus za poteze: ${bonus}</small>` : '');
+  const lik = $('zmaga-lik');
+  lik.className = 'zmaga-lik ' + p.animacija;
+  lik.innerHTML = `<span>${vsebina(p)}</span>`;
+  [...$('zmaga-zvezdice').children].forEach((z, i) => {
+    z.className = '';
+    if (i < zvezdice) setTimeout(() => { z.className = 'polna'; }, 500 + i * 350);
   });
+  const konfeti = $('konfeti');
+  const barve = ['#ffd23f', '#ff4f8b', '#19b5c9', '#ffffff', '#b388ff', '#57cc99'];
+  konfeti.innerHTML = Array.from({ length: 60 }, (_, i) =>
+    `<i style="left:${Math.random() * 100}%;background:${barve[i % barve.length]};--t:${2.5 + Math.random() * 2.5}s;--z:${-Math.random() * 4}s;--x:${(Math.random() - 0.5) * 120}px"></i>`).join('');
+  $('zmaga-naprej').textContent = zadnja ? 'Na zemljevid' : 'Naprej';
+  $('zmaga-naprej').onclick = () => { $('zmaga').classList.remove('odprto'); odpriZemljevid(); };
+  $('zmaga-ponovi').onclick = () => { $('zmaga').classList.remove('odprto'); zacniStopnjo(st); };
+  $('zmaga').classList.add('odprto');
 }
 
 // ---------- Zemljevid ----------
@@ -154,7 +165,7 @@ function narisiZemljevid() {
 
   z.querySelectorAll('.hisica').forEach(b => b.addEventListener('click', () => {
     const st = +b.dataset.st;
-    if (st <= napredek.odklenjeno) zacniStopnjo(st);
+    if (st <= napredek.odklenjeno) odpriPredstopnjo(st);
   }));
 
   // Kanu pri trenutni stopnji; po zmagi odpluje od prejšnje
@@ -182,15 +193,41 @@ function narisiZemljevid() {
   });
 }
 
+let prejsnjeOdklenjeno = null;
+
 function odpriZemljevid() {
   pokazi('zemljevid');
   osveziZivljenja();
-  narisiZemljevid();
+  if (Svet3D.podprt) {
+    $('zemljevid-ovoj').hidden = true;
+    $('svet3d').hidden = false;
+    Svet3D.prikazi($('svet3d'), {
+      stStopenj: STOPNJE.length,
+      odklenjeno: napredek.odklenjeno,
+      zvezdice: napredek.zvezdice,
+      prejsnje: prejsnjeOdklenjeno,
+      onStopnja: odpriPredstopnjo,
+    });
+  } else {
+    narisiZemljevid();
+  }
+  prejsnjeOdklenjeno = napredek.odklenjeno;
 }
 
 // ---------- Stopnja ----------
 
 let trenutna = null;
+
+function odpriPredstopnjo(st) {
+  const s = STOPNJE[st - 1];
+  okno({
+    naslov: `Stopnja ${st}`,
+    besedilo: `Zberi <b>${s.cilj}</b> točk<br>v <b>${s.poteze}</b> potezah`,
+    zvezdice: napredek.zvezdice[st] || 0,
+    zapri: true,
+    gumbi: [{ tekst: 'Igraj!', akcija: () => zacniStopnjo(st) }],
+  });
+}
 
 function zacniStopnjo(st) {
   osveziZivljenja();
@@ -233,18 +270,8 @@ async function zmagal(st) {
   napredek.zvezdice[st] = Math.max(napredek.zvezdice[st] || 0, zv);
   if (st >= napredek.odklenjeno && st < STOPNJE.length) napredek.odklenjeno = st + 1;
   shrani();
-  await sleep(500);
-  await proslava();
-  const zadnja = st === STOPNJE.length;
-  okno({
-    naslov: zadnja ? 'Dora je priveslala do konca! 🚩' : `Stopnja ${st} opravljena!`,
-    besedilo: `${tocke} točk` + (bonus ? ` (bonus za poteze: ${bonus})` : ''),
-    zvezdice: zv,
-    gumbi: [
-      { tekst: zadnja ? 'Na zemljevid' : 'Naprej', akcija: odpriZemljevid },
-      { tekst: 'Ponovi', drugotni: true, akcija: () => zacniStopnjo(st) },
-    ],
-  });
+  await sleep(700);
+  zaslonZmage({ st, tocke, bonus, zvezdice: zv, zadnja: st === STOPNJE.length });
 }
 
 function izgubil(st) {
@@ -330,4 +357,5 @@ Plosca.init($('plosca'), $('plosca-ovoj'));
 $('play').addEventListener('click', odpriZemljevid);
 $('nazaj-vstop').addEventListener('click', () => pokazi('vstop'));
 $('nazaj-zemljevid').addEventListener('click', zapustiStopnjo);
+$('okno-zapri').addEventListener('click', zapriOkno);
 osveziZivljenja();

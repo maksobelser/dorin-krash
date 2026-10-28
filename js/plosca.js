@@ -15,14 +15,15 @@ const Plosca = (() => {
 
   function vsebina(e) {
     if (e.slika) return `<img src="${e.slika}" alt="${e.ime}" draggable="false">`;
-    if (e.emoji) return e.emoji;
+    if (e.emoji) return `<span class="ikona">${e.emoji}</span>`;
     return `<span class="napis">${e.ime}</span>`;
   }
 
   function narisi(t) {
     const e = t.tip === 'dora' ? DORA : ELEMENTI[t.tip];
+    const id = t.tip === 'dora' ? 'dora' : e.id;
     t.el.className = 'ploscica' + (t.tip === 'dora' ? ' dora' : '');
-    t.el.innerHTML = `<div class="element" style="--barva:${e.barva}">${vsebina(e)}</div>` +
+    t.el.innerHTML = `<div class="element el-${id}" style="--barva:${e.barva}">${vsebina(e)}</div>` +
       (t.tip === 'dora' ? '<span class="strela">⚡</span>' : '');
   }
 

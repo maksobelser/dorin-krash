@@ -8,7 +8,10 @@ Vir: zapiski sestanka (2 strani v zvezku) in odločitve z dne 28. 10. 2026.
 
 Zemljevid, življenja, mehanika, stopnje s proslavami, dizajn in logo.
 
-Dizajn: sladek, sijoč, risankast videz, kot je značilen za ta žanr. Logo in grafika sta lastna (ne posnemata logotipa ali grafike Candy Crusha).
+Dizajn: sijoč, risankast 3D videz, kot je značilen za ta žanr, z rečno in travniško temo (turkizna, koralna, rumena). Logo in grafika sta lastna (ne posnemata logotipa ali grafike Candy Crusha).
+
+- 3D zemljevid: svet je vrteč se valj, potok Grosupeljščica z animirano vodo, peno in lokvanji, hišice, drevesa, Dora vesla v čolnu od stopnje do stopnje.
+- Okno pred stopnjo (cilj, poteze, zvezdice, »Igraj!«), zaslon zmage z zvezdicami, konfeti in proslavo.
 
 ## Ogrodje (scaffold)
 
