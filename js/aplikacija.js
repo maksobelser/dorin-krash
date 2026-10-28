@@ -11,10 +11,93 @@ let napredek = { odklenjeno: 1, zvezdice: {}, zivljenja: ZIVLJENJA.najvec, obnov
 try {
   const shranjeno = JSON.parse(localStorage.getItem(KLJUC));
   if (shranjeno) napredek = { ...napredek, ...shranjeno };
+  // Ko dodamo nove stopnje: kdor je rešil zadnjo staro, dobi odklenjeno naslednjo
+  if (napredek.zvezdice[napredek.odklenjeno] && napredek.odklenjeno < STOPNJE.length) napredek.odklenjeno++;
 } catch (_) {}
 
 function shrani() {
   try { localStorage.setItem(KLJUC, JSON.stringify(napredek)); } catch (_) {}
+}
+
+// ---------- Igralec in lestvica ----------
+
+// Vpis je samo ime: z njim se rezultat tega telefona pokaže na skupni lestvici.
+const KLJUC_IGRALCA = 'dorin-kras-igralec';
+let igralec = null;
+try { igralec = JSON.parse(localStorage.getItem(KLJUC_IGRALCA)); } catch (_) {}
+if (!igralec || !/^[a-z0-9]{8,32}$/.test(igralec.id || '')) {
+  const nakljucno = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => (b % 36).toString(36)).join('');
+  igralec = { id: nakljucno, ime: '' };
+}
+function shraniIgralca() {
+  try { localStorage.setItem(KLJUC_IGRALCA, JSON.stringify(igralec)); } catch (_) {}
+}
+
+function mojRezultat() {
+  const vsota = o => Object.values(o || {}).reduce((a, b) => a + b, 0);
+  return { zvezdice: vsota(napredek.zvezdice), tocke: vsota(napredek.tocke), stopnja: Object.keys(napredek.zvezdice).length };
+}
+
+// Pošlje rezultat (če je ime vpisano) in vrne skupno lestvico; null, če ni povezave ali baza ni vklopljena.
+async function lestvicaStreznik() {
+  try {
+    const odgovor = igralec.ime
+      ? await fetch('api/lestvica', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: igralec.id, ime: igralec.ime, ...mojRezultat() }) })
+      : await fetch('api/lestvica');
+    if (!odgovor.ok) return null;
+    return (await odgovor.json()).igralci || null;
+  } catch (_) { return null; }
+}
+
+const varno = t => String(t).replace(/[&<>"']/g, z => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[z]);
+const stopenj = n => `${n} ${n === 1 ? 'stopnja' : n === 2 ? 'stopnji' : n < 5 ? 'stopnje' : 'stopenj'}`;
+
+let lestvicaOdkod = 'vstop';
+async function odpriLestvico(odkod) {
+  lestvicaOdkod = odkod;
+  pokazi('lestvica');
+  const seznam = $('lestvica-seznam');
+  seznam.innerHTML = '<li class="nalagam"><span class="mesto">⏳</span><span class="kdo">Nalagam …</span></li>';
+  $('lestvica-opomba').textContent = '';
+  let igralci = await lestvicaStreznik();
+  if (!igralci) {
+    igralci = [{ id: igralec.id, ime: igralec.ime || 'Ti', ...mojRezultat() }];
+    $('lestvica-opomba').textContent = 'Skupna lestvica še ni vklopljena, zato vidiš samo svoj rezultat.';
+  } else if (!igralec.ime) {
+    $('lestvica-opomba').textContent = 'Vpiši ime na prvem zaslonu, da se pokažeš tudi ti.';
+  }
+  seznam.innerHTML = igralci.map((p, i) => `
+    <li class="${p.id === igralec.id ? 'jaz' : ''} ${i === 0 ? 'prvi' : ''}" style="animation-delay:${i * 70}ms">
+      <span class="mesto">${['🥇', '🥈', '🥉'][i] || i + 1}</span>
+      <span class="kdo">${varno(p.ime)}<small>${stopenj(p.stopnja || 0)}</small></span>
+      <span class="rezultat"><b>★ ${p.zvezdice}</b><small>${p.tocke} točk</small></span>
+    </li>`).join('') || '<li><span class="mesto">🏝️</span><span class="kdo">Še nihče. Bodi prvi!</span></li>';
+}
+
+// Vstopni zaslon: vpis imena ali pozdrav
+function osveziVpis() {
+  $('vpis').hidden = !!igralec.ime;
+  $('pozdrav').hidden = !igralec.ime;
+  $('pozdrav-ime').textContent = igralec.ime;
+}
+
+function igraj(e) {
+  if (e) e.preventDefault();
+  if (!igralec.ime) {
+    const ime = $('vpis-ime').value.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 20);
+    if (!ime) {
+      $('vpis').classList.remove('napaka');
+      void $('vpis').offsetWidth;
+      $('vpis').classList.add('napaka');
+      $('vpis-ime').focus();
+      return;
+    }
+    igralec.ime = ime;
+    shraniIgralca();
+    osveziVpis();
+    lestvicaStreznik();
+  }
+  odpriZemljevid();
 }
 
 // ---------- Življenja ----------
@@ -314,6 +397,11 @@ function zacniStopnjo(st) {
     z.classList.remove('dosezena');
   });
   hudTocke = 0;
+  $('intro-st').textContent = `Stopnja ${st}`;
+  $('intro-cilj').textContent = `Zberi ${s.cilj} točk v ${s.poteze} potezah`;
+  $('intro').classList.remove('tece');
+  void $('intro').offsetWidth;
+  $('intro').classList.add('tece');
   Plosca.zacni(s, {
     tocke: n => {
       if (n > hudTocke) { stej(hudTocke, n, 450, v => { $('hud-tocke').textContent = v; }); bump($('hud-tocke')); }
@@ -330,6 +418,7 @@ function zacniStopnjo(st) {
     poteze: n => {
       $('hud-poteze').textContent = n;
       $('hud-poteze').parentElement.classList.toggle('malo', n <= 5);
+      if (n === 5 && n < s.poteze) Plosca.napis('Še 5 potez!', 'vroce');
       bump($('hud-poteze'));
     },
     konec: zmaga => (zmaga ? zmagal(st) : izgubil(st)),
@@ -344,8 +433,11 @@ async function zmagal(st) {
   $('hud-tocke').textContent = tocke;
   const zv = ZVEZDICE.filter(m => tocke >= s.cilj * m).length;
   napredek.zvezdice[st] = Math.max(napredek.zvezdice[st] || 0, zv);
+  napredek.tocke = napredek.tocke || {};
+  napredek.tocke[st] = Math.max(napredek.tocke[st] || 0, tocke);
   if (st >= napredek.odklenjeno && st < STOPNJE.length) napredek.odklenjeno = st + 1;
   shrani();
+  lestvicaStreznik();
   // »Dorin kraš!«: preostale poteze se razstrelijo za bonus
   const poteze = stanje.poteze, osnova = stanje.tocke;
   await sleep(400);
@@ -432,21 +524,28 @@ function tick() {
 
 tick();
 
+// Na vstopnem zaslonu padajo stvari iz igre
+const PADAJOCE = [...ELEMENTI.filter(e => e.slika).map(e => e.slika), 'slike/dora.svg', 'slike/tupko-sedi.svg', 'slike/mirt-pivo.svg'];
 const sky = $('sky');
 for (let i = 0; i < 18; i++) {
   const d = document.createElement('div');
   d.className = 'drop';
   d.style.left = Math.random() * 100 + 'vw';
-  d.style.setProperty('--s', 18 + Math.random() * 22 + 'px');
+  d.style.setProperty('--s', 40 + Math.random() * 26 + 'px');
   d.style.setProperty('--d', 6 + Math.random() * 8 + 's');
   d.style.setProperty('--delay', -Math.random() * 14 + 's');
-  d.innerHTML = '<div class="candy c' + (i % 6) + '"></div>';
+  d.innerHTML = `<img src="${PADAJOCE[i % PADAJOCE.length]}" alt="">`;
   sky.appendChild(d);
 }
 
 Plosca.init($('plosca'), $('plosca-ovoj'));
-$('play').addEventListener('click', odpriZemljevid);
-$('nazaj-vstop').addEventListener('click', () => pokazi('vstop'));
+$('play').addEventListener('click', igraj);
+$('vpis').addEventListener('submit', igraj);
+$('nisem-jaz').addEventListener('click', () => { igralec.ime = ''; shraniIgralca(); osveziVpis(); $('vpis-ime').value = ''; $('vpis-ime').focus(); });
+$('odpri-lestvico').addEventListener('click', () => odpriLestvico('vstop'));
+$('pokal').addEventListener('click', () => odpriLestvico('zemljevid'));
+$('nazaj-lestvica').addEventListener('click', () => (lestvicaOdkod === 'zemljevid' ? odpriZemljevid() : pokazi('vstop')));
+osveziVpis();
 $('nazaj-zemljevid').addEventListener('click', zapustiStopnjo);
 $('okno-zapri').addEventListener('click', zapriOkno);
 $('zivljenja').addEventListener('click', oknoZivljenj);

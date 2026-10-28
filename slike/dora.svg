@@ -3,7 +3,9 @@
     <!-- lasje zadaj (dolgi, valoviti) -->
     <path d="M66 96 C70 52 100 30 130 30 C166 30 196 54 196 98 C204 120 196 140 208 160 C220 182 204 196 214 220 C200 236 180 232 172 222 L84 222 C74 234 52 236 42 220 C54 198 36 182 48 160 C60 140 52 120 66 96 Z" fill="#5a3825"/>
     <!-- majica in ramena -->
-    <path d="M54 256 C56 216 90 200 128 200 C166 200 200 216 202 256 Z" fill="#ff6b8b"/>
+    <path d="M54 256 C56 216 90 200 128 200 C166 200 200 216 202 256 Z" fill="#ff4fa3"/>
+    <path d="M68 224 L86 212 L98 256 L76 256 Z" fill="#8e5bd6"/>
+    <path d="M188 224 L170 212 L158 256 L180 256 Z" fill="#8e5bd6"/>
     <!-- vrat -->
     <path d="M110 172 L110 204 C118 212 138 212 146 204 L146 172 Z" fill="#efc1a6"/>
     <!-- ušesa -->
@@ -38,16 +40,16 @@
   <path d="M88 104 Q103 92 118 101" fill="none" stroke="#3a2416" stroke-width="7" stroke-linecap="round"/>
   <path d="M138 101 Q153 92 168 104" fill="none" stroke="#3a2416" stroke-width="7" stroke-linecap="round"/>
   <!-- oči (modro-zelene) -->
-  <ellipse cx="104" cy="124" rx="12" ry="10" fill="#fff"/>
-  <ellipse cx="152" cy="124" rx="12" ry="10" fill="#fff"/>
-  <circle cx="105" cy="125" r="7.5" fill="#4fa3a5"/>
-  <circle cx="151" cy="125" r="7.5" fill="#4fa3a5"/>
-  <circle cx="105" cy="125" r="3.6" fill="#1a1a1a"/>
-  <circle cx="151" cy="125" r="3.6" fill="#1a1a1a"/>
-  <circle cx="108" cy="122" r="2.2" fill="#fff"/>
-  <circle cx="154" cy="122" r="2.2" fill="#fff"/>
-  <path d="M91 120 Q104 110 117 119" fill="none" stroke="#2a1b14" stroke-width="4" stroke-linecap="round"/>
-  <path d="M139 119 Q152 110 165 120" fill="none" stroke="#2a1b14" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="104" cy="123" rx="14" ry="12.5" fill="#fff"/>
+  <ellipse cx="152" cy="123" rx="14" ry="12.5" fill="#fff"/>
+  <circle cx="105" cy="124" r="9.5" fill="#4fa3a5"/>
+  <circle cx="151" cy="124" r="9.5" fill="#4fa3a5"/>
+  <circle cx="105" cy="124" r="4.6" fill="#1a1a1a"/>
+  <circle cx="151" cy="124" r="4.6" fill="#1a1a1a"/>
+  <circle cx="109" cy="120" r="3.2" fill="#fff"/>
+  <circle cx="155" cy="120" r="3.2" fill="#fff"/>
+  <path d="M89 118 Q104 106 119 117" fill="none" stroke="#2a1b14" stroke-width="4" stroke-linecap="round"/>
+  <path d="M137 117 Q152 106 167 118" fill="none" stroke="#2a1b14" stroke-width="4" stroke-linecap="round"/>
   <!-- nos -->
   <path d="M128 130 Q123 144 131 147" fill="none" stroke="#c98f78" stroke-width="3.5" stroke-linecap="round"/>
   <!-- lička -->

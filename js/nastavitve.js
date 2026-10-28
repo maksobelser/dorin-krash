@@ -17,6 +17,8 @@ const ELEMENTI = [
 // Posebna bomba: nastane, ko poravnaš 4 ali več enakih (v vrsto ali v obliki L/T).
 // Ko jo premakneš, Dora s strelami iz oči razbije svojo vrsto in vse okoli sebe.
 const DORA = { ime: 'Dora', emoji: '👧', barva: '#ff8fab', slika: 'slike/dora.svg' };
+// Dora na čolnu: cela postava z veslom (portret zgoraj je za ploščico)
+const DORA_COLN = { ime: 'Dora', emoji: '🚣‍♀️', slika: 'slike/dora-coln.svg' };
 
 // Proslave ob zmagi stopnje (izmenično).
 const PROSLAVE = [
@@ -48,6 +50,10 @@ const LIKI_OB_POTI = [
   MIRT_POZE[4], TUPKO_POZE[2], MIRT_POZE[2], TUPKO_POZE[3], TUPKO_POZE[0],
 ];
 
+// Piknik ob Grosupeljščici: 10 prijateljev, žar in balinčki.
+// Vrstni red: 1 žar, 2 pivo, 3 maha, 4 meče balinček, 5 pivo, 6 aperol, 7 sedi, 8 kitara, 9 maha, 10 meče balinček
+const PRIJATELJI = Array.from({ length: 10 }, (_, i) => ({ ime: 'Prijatelj', emoji: '🧑', slika: `slike/prijatelj-${String(i + 1).padStart(2, '0')}.svg` }));
+
 // Stopnje: poteze = število potez, cilj = točke za 1 zvezdico,
 // elementi = koliko različnih elementov je na plošči (manj = lažje).
 // Cilji so nastavljeni s simulacijo naključnih potez (300 iger na stopnjo):
@@ -65,6 +71,19 @@ const STOPNJE = [
   { poteze: 20, cilj: 3300, elementi: 6 },
   { poteze: 18, cilj: 3100, elementi: 6 },
   { poteze: 20, cilj: 3600, elementi: 6 },
+  // 13–24: nadaljevanje (za mostom in mimo piknika); cilji po vzorcu 7–12, s simulacijo še niso preverjeni
+  { poteze: 20, cilj: 3300, elementi: 6 },
+  { poteze: 18, cilj: 3100, elementi: 6 },
+  { poteze: 22, cilj: 3700, elementi: 6 },
+  { poteze: 20, cilj: 3400, elementi: 6 },
+  { poteze: 18, cilj: 3200, elementi: 6 },
+  { poteze: 20, cilj: 3600, elementi: 6 },
+  { poteze: 18, cilj: 3300, elementi: 6 },
+  { poteze: 20, cilj: 3700, elementi: 6 },
+  { poteze: 18, cilj: 3400, elementi: 6 },
+  { poteze: 20, cilj: 3800, elementi: 6 },
+  { poteze: 18, cilj: 3500, elementi: 6 },
+  { poteze: 22, cilj: 4100, elementi: 6 },
 ];
 
 // Zvezdice: 1 ob cilju, 2 in 3 ob večkratniku cilja.

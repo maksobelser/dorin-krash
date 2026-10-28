@@ -7,13 +7,14 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 - Navaden HTML, CSS in JavaScript. Brez gradnje (build), brez npm paketov, brez ogrodij (framework).
 - Izjema: three.js r128 s CDN (cdnjs) za 3D zemljevid in pisavi Lilita One ter Nunito z Google Fonts. Če WebGL ne dela, se pokaže 2D zemljevid.
 - Stran se objavi na Vercelu kot statična stran. `index.html` mora ostati v korenu repoja.
+- Izjema za strežnik: `api/lestvica.js` je Vercel funkcija za skupno lestvico (Upstash Redis prek REST, brez npm paketov). Naslov in žeton baze sta samo v okolju Vercela (`KV_REST_API_URL`, `KV_REST_API_TOKEN`), nikoli v repoju. Brez njiju igra pokaže samo rezultat tega telefona.
 - Imena datotek z malimi črkami, brez presledkov in šumnikov (`kanu.png`, ne `Kanu.PNG`). Vercel razlikuje velike in male črke.
 - Poti do slik in skript relativne (`slike/burek.png`, ne `/slike/burek.png`).
 - Slike v mapi `slike/`, zvoki v `zvoki/`. Slike naj bodo majhne (PNG ali WebP, do ~200 KB).
 
 ## Igra
 
-- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln), `js/aplikacija.js` (zasloni, 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
+- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln), `js/aplikacija.js` (zasloni, vpis z imenom, lestvica, 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
 - Slike in stopnje se menjajo samo v `js/nastavitve.js`.
 - Brez ES modulov (`type="module"`), ker se ne naložijo, ko `index.html` odpreš z dvoklikom.
 

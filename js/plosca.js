@@ -6,6 +6,7 @@ const Plosca = (() => {
   const CAS = { menjava: 200, pok: 260, padec: 320, namig: 6000 };
   const TOCKE_NA_ELEMENT = 20;
   const KOMBO_BESEDILA = ['', '', 'Super!', 'Odlično!', 'Bravo, Dora!', 'Noro!', 'Dorin kraš!'];
+  const POHVALE = ['Super!', 'Bravo!', 'Odlično!', 'Wow!', 'Fantastično!', 'Na zdravje!', 'Sladko!'];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   let el, ovoj, grid = [], stEl = 6, stanje = null, povratni = {};
@@ -122,9 +123,13 @@ const Plosca = (() => {
       }
     } while (!najdiPotezo(g));
     el.querySelectorAll('.ploscica').forEach(x => x.remove());
-    grid = g.map((vrsta, r) => vrsta.map((tip, c) => ustvari(tip, r - N, c)));
+    grid = g.map((vrsta, r) => vrsta.map((tip, c) => ustvari(tip, r - N - 1, c)));
     void el.offsetWidth;
-    grid.forEach((vrsta, r) => vrsta.forEach((t, c) => postavi(t, r, c)));
+    grid.forEach((vrsta, r) => vrsta.forEach((t, c) => {
+      t.el.style.transition = `transform .5s cubic-bezier(.34, 1.5, .64, 1) ${(N - 1 - r) * 55 + c * 30}ms`;
+      postavi(t, r, c);
+    }));
+    setTimeout(() => grid.forEach(v => v.forEach(t => { if (t) t.el.style.transition = ''; })), 1100);
   }
 
   function zamenjajVMrezi(a, b) {
@@ -214,7 +219,11 @@ const Plosca = (() => {
         const [b] = sprozene;
         plavajoceTocke(razstreljeno.size * TOCKE_NA_ELEMENT * kombo, Math.floor(b / N), b % N);
       } else if (kombo >= 2) {
-        obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)]);
+        obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)], kombo >= 4 ? 'vroce' : '');
+      } else if (skupine.some(sk => sk.length >= 5)) {
+        obvestilo('Fantastično!', 'roza');
+      } else if (nove.length || pok.size >= 6) {
+        obvestilo(POHVALE[Math.floor(Math.random() * POHVALE.length)]);
       }
       if (kombo >= 3 && !sprozene.size) tresi(false);
       Zvok.pok(kombo);
@@ -378,9 +387,11 @@ const Plosca = (() => {
     await sleep(400);
   }
 
-  function obvestilo(besedilo) {
+  function obvestilo(besedilo, razred = '') {
+    ovoj.querySelectorAll('.plavajoce').forEach(x => x.remove()); // vedno samo en napis
     const o = document.createElement('div');
-    o.className = 'plavajoce';
+    o.className = 'plavajoce ' + razred;
+    o.style.setProperty('--rot', (Math.random() * 10 - 5).toFixed(1) + 'deg');
     o.textContent = besedilo;
     ovoj.appendChild(o);
     setTimeout(() => o.remove(), 1000);
@@ -471,7 +482,15 @@ const Plosca = (() => {
     napolni();
     povratni.tocke(0);
     povratni.poteze(stanje.poteze);
-    nacrtujNamig();
+    zaseden = true;
+    const id = igraId;
+    setTimeout(() => {
+      if (id !== igraId) return;
+      zaseden = false;
+      obvestilo('Gremo!', 'roza');
+      Zvok.nastala();
+      nacrtujNamig();
+    }, 1700);
   }
 
   function ustavi() {
@@ -480,5 +499,5 @@ const Plosca = (() => {
     if (stanje) stanje.konec = true;
   }
 
-  return { init, zacni, ustavi, finale, stanje: () => stanje };
+  return { init, zacni, ustavi, finale, napis: obvestilo, stanje: () => stanje };
 })();
