@@ -23,7 +23,7 @@ const DORA_COLN = { ime: 'Dora', emoji: '🚣‍♀️', slika: 'slike/dora-coln
 // Proslave ob zmagi stopnje (izmenično).
 const PROSLAVE = [
   { besedilo: 'Mičko dela stojo!', emoji: '🧍', animacija: 'skok', slika: 'slike/micko-stoja.svg' },
-  { besedilo: 'Urbi bog!',         emoji: '😇', animacija: 'sij',   slika: null },
+  { besedilo: 'Urbi Bog!',         emoji: '😇', animacija: 'sij',   slika: 'slike/urban-bog.svg' },
 ];
 
 // Zemljevid: Mirt pri domu na začetku, ob hišicah se izmenjujeta Mirt in Tupko v različnih pozah.
@@ -36,6 +36,12 @@ const MIRT_POZE = [
   { ime: 'Mirt', emoji: '🧑', slika: 'slike/mirt-tupko.svg' },  // se igra s Tupkom
 ];
 const MIRT = MIRT_POZE[0];
+// Ponoči se Mirt ob hišicah umiri (zamenja dnevne poze po vrsti).
+const MIRT_NOC = [
+  { ime: 'Mirt', emoji: '😴', slika: 'slike/mirt-spi.svg' },
+  { ime: 'Mirt', emoji: '🍿', slika: 'slike/mirt-film.svg' },
+  { ime: 'Mirt', emoji: '📱', slika: 'slike/mirt-telefon.svg' },
+];
 const TUPKO_POZE = [
   { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-sedi.svg' },
   { ime: 'Tupko', emoji: '🐈‍⬛', slika: 'slike/tupko-lezi.svg' },

@@ -85,6 +85,7 @@ body:not([data-zaslon="vstop"]) .sky { display: none; }
   text-shadow: 0 4px 0 #5c1233, 0 8px 14px rgba(0,0,0,.25);
 }
 .tupko-vstop { position: absolute; right: -14px; bottom: -34px; width: 96px; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.2)); }
+.mirt-vstop { position: absolute; left: -16px; bottom: -30px; width: 104px; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.2)); }
 .vpis { margin: 0 0 14px; }
 .vpis label { display: block; font-family: var(--naslov); font-size: 20px; color: var(--koral); margin-bottom: 4px; }
 .vpis input {
@@ -492,11 +493,12 @@ button.zvok {
 .zmaga-tocke small { display: block; font-family: var(--besedilo); font-size: 14px; font-weight: 800; opacity: .9; }
 .zmaga-gumbi { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; width: min(100%, 300px); }
 .zmaga-lik {
-  position: absolute; bottom: 24px; left: 50%; translate: -50% 0;
-  font-size: 150px; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
+  /* v toku pod gumbi: zapolni preostali prostor in nikoli ne prekrije gumbov */
+  position: relative; margin-top: auto; padding-bottom: max(16px, env(safe-area-inset-bottom));
+  font-size: 120px; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
   animation: lik-gor .7s cubic-bezier(.3,1.5,.5,1) .3s both;
 }
-.zmaga-lik img { width: 220px; height: 220px; object-fit: contain; }
+.zmaga-lik img { width: clamp(110px, 28vh, 220px); height: clamp(110px, 28vh, 220px); object-fit: contain; display: block; }
 .zmaga-lik.stoja > * { display: inline-block; animation: stoja 1.4s ease-in-out 1s both; }
 @keyframes stoja { 0% { transform: rotate(0); } 60% { transform: rotate(200deg); } 100% { transform: rotate(180deg); } }
 .zmaga-lik.sij > * { display: inline-block; animation: sij 1s ease-in-out infinite; }
@@ -647,6 +649,8 @@ button.pokal {
   box-shadow: 0 4px 0 #b07d00, 0 6px 12px rgba(0,0,0,.25);
 }
 button.pokal:active { box-shadow: 0 1px 0 #b07d00; }
+button.pokal small { font-family: var(--besedilo); font-size: 13px; font-weight: 900; opacity: .85; margin-left: 2px; }
+.moj-rezultat { margin: -8px 0 16px; font-size: 15px; font-weight: 900; color: #0b6c7c; }
 .razmik { flex: 1; }
 #zaslon-lestvica {
   padding: max(10px, env(safe-area-inset-top)) 14px 16px; overflow-y: auto;

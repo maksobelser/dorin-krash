@@ -79,6 +79,16 @@ function osveziVpis() {
   $('vpis').hidden = !!igralec.ime;
   $('pozdrav').hidden = !igralec.ime;
   $('pozdrav-ime').textContent = igralec.ime;
+  osveziRezultat();
+}
+
+// Seštevek (najboljši rezultat na stopnjo) na gumbu lestvice in v pozdravu na vstopu
+const stevilo = n => n.toLocaleString('sl-SI');
+function osveziRezultat() {
+  const r = mojRezultat();
+  $('pokal-rezultat').innerHTML = r.zvezdice ? `⭐ ${r.zvezdice} <small>${stevilo(r.tocke)}</small>` : 'Lestvica';
+  $('moj-rezultat').hidden = !igralec.ime || !r.zvezdice;
+  $('moj-rezultat').textContent = `⭐ ${r.zvezdice}  ·  ${stevilo(r.tocke)} točk`;
 }
 
 function igraj(e) {
@@ -332,6 +342,7 @@ function nastaviNoc(b) {
 function odpriZemljevid() {
   pokazi('zemljevid');
   osveziZivljenja();
+  osveziRezultat();
   if (Svet3D.podprt) {
     $('zemljevid-ovoj').hidden = true;
     $('svet3d').hidden = false;
@@ -537,7 +548,8 @@ function tick() {
 tick();
 
 // Na vstopnem zaslonu padajo stvari iz igre
-const PADAJOCE = [...ELEMENTI.filter(e => e.slika).map(e => e.slika), 'slike/dora.svg', 'slike/tupko-sedi.svg', 'slike/mirt-pivo.svg'];
+// na vstopnem zaslonu padajo samo hrana in pijača
+const PADAJOCE = ['slike/burek.svg', 'slike/rakija.svg', 'slike/pivo.svg', 'slike/aperol.svg', 'slike/domacica.svg'];
 const sky = $('sky');
 for (let i = 0; i < 18; i++) {
   const d = document.createElement('div');

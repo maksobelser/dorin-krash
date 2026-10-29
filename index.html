@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&display=swap">
-<link rel="stylesheet" href="css/stil.css?v=35">
+<link rel="stylesheet" href="css/stil.css?v=36">
 </head>
 <body data-zaslon="vstop">
   <div class="sky" id="sky"></div>
@@ -36,9 +36,11 @@
         <input id="vpis-ime" maxlength="20" autocomplete="nickname" enterkeyhint="go" placeholder="Tvoje ime za lestvico">
       </form>
       <p class="pozdrav" id="pozdrav" hidden>Živjo, <b id="pozdrav-ime"></b>! 👋 <button class="povezava" id="nisem-jaz" type="button">Nisi ti?</button></p>
+      <p class="moj-rezultat" id="moj-rezultat" hidden></p>
 
       <button id="play">Igraj</button>
       <button class="drugotni lestvica-gumb" id="odpri-lestvico">🏆 Lestvica</button>
+      <img class="mirt-vstop" src="slike/mirt-maha.svg" alt="">
       <img class="tupko-vstop" src="slike/tupko-lezi.svg" alt="">
     </main>
   </section>
@@ -46,7 +48,7 @@
   <!-- Zemljevid ob Grosupeljščici -->
   <section class="zaslon" id="zaslon-zemljevid">
     <header class="vrstica">
-      <button class="pokal" id="pokal">🏆 Lestvica</button>
+      <button class="pokal" id="pokal" aria-label="Lestvica">🏆 <span id="pokal-rezultat">Lestvica</span></button>
       <span class="razmik"></span>
       <button class="dan-noc" id="dan-noc" aria-label="Dan ali noč"><span class="ikona-sonce">☀️</span><span class="ikona-luna">🌙</span></button>
       <button class="zivljenja" id="zivljenja" aria-label="Življenja"></button>
@@ -71,7 +73,7 @@
     <main class="lestvica-karta">
       <img class="dora-lestvica" src="slike/dora-explora.svg" alt="">
       <h2 class="explora"><span>L</span><span>e</span><span>s</span><span>t</span><span>v</span><span>i</span><span>c</span><span>a</span></h2>
-      <p class="lestvica-pod">Kdo je najdlje prijadral po Grosupeljščici?</p>
+      <p class="lestvica-pod">Kdo je najdlje priveslal po Grosupeljščici?</p>
       <ol class="lestvica-seznam" id="lestvica-seznam"></ol>
       <p class="lestvica-opomba" id="lestvica-opomba"></p>
     </main>
@@ -127,11 +129,11 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/nastavitve.js?v=35"></script>
-  <script src="js/zvok.js?v=35"></script>
-  <script src="js/glasba.js?v=35"></script>
-  <script src="js/plosca.js?v=35"></script>
-  <script src="js/svet3d.js?v=35"></script>
-  <script src="js/aplikacija.js?v=35"></script>
+  <script src="js/nastavitve.js?v=36"></script>
+  <script src="js/zvok.js?v=36"></script>
+  <script src="js/glasba.js?v=36"></script>
+  <script src="js/plosca.js?v=36"></script>
+  <script src="js/svet3d.js?v=36"></script>
+  <script src="js/aplikacija.js?v=36"></script>
 </body>
 </html>

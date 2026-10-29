@@ -33,7 +33,7 @@ const Svet3D = (() => {
   // Prigode ob poti (naključno razporejene) in Tupkovi »mjav«
   let race = [], baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
   // Dan in noč
-  let noc = false, hemi, oknoMat, luc, dnevni, nocni, metulji = [], oci = [], kresnice = [], temni = [];
+  let noc = false, mirtovi = [], hemi, oknoMat, luc, dnevni, nocni, metulji = [], oci = [], kresnice = [], temni = [];
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
 
   // 0 = dom, 1..n = stopnje, n+1 = zastavica; za mostom je malo več prostora
@@ -735,7 +735,7 @@ const Svet3D = (() => {
     }
   }
 
-  const MJAVI = ['Mjav!', 'Mjaaav!', 'Mrrrr…', 'Mjav?', 'Mijav!', 'Prrr ♥', 'Mjav mjav!', 'Lačen!'];
+  const MJAVI = ['Mjav!', 'Mjaaav!', 'Mjav?', 'Mijav!', 'Mjav mjav!', 'Lačen!'];
   function mjavni(t, zvok) {
     if (oblacek) svet.remove(oblacek.s);
     const c = document.createElement('canvas');
@@ -952,6 +952,8 @@ const Svet3D = (() => {
       svet.add(s);
       liki.push({ s, baza: s.position.clone(), n: normala(th), faza: Math.random() * 20, v: velikost });
       if (e.ime === 'Tupko') { s.userData.tupko = true; tupki.push({ s, th, v: velikost }); }
+      // ponoči Mirt ne kolesari in ne telovadi: spi, gleda film ali je na telefonu
+      if (e.ime === 'Mirt') mirtovi.push({ s, dan: s.material.map, noc: teksturaLika(MIRT_NOC[mirtovi.length % MIRT_NOC.length]) });
     };
     dodajLik(MIRT, 3.4, -0.035, xDom + 2.6, R + 1.6);
     napisReke(-0.125, 0.02);
@@ -1327,6 +1329,7 @@ const Svet3D = (() => {
     if (lucMat) lucMat.emissive.setHex(noc ? 0xffc866 : 0x332a10);
     vodaMat.uniforms.uNoc.value = noc ? 1 : 0;
     temni.forEach(o => o.material.color.setHex(noc ? 0x6a76a0 : 0xffffff));
+    mirtovi.forEach(m => { m.s.material.map = noc ? m.noc : m.dan; m.s.material.color.setHex(noc ? 0xb4bfec : 0xffffff); });
     dnevni.visible = !noc;
     nocni.visible = noc;
   }
