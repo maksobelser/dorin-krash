@@ -889,7 +889,7 @@ const Svet3D = (() => {
     // Tupko: občasno »mjav« v oblačku pri enem od Tupkov, ki so na zaslonu
     mjavCas -= 0.016;
     if (mjavCas < 0 && !potovanje) {
-      const blizu = tupki.filter(t => Math.abs(t.th - kot) < 0.22);
+      const blizu = tupki.filter(t => !t.napis && Math.abs(t.th - kot) < 0.22); // lačni Tupko ima napis že na sliki
       if (blizu.length) mjavni(blizu[Math.floor(Math.random() * blizu.length)], false);
       mjavCas = 3 + Math.random() * 4;
     }
@@ -924,7 +924,7 @@ const Svet3D = (() => {
     g.textBaseline = 'middle';
     g.fillText(MJAVI[Math.floor(Math.random() * MJAVI.length)], 128, 54);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthTest: false }));
-    s.position.copy(t.s.position).addScaledVector(normala(t.th), t.v * 0.55 + 0.9);
+    s.position.copy(t.s.position).addScaledVector(normala(t.th), t.v * 0.55 + 0.9 + (t.napis ? 1.4 : 0));
     s.renderOrder = 10;
     s.userData.svetel = true;
     svet.add(s);
@@ -1119,7 +1119,7 @@ const Svet3D = (() => {
       s.position.copy(tocka(th, x, r));
       svet.add(s);
       liki.push({ s, baza: s.position.clone(), n: normala(th), faza: Math.random() * 20, v: velikost });
-      if (e.ime === 'Tupko') { s.userData.tupko = true; tupki.push({ s, th, v: velikost }); }
+      if (e.ime === 'Tupko') { s.userData.tupko = true; tupki.push({ s, th, v: velikost, napis: /lacen/.test(e.slika || '') }); }
       // ponoči Mirt ne kolesari in ne telovadi: spi, gleda film ali je na telefonu
       if (e.ime === 'Mirt') mirtovi.push({ s, dan: s.material.map, noc: teksturaLika(MIRT_NOC[mirtovi.length % MIRT_NOC.length]) });
     };

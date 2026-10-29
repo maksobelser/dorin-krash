@@ -6,12 +6,12 @@
 // Dokler je slika null, se pokaže emoji (začasno).
 
 const ELEMENTI = [
-  { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#c2185b', slika: 'slike/burek.svg' },
-  { id: 'rakija',   ime: 'Rakija',   emoji: '🥃', barva: '#4cc9f0', slika: 'slike/rakija.svg' },
-  { id: 'pivo',     ime: 'Pivo',     emoji: '🍺', barva: '#b388ff', slika: null },
-  { id: 'aperol',   ime: 'Aperol',   emoji: '🍹', barva: '#ff6b35', slika: null },
-  { id: 'utezi',    ime: 'Uteži',    emoji: '🏋️', barva: '#57cc99', slika: 'slike/utezi.svg' },  // Dora dviguje uteži
-  { id: 'domacica', ime: 'Domačica', emoji: '🍪', barva: '#ffb300', slika: 'slike/domacica.svg' }, // piškoti Domačica
+  { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#ff2d87', slika: 'slike/burek.svg' },
+  { id: 'rakija',   ime: 'Rakija',   emoji: '🥃', barva: '#00b4ff', slika: 'slike/rakija.svg' },
+  { id: 'pivo',     ime: 'Pivo',     emoji: '🍺', barva: '#8f4dff', slika: 'slike/pivo.svg' },
+  { id: 'aperol',   ime: 'Aperol',   emoji: '🍹', barva: '#ff6a00', slika: 'slike/aperol.svg' },
+  { id: 'utezi',    ime: 'Uteži',    emoji: '🏋️', barva: '#19d46a', slika: 'slike/utezi.svg' },  // Dora dviguje uteži
+  { id: 'domacica', ime: 'Domačica', emoji: '🍪', barva: '#ffc400', slika: 'slike/domacica.svg' }, // piškoti Domačica
 ];
 
 // Posebna bomba: nastane, ko poravnaš 4 ali več enakih (v vrsto ali v obliki L/T).

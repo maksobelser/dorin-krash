@@ -377,11 +377,21 @@ button.zvok {
     radial-gradient(ellipse 80% 40% at 50% 105%, rgba(255,255,255,.35), rgba(255,255,255,0) 70%),
     radial-gradient(circle at 40% 32%, color-mix(in srgb, var(--barva), #fff 30%), var(--barva) 50%, color-mix(in srgb, var(--barva), #000 38%) 100%);
   box-shadow:
+    0 0 0 0.45cqw rgba(45,12,40,.7),
     inset 0 -0.6cqw 1cqw rgba(0,0,0,.35),
     inset 0 0.4cqw 0.5cqw rgba(255,255,255,.6),
-    0 0.6cqw 0.8cqw rgba(0,0,0,.45);
+    0 0.7cqw 0.8cqw rgba(0,0,0,.45);
+}
+/* funky: pikice čez bonbonček (statično, brez filtrov) */
+.element::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,.28) 0 14%, transparent 16%) 0 0 / 25% 25%;
+  -webkit-mask: linear-gradient(160deg, transparent 35%, #000 75%); mask: linear-gradient(160deg, transparent 35%, #000 75%);
 }
 .element .ikona { transform: translateY(2%); }
+.element img { position: relative; z-index: 1; }
+.el-burek img { rotate: -8deg; } .el-rakija img { rotate: 7deg; } .el-pivo img { rotate: -6deg; }
+.el-aperol img { rotate: 9deg; } .el-utezi img { rotate: -4deg; } .el-domacica img { rotate: 10deg; }
 .element img { width: 85%; height: 85%; object-fit: contain; pointer-events: none; }
 .napis { font-family: var(--naslov); font-size: 3.2cqw; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
 
