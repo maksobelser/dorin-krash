@@ -15,7 +15,7 @@ Dizajn: sijoč, risankast 3D videz, kot je značilen za ta žanr, z rečno in tr
 
 ## Ogrodje (scaffold)
 
-- [x] Spletna aplikacija (Vercel: https://dorin-krash-p4rv.vercel.app)
+- [x] Spletna aplikacija (Vercel: https://dorin-krash.vercel.app)
 - [x] Skupni repo → `AGENTS.md`
 - [x] Osnovna igra (base game) — veja `igra`, začasne slike
 - [x] Zemljevid stopenj (level roadmap): Grosupeljščica, Dora na kanuju — veja `igra`, 12 stopenj

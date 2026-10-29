@@ -2,7 +2,7 @@
 
 Dorin Candy Crush, za njen rojstni dan. Načrt igre je v `NACRT.md`, navodila za AI agente v `AGENTS.md`.
 
-**V živo:** https://dorin-krash-p4rv.vercel.app
+**V živo:** https://dorin-krash.vercel.app
 
 ## Kaj je narejeno
 
