@@ -32,7 +32,35 @@ const Zvok = (() => {
     return [g, odmev];
   }
 
+  // iPhone s stikalom za tiho zvonjenje utiša Web Audio. Brskalniku povemo, da je to predvajanje
+  // (novejši Safari), starejšim pa zavrtimo tiho zanko <audio>, ki preklopi zvok na zvočnik.
+  let tihaZanka = null;
+  function tihaWav() {
+    const n = 4000, b = new Uint8Array(44 + n), v = new DataView(b.buffer);
+    const str = (o, t) => [...t].forEach((ch, i) => b[o + i] = ch.charCodeAt(0));
+    str(0, 'RIFF'); v.setUint32(4, 36 + n, true); str(8, 'WAVEfmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+    str(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
+    let bin = ''; b.forEach(x => bin += String.fromCharCode(x));
+    return 'data:audio/wav;base64,' + btoa(bin);
+  }
+  function naZvocnik() {
+    try {
+      if (navigator.audioSession) { navigator.audioSession.type = 'playback'; return; }
+    } catch (_) {}
+    if (!/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) || !('ontouchend' in document)) return;
+    if (!tihaZanka) {
+      tihaZanka = document.createElement('audio');
+      tihaZanka.setAttribute('x-webkit-airplay', 'deny');
+      tihaZanka.loop = true;
+      tihaZanka.src = tihaWav();
+    }
+    if (tihaZanka.paused) tihaZanka.play().catch(() => {});
+  }
+
   function zbudi() {
+    naZvocnik();
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
@@ -53,14 +81,15 @@ const Zvok = (() => {
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       obZagonu.forEach(f => f());
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
     return ctx;
   }
   ['pointerdown', 'touchend', 'click'].forEach(d => window.addEventListener(d, zbudi, { passive: true }));
   // ko je zavihek skrit, zvok počiva (telefon v žepu, druga aplikacija)
   document.addEventListener('visibilitychange', () => {
     if (!ctx) return;
-    if (document.hidden) ctx.suspend(); else ctx.resume();
+    if (document.hidden) { ctx.suspend(); if (tihaZanka) tihaZanka.pause(); }
+    else { ctx.resume().catch(() => {}); if (tihaZanka) tihaZanka.play().catch(() => {}); }
   });
 
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);

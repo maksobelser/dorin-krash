@@ -481,7 +481,8 @@ button.zvok {
 .zmaga {
   position: fixed; inset: 0; z-index: 25; overflow: hidden;
   display: none; flex-direction: column; align-items: center;
-  padding: max(40px, env(safe-area-inset-top)) 16px 0;
+  /* vse na enem zaslonu: lik zavzame, kar ostane, gumbi so vedno spodaj vidni */
+  padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
   background: linear-gradient(180deg, #3aa0ff 0%, #8f7bff 45%, #ff7ac6 100%);
   text-align: center;
 }
@@ -494,40 +495,45 @@ button.zvok {
 @keyframes zarki { to { rotate: 360deg; } }
 .zmaga > * { position: relative; }
 .zmaga-naslov {
-  margin: 10px 0 0; font-family: var(--naslov); font-weight: 800; font-size: clamp(38px, 11vw, 58px); line-height: 1.05;
+  margin: 0; font-family: var(--naslov); font-weight: 800; font-size: clamp(30px, 8.6vw, 52px); line-height: 1.02;
   text-shadow: 0 3px 0 #8e1048, 0 6px 0 #5e0a30, 0 12px 20px rgba(0,0,0,.3);
   animation: vskok .6s cubic-bezier(.3,1.6,.5,1) both;
 }
-.zmaga-pod { margin: 10px 0 0; font-size: 20px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,.25); }
-.zmaga-zvezdice { display: flex; gap: 6px; margin: 22px 0 6px; align-items: flex-end; }
+.zmaga-pod { margin: 6px 0 0; font-size: 19px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,.25); }
+.zmaga-zvezdice { display: flex; gap: 4px; margin: 4px 0 2px; align-items: flex-end; }
 .zmaga-zvezdice span {
-  font-size: 74px; line-height: 1; color: rgba(255,255,255,.35);
+  font-size: clamp(40px, 7vh, 60px); line-height: 1; color: rgba(255,255,255,.35);
   text-shadow: 0 4px 0 rgba(0,0,0,.12);
 }
-.zmaga-zvezdice span:nth-child(2) { font-size: 96px; }
+.zmaga-zvezdice span:nth-child(2) { font-size: clamp(52px, 9vh, 78px); }
 .zmaga-zvezdice span.polna {
   color: var(--rumena);
   text-shadow: 0 4px 0 #c77d00, 0 0 24px rgba(255,236,150,.9);
   animation: zvezda .55s cubic-bezier(.3,1.8,.5,1) both;
 }
 @keyframes zvezda { from { transform: scale(0) rotate(-180deg); } }
-.zmaga-tocke { font-family: var(--naslov); font-size: 26px; text-shadow: 0 2px 0 rgba(0,0,0,.2); }
+.zmaga-tocke { font-family: var(--naslov); font-size: 24px; text-shadow: 0 2px 0 rgba(0,0,0,.2); }
 .zmaga-tocke small { display: block; font-family: var(--besedilo); font-size: 14px; font-weight: 800; opacity: .9; }
-.zmaga-gumbi { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; width: min(100%, 300px); }
+.zmaga-gumbi { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; width: min(100%, 320px); }
+.zmaga-gumbi button { font-size: 20px; padding: 11px 16px; }
+.zmaga-vrsta { display: flex; gap: 10px; }
+.zmaga .zmaga-vrsta button { flex: 1; font-size: 17px; padding: 9px 8px; white-space: nowrap; }
 .zmaga-lik {
-  /* v toku pod gumbi: zapolni preostali prostor in nikoli ne prekrije gumbov */
-  position: relative; margin-top: auto; padding-bottom: max(16px, env(safe-area-inset-bottom));
-  font-size: 120px; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
+  /* junak proslave na sredini: zavzame preostali prostor med naslovom in točkami */
+  position: relative; flex: 1 1 0; min-height: 90px; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 110px; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
   animation: lik-gor .7s cubic-bezier(.3,1.5,.5,1) .3s both;
 }
-.zmaga-lik img { width: clamp(110px, 28vh, 220px); height: clamp(110px, 28vh, 220px); object-fit: contain; display: block; }
+.zmaga-lik > span { height: 100%; max-height: 260px; aspect-ratio: 1; display: grid; place-items: center; }
+.zmaga-lik img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .zmaga-lik.stoja > * { display: inline-block; animation: stoja 1.4s ease-in-out 1s both; }
 @keyframes stoja { 0% { transform: rotate(0); } 60% { transform: rotate(200deg); } 100% { transform: rotate(180deg); } }
 .zmaga-lik.sij > * { display: inline-block; animation: sij 1s ease-in-out infinite; }
 .zmaga-lik.skok > * { display: inline-block; animation: skok .9s ease-in-out infinite; }
 @keyframes skok { 50% { transform: translateY(-14px) rotate(-3deg); } }
 @keyframes sij { 50% { transform: scale(1.12); filter: drop-shadow(0 0 30px #ffd60a); } }
-@keyframes lik-gor { from { translate: -50% 110%; } }
+@keyframes lik-gor { from { transform: scale(.2); opacity: 0; } }
 @keyframes vskok { from { transform: scale(.3); opacity: 0; } }
 
 .konfeti { position: absolute; inset: 0; pointer-events: none; }

@@ -23,7 +23,7 @@ const DORA_COLN = { ime: 'Dora', emoji: '🚣‍♀️', slika: 'slike/dora-coln
 // Proslave ob zmagi stopnje (izmenično).
 const PROSLAVE = [
   { besedilo: 'Mičko dela stojo!', emoji: '🧍', animacija: 'skok', slika: 'slike/micko-stoja.svg' },
-  { besedilo: 'Urbi Bog!',         emoji: '😇', animacija: 'sij',   slika: 'slike/urban-bog.svg' },
+  { besedilo: 'Urbi Bog!',         emoji: '😇', animacija: 'sij',   slika: 'slike/urban-bog.svg?v=2' },
 ];
 
 // Zemljevid: Mirt pri domu na začetku, ob hišicah se izmenjujeta Mirt in Tupko v različnih pozah.
