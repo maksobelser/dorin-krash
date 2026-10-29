@@ -6,7 +6,7 @@
 // Dokler je slika null, se pokaže emoji (začasno).
 
 const ELEMENTI = [
-  { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#ff2d87', slika: 'slike/burek.svg' },
+  { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#ff2d87', slika: 'slike/burek.svg?v=2' },
   { id: 'rakija',   ime: 'Rakija',   emoji: '🥃', barva: '#00b4ff', slika: 'slike/rakija.svg' },
   { id: 'pivo',     ime: 'Pivo',     emoji: '🍺', barva: '#8f4dff', slika: 'slike/pivo.svg' },
   { id: 'aperol',   ime: 'Aperol',   emoji: '🍹', barva: '#ff6a00', slika: 'slike/aperol.svg' },
@@ -65,7 +65,7 @@ const PRIJATELJI = Array.from({ length: 10 }, (_, i) => ({ ime: 'Prijatelj', emo
 // Cilji so nastavljeni s simulacijo naključnih potez (300 iger na stopnjo):
 // prve stopnje reši ~90 % iger, zadnja ~30 %. Na pravih igralcih še ni preizkušeno.
 const STOPNJE = [
-  { poteze: 20, cilj: 3000, elementi: 5 },
+  { poteze: 25, cilj: 2400, elementi: 4 },
   { poteze: 20, cilj: 3800, elementi: 5 },
   { poteze: 18, cilj: 4000, elementi: 5 },
   { poteze: 22, cilj: 2800, elementi: 6 },

@@ -566,7 +566,7 @@ tick();
 
 // Na vstopnem zaslonu padajo stvari iz igre
 // na vstopnem zaslonu padajo samo hrana in pijača
-const PADAJOCE = ['slike/burek.svg', 'slike/rakija.svg', 'slike/pivo.svg', 'slike/aperol.svg', 'slike/domacica.svg'];
+const PADAJOCE = ['slike/burek.svg?v=2', 'slike/rakija.svg', 'slike/pivo.svg', 'slike/aperol.svg', 'slike/domacica.svg'];
 const sky = $('sky');
 for (let i = 0; i < 18; i++) {
   const d = document.createElement('div');

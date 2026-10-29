@@ -210,6 +210,11 @@ const Zvok = (() => {
       zvoncek(f * 2, { t: 0.5, g: 0.04 + Math.min(kombo, 5) * 0.012, cez: 0.03 });
       sumi({ t: 0.04, g: 0.06, od: 6000, do: 3000, q: 1.5 });
     },
+    // naboj pred Dorino eksplozijo: hiter dvig tona
+    polni() {
+      ton({ f: 220, doF: 1800, tip: 'sawtooth', t: 0.26, g: 0.07, filter: 2500 });
+      ton({ f: 110, doF: 440, tip: 'square', t: 0.26, g: 0.04, filter: 900 });
+    },
     // Dora: laserski »piu« + padajoč bas + iskre
     dora() {
       ton({ f: 2200, doF: 140, tip: 'sawtooth', t: 0.42, g: 0.13, filter: 3500 });

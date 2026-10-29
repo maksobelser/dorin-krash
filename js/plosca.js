@@ -123,6 +123,9 @@ const Plosca = (() => {
       }
     } while (!najdiPotezo(g));
     el.querySelectorAll('.ploscica').forEach(x => x.remove());
+    // ena Dorina bomba že na začetku, da igralec vidi, kaj je (ne ustvari trojke, ker ni število)
+    const br = 2 + Math.floor(Math.random() * (N - 4)), bc = 2 + Math.floor(Math.random() * (N - 4));
+    g[br][bc] = 'dora';
     grid = g.map((vrsta, r) => vrsta.map((tip, c) => ustvari(tip, r - N - 1, c)));
     void el.offsetWidth;
     grid.forEach((vrsta, r) => vrsta.forEach((t, c) => {
@@ -187,13 +190,22 @@ const Plosca = (() => {
         pok.add(k);
         if (grid[r][c].tip === 'dora' && !sprozene.has(k)) vrsta.push(k);
       };
+      if (vrsta.length) {
+        // naboj: bomba zraste in zažari, kratek premor pred udarcem
+        vrsta.forEach(k => grid[Math.floor(k / N)][k % N].el.classList.add('polni'));
+        Zvok.polni();
+        await sleep(260);
+        if (id !== igraId) return;
+      }
       while (vrsta.length) {
         const k = vrsta.pop();
         if (sprozene.has(k)) continue;
         sprozene.add(k);
         const r = Math.floor(k / N), c = k % N;
         laser(r);
-        for (let cc = 0; cc < N; cc++) zadeni(r, cc);
+        laser(c, true);
+        udarniVal(r, c, true);
+        for (let i = 0; i < N; i++) { zadeni(r, i); zadeni(i, c); }
         for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) zadeni(r + dr, c + dc);
       }
       const razstreljeno = new Set(pok);
@@ -207,12 +219,17 @@ const Plosca = (() => {
           if (!razstreljeno.has(mesto)) nove.push(mesto);
         }
       }
+      // veriga 3+ podari novo Dorino bombo
+      if (kombo >= 3 && !nove.length && !sprozene.size) {
+        const kandidati = [...pok].filter(k => !razstreljeno.has(k));
+        if (kandidati.length) nove.push(kandidati[Math.floor(Math.random() * kandidati.length)]);
+      }
       nove.forEach(k => pok.delete(k));
 
       stanje.tocke += pok.size * TOCKE_NA_ELEMENT * kombo;
       povratni.tocke(stanje.tocke);
       if (sprozene.size) {
-        obvestilo('Dora! ⚡');
+        obvestilo(sprozene.size > 1 ? 'MEGA BUM! ⚡' : 'BUM! ⚡', 'vroce', 'Dorine strele');
         Zvok.dora();
         blisk();
         tresi(true);
@@ -222,22 +239,33 @@ const Plosca = (() => {
         obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)], kombo >= 4 ? 'vroce' : '', `kombo ×${kombo}`);
       } else if (skupine.some(sk => sk.length >= 5)) {
         obvestilo('Fantastično!', 'roza');
-      } else if (nove.length || pok.size >= 6) {
+      } else if (nove.length) {
+        obvestilo('Dora bomba!', 'roza');
+      } else if (pok.size >= 6) {
         obvestilo(POHVALE[Math.floor(Math.random() * POHVALE.length)]);
       }
-      if (kombo >= 3 && !sprozene.size) tresi(false);
+      if (kombo >= 2 && !sprozene.size) tresi(false);
       Zvok.pok(kombo);
       if (nove.length) setTimeout(() => Zvok.nastala(), 120);
       skupine.forEach(sk => {
         const sredina = sk[Math.floor(sk.length / 2)];
         plavajoceTocke(sk.length * TOCKE_NA_ELEMENT * kombo, Math.floor(sredina / N), sredina % N);
+        udarniVal(Math.floor(sredina / N), sredina % N, false);
       });
 
-      const naIskro = Math.max(2, Math.floor(160 / Math.max(1, pok.size)));
+      const naIskro = Math.max(2, Math.floor(200 / Math.max(1, pok.size)));
       pok.forEach(k => {
-        const t = grid[Math.floor(k / N)][k % N];
-        t.el.classList.add('pok');
-        iskre(Math.floor(k / N), k % N, barvaTipa(t.tip), Math.min(8, naIskro));
+        const r = Math.floor(k / N), c = k % N, t = grid[r][c];
+        if (razstreljeno.has(k)) {
+          // zadete od strele odletijo stran od bombe in se vrtijo
+          const [b] = sprozene, br = Math.floor(b / N), bc = b % N;
+          const dx = c - bc + (Math.random() - 0.5), dy = r - br + (Math.random() - 0.5) - 0.6;
+          t.el.style.setProperty('--lx', dx * 70 + '%');
+          t.el.style.setProperty('--ly', dy * 70 + '%');
+          t.el.style.setProperty('--lr', (Math.random() * 720 - 360) + 'deg');
+          t.el.classList.add('leti');
+        } else t.el.classList.add('pok');
+        iskre(r, c, barvaTipa(t.tip), Math.min(razstreljeno.has(k) ? 6 : 9, naIskro));
       });
       nove.forEach(k => {
         const t = grid[Math.floor(k / N)][k % N];
@@ -246,7 +274,7 @@ const Plosca = (() => {
         t.el.classList.add('nova');
         postavi(t, Math.floor(k / N), k % N);
       });
-      await sleep(CAS.pok);
+      await sleep(sprozene.size ? CAS.pok + 220 : CAS.pok);
       if (id !== igraId) return;
       pok.forEach(k => {
         const r = Math.floor(k / N), c = k % N;
@@ -306,12 +334,22 @@ const Plosca = (() => {
 
   // ---------- Učinki ----------
 
-  function laser(r) {
+  function laser(i, navpicno = false) {
     const l = document.createElement('div');
-    l.className = 'laser';
-    l.style.top = (r * 100 / N) + '%';
+    l.className = navpicno ? 'laser navpicni' : 'laser';
+    l.style[navpicno ? 'left' : 'top'] = (i * 100 / N) + '%';
     el.appendChild(l);
-    setTimeout(() => l.remove(), 600);
+    setTimeout(() => l.remove(), 650);
+  }
+
+  // krožni udarni val iz polja (r, c); velik ob bombi
+  function udarniVal(r, c, velik) {
+    const v = document.createElement('div');
+    v.className = 'val' + (velik ? ' velik' : '');
+    v.style.left = ((c + 0.5) * 100 / N) + '%';
+    v.style.top = ((r + 0.5) * 100 / N) + '%';
+    ovoj.appendChild(v);
+    setTimeout(() => v.remove(), velik ? 700 : 450);
   }
 
   function barvaTipa(tip) { return tip === 'dora' ? DORA.barva : ELEMENTI[tip].barva; }
