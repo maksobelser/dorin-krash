@@ -39,7 +39,7 @@ const Svet3D = (() => {
   // 0 = dom, 1..n = stopnje, n+1 = zastavica; za mostom je malo več prostora
   const MOST = 8.42, PIKNIK = 5;
   const kotStopnje = st => (st + (st > MOST ? 1.2 : 0)) * KORAK;
-  const xNa = th => 3.5 * Math.sin(th * 9.5);
+  const xNa = th => 2.6 * Math.sin(th * 9.5);
   // Most čez potok (med stopnjama 8 in 9) in jasa s piknikom (okoli stopnje 5).
   const stranPiknika = () => (xNa(kotStopnje(PIKNIK)) > 0 ? -1 : 1); // stran z več prostora
   const vPikniku = st => Math.abs(st - PIKNIK) <= 1.4;
@@ -1544,11 +1544,17 @@ const Svet3D = (() => {
     sonce.target.position.set(0, R, -5);
   }
 
+  // kamera sledi vijugam potoka levo-desno: sredina slike je povprečje poti v vidnem delu sveta
+  let kameraX = null;
   function postaviKamero(f) {
     const d = razdalja * f;
+    let px = 0;
+    for (let i = 0; i < 8; i++) px += xNa(kot - 0.04 + i * 0.045);
+    px /= 8;
+    kameraX = kameraX === null ? px : kameraX + (px - kameraX) * 0.08;
     const smer = new THREE.Vector3(0, 0.82, 0.57).normalize(); // bolj od zgoraj: manj stiskanja v globino
-    camera.position.set(0, R, 0).addScaledVector(smer, d);
-    camera.lookAt(0, R - 1, -d * 0.32);
+    camera.position.set(kameraX, R, 0).addScaledVector(smer, d);
+    camera.lookAt(kameraX, R - 1, -d * 0.32);
   }
 
   // ---------- Vnos ----------
