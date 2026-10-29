@@ -11,6 +11,9 @@ const Plosca = (() => {
 
   let el, ovoj, grid = [], stEl = 6, stanje = null, povratni = {};
   let izbrana = null, zacetek = null, zaseden = false, namigTimer = null, igraId = 0;
+  let laserPremor = 0, prekiniLaser = null;
+  const jeDora = tip => tip === 'dora' || tip === 'dora-laser';
+  const opisTipa = tip => tip === 'dora-laser' ? DORA_LASER : tip === 'dora' ? DORA : ELEMENTI[tip];
 
   // ---------- Risanje ----------
 
@@ -21,11 +24,12 @@ const Plosca = (() => {
   }
 
   function narisi(t) {
-    const e = t.tip === 'dora' ? DORA : ELEMENTI[t.tip];
-    const id = t.tip === 'dora' ? 'dora' : e.id;
-    t.el.className = 'ploscica' + (t.tip === 'dora' ? ' dora' : '');
+    const e = opisTipa(t.tip);
+    const id = jeDora(t.tip) ? t.tip : e.id;
+    t.el.className = 'ploscica' + (jeDora(t.tip) ? ' dora' : '') + (t.tip === 'dora-laser' ? ' laserska' : '');
     t.el.innerHTML = `<div class="element el-${id}" style="--barva:${e.barva}">${vsebina(e)}</div>` +
-      (t.tip === 'dora' ? '<span class="strela">⚡</span>' : '');
+      (jeDora(t.tip) ? `<span class="strela">${t.tip === 'dora-laser' ? '🌀' : '⚡'}</span>` : '');
+    t.el.title = t.tip === 'dora-laser' ? `Laserska Dora: premakni jo za ${DORA_LASER.zadetki} naključnih zadetkov!` : '';
   }
 
   function ustvari(tip, r, c) {
@@ -92,7 +96,7 @@ const Plosca = (() => {
   // Vrne eno možno potezo [[r,c],[r,c]] ali null.
   function najdiPotezo(g) {
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
-      if (g[r][c] === 'dora') return [[r, c], c + 1 < N ? [r, c + 1] : [r, c - 1]];
+      if (jeDora(g[r][c])) return [[r, c], c + 1 < N ? [r, c + 1] : [r, c - 1]];
     }
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
       for (const [dr, dc] of [[0, 1], [1, 0]]) {
@@ -152,7 +156,7 @@ const Plosca = (() => {
     zamenjajVMrezi(a, b);
     await sleep(CAS.menjava);
     if (id !== igraId) return;
-    const dore = [a, b].filter(p => grid[p.r][p.c].tip === 'dora');
+    const dore = [a, b].filter(p => jeDora(grid[p.r][p.c].tip));
     if (!dore.length && !najdiSkupine(tipi()).length) {
       zamenjajVMrezi(a, b);
       Zvok.ne();
@@ -166,6 +170,7 @@ const Plosca = (() => {
       return;
     }
     stanje.poteze--;
+    laserPremor = Math.max(0, laserPremor - 1);
     povratni.poteze(stanje.poteze);
     await razresi(dore.map(p => ({ r: p.r, c: p.c })), [b, a], id);
     if (id !== igraId) return;
@@ -183,12 +188,14 @@ const Plosca = (() => {
       // Dorine bombe, tudi verižno
       const pok = new Set();
       const sprozene = new Set();
+      const laserskiZadetki = new Set();
+      let laserskih = 0;
       const vrsta = sprozi.map(p => p.r * N + p.c);
       const zadeni = (r, c) => {
         if (r < 0 || r >= N || c < 0 || c >= N || !grid[r][c]) return;
         const k = r * N + c;
         pok.add(k);
-        if (grid[r][c].tip === 'dora' && !sprozene.has(k)) vrsta.push(k);
+        if (jeDora(grid[r][c].tip) && !sprozene.has(k)) vrsta.push(k);
       };
       if (vrsta.length) {
         // naboj: bomba zraste in zažari, kratek premor pred udarcem
@@ -202,6 +209,24 @@ const Plosca = (() => {
         if (sprozene.has(k)) continue;
         sprozene.add(k);
         const r = Math.floor(k / N), c = k % N;
+        if (grid[r][c].tip === 'dora-laser') {
+          laserskih++;
+          zadeni(r, c);
+          // Fisher–Yates: brez podvojenih tarč ali polj, ki so že zadeta.
+          const kandidati = [];
+          grid.forEach((v, rr) => v.forEach((t, cc) => {
+            if (t && !pok.has(rr * N + cc)) kandidati.push(rr * N + cc);
+          }));
+          for (let i = kandidati.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [kandidati[i], kandidati[j]] = [kandidati[j], kandidati[i]];
+          }
+          const tarce = kandidati.slice(0, DORA_LASER.zadetki);
+          tarce.forEach(k => { zadeni(Math.floor(k / N), k % N); laserskiZadetki.add(k); });
+          await laserskiVrtinec(r, c, tarce, id);
+          if (id !== igraId) return;
+          continue;
+        }
         laser(r);
         laser(c, true);
         udarniVal(r, c, true);
@@ -212,6 +237,7 @@ const Plosca = (() => {
 
       // Trojke; 4 ali več povezanih ustvari novo Doro
       const nove = [];
+      let novLaser = null;
       for (const s of skupine) {
         s.forEach(k => pok.add(k));
         if (s.length >= 4) {
@@ -224,17 +250,31 @@ const Plosca = (() => {
         const kandidati = [...pok].filter(k => !razstreljeno.has(k));
         if (kandidati.length) nove.push(kandidati[Math.floor(Math.random() * kandidati.length)]);
       }
+      const mocnaSkupina = skupine.find(s => s.length >= DORA_LASER.ujemanje);
+      const laserNaPlosci = grid.some(v => v.some(t => t && t.tip === 'dora-laser'));
+      if (!laserPremor && !laserNaPlosci && !sprozene.size && (mocnaSkupina || kombo >= DORA_LASER.veriga)) {
+        const kandidati = (mocnaSkupina || [...pok]).filter(k => !razstreljeno.has(k));
+        novLaser = nove.find(k => kandidati.includes(k)) ?? kandidati[0] ?? null;
+        if (novLaser !== null) {
+          if (!nove.includes(novLaser)) nove.push(novLaser);
+          laserPremor = DORA_LASER.premor;
+        }
+      }
       nove.forEach(k => pok.delete(k));
 
       stanje.tocke += pok.size * TOCKE_NA_ELEMENT * kombo;
       povratni.tocke(stanje.tocke);
-      if (sprozene.size) {
+      if (sprozene.size && !laserskih) {
         obvestilo(sprozene.size > 1 ? 'MEGA BUM! ⚡' : 'BUM! ⚡', 'vroce', 'Dorine strele');
         Zvok.dora();
         blisk();
         tresi(true);
         const [b] = sprozene;
         plavajoceTocke(razstreljeno.size * TOCKE_NA_ELEMENT * kombo, Math.floor(b / N), b % N);
+      } else if (laserskih) {
+        tresi(false);
+      } else if (novLaser !== null) {
+        obvestilo('Laserska Dora!', 'roza', 'Premakni jo za laserski vrtinec!');
       } else if (kombo >= 2) {
         obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)], kombo >= 4 ? 'vroce' : '', `kombo ×${kombo}`);
       } else if (skupine.some(sk => sk.length >= 5)) {
@@ -256,6 +296,7 @@ const Plosca = (() => {
       const naIskro = Math.max(2, Math.floor(200 / Math.max(1, pok.size)));
       pok.forEach(k => {
         const r = Math.floor(k / N), c = k % N, t = grid[r][c];
+        if (laserskiZadetki.has(k)) return; // že animirano ob prihodu žarka
         if (razstreljeno.has(k)) {
           // zadete od strele odletijo stran od bombe in se vrtijo
           const [b] = sprozene, br = Math.floor(b / N), bc = b % N;
@@ -269,7 +310,7 @@ const Plosca = (() => {
       });
       nove.forEach(k => {
         const t = grid[Math.floor(k / N)][k % N];
-        t.tip = 'dora';
+        t.tip = k === novLaser ? 'dora-laser' : 'dora';
         narisi(t);
         t.el.classList.add('nova');
         postavi(t, Math.floor(k / N), k % N);
@@ -334,6 +375,87 @@ const Plosca = (() => {
 
   // ---------- Učinki ----------
 
+  // En obrat, več parov prožnih žarkov. Tarče izginejo šele ob dejanskem zadetku.
+  // SVG je v koordinatah 8 × 100, zato ostane poravnan tudi na ozkem telefonu.
+  function laserskiVrtinec(r, c, tarce, id) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 800 800');
+    svg.setAttribute('class', 'laser-vrtinec');
+    svg.setAttribute('aria-hidden', 'true');
+    const tile = grid[r][c].el, portret = tile.querySelector('img');
+    tile.classList.remove('polni');
+    tile.classList.add('vrti');
+    el.appendChild(svg);
+    obvestilo('Laserski vrtinec!', 'roza laser-obvestilo', `${tarce.length} naključnih zadetkov`);
+    const streli = tarce.map((k, i) => {
+      const g = document.createElementNS(ns, 'g');
+      g.style.opacity = '0';
+      const poti = [];
+      for (let oko = 0; oko < 2; oko++) {
+        ['laser-jezik-rob', 'laser-jezik', 'laser-jezik-jedro'].forEach(razred => {
+          const p = document.createElementNS(ns, 'path');
+          p.setAttribute('class', razred);
+          p.setAttribute('pathLength', '1');
+          g.appendChild(p);
+          poti.push({ p, oko });
+        });
+      }
+      svg.appendChild(g);
+      return { k, i, g, poti, zadet: false };
+    });
+    const trajanje = DORA_LASER.trajanje, dolzina = 440;
+    const razmik = (trajanje - dolzina) / Math.max(1, tarce.length);
+    const mirno = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return new Promise(resolve => {
+      let frame, zacetek;
+      const koncaj = () => {
+        cancelAnimationFrame(frame);
+        svg.remove();
+        tile.classList.remove('vrti');
+        portret.style.transform = '';
+        prekiniLaser = null;
+        resolve();
+      };
+      prekiniLaser = koncaj;
+      const korak = zdaj => {
+        if (id !== igraId) return koncaj();
+        if (zacetek === undefined) zacetek = zdaj;
+        const ms = zdaj - zacetek, del = Math.min(1, ms / trajanje);
+        const kot = mirno ? 0 : del * Math.PI * 2, cos = Math.cos(kot), sin = Math.sin(kot);
+        portret.style.transform = `rotate(${mirno ? 0 : del * 360}deg)`;
+        streli.forEach(s => {
+          const t = (ms - s.i * razmik) / dolzina;
+          if (t >= 0.42 && !s.zadet) {
+            s.zadet = true;
+            const rr = Math.floor(s.k / N), cc = s.k % N, cilj = grid[rr][cc];
+            cilj.el.classList.add('laser-zadeta');
+            iskre(rr, cc, DORA_LASER.barva, 5);
+            udarniVal(rr, cc, false);
+            Zvok.laserskiZadetek(s.i);
+          }
+          if (t < 0 || t > 1) { s.g.style.opacity = '0'; return; }
+          s.g.style.opacity = '1';
+          const tx = (s.k % N + 0.5) * 100, ty = (Math.floor(s.k / N) + 0.5) * 100;
+          const odmik = t < 0.42 ? 1 - t / 0.42 : -(t - 0.42) / 0.58;
+          s.poti.forEach(({ p, oko }) => {
+            // Oči iz dora-laser.svg: x=105/151, y=129, ob povečavi 1.45.
+            const ox = (oko ? 23 : -23) / 256 * 88 * 1.45, oy = 1 / 256 * 88 * 1.45;
+            const sx = (c + 0.5) * 100 + ox * cos - oy * sin;
+            const sy = (r + 0.5) * 100 + ox * sin + oy * cos;
+            const dx = tx - sx, dy = ty - sy, d = Math.hypot(dx, dy) || 1;
+            const upogib = Math.sin(t * Math.PI) * 55 * (s.i % 2 ? 1 : -1);
+            p.setAttribute('d', `M ${sx} ${sy} C ${sx + sin * 85} ${sy - cos * 85}, ${tx - dx * 0.25 - dy / d * upogib} ${ty - dy * 0.25 + dx / d * upogib}, ${tx} ${ty}`);
+            p.style.strokeDashoffset = odmik;
+          });
+        });
+        if (del >= 1) return koncaj();
+        frame = requestAnimationFrame(korak);
+      };
+      frame = requestAnimationFrame(korak);
+    });
+  }
+
   function laser(i, navpicno = false) {
     const l = document.createElement('div');
     l.className = navpicno ? 'laser navpicni' : 'laser';
@@ -352,7 +474,7 @@ const Plosca = (() => {
     setTimeout(() => v.remove(), velik ? 700 : 450);
   }
 
-  function barvaTipa(tip) { return tip === 'dora' ? DORA.barva : ELEMENTI[tip].barva; }
+  function barvaTipa(tip) { return opisTipa(tip).barva; }
 
   // Razlet barvnih iskric iz polja (r, c)
   function iskre(r, c, barva, koliko = 7) {
@@ -435,7 +557,7 @@ const Plosca = (() => {
     setTimeout(() => o.remove(), 1000);
     if (podnapis) {
       const p = document.createElement('div');
-      p.className = 'plavajoce-pod';
+      p.className = 'plavajoce-pod' + (razred.includes('laser-obvestilo') ? ' laser-obvestilo' : '');
       p.textContent = podnapis;
       ovoj.appendChild(p);
       setTimeout(() => p.remove(), 1000);
@@ -517,6 +639,8 @@ const Plosca = (() => {
   // stopnja: { poteze, cilj, elementi }; povratni: { tocke(n), poteze(n), konec(zmaga) }
   function zacni(stopnja, klici) {
     igraId++;
+    if (prekiniLaser) prekiniLaser();
+    laserPremor = 0;
     pocistiNamig();
     povratni = klici;
     stEl = Math.min(stopnja.elementi, ELEMENTI.length);
@@ -540,6 +664,7 @@ const Plosca = (() => {
 
   function ustavi() {
     igraId++;
+    if (prekiniLaser) prekiniLaser();
     pocistiNamig();
     if (stanje) stanje.konec = true;
   }

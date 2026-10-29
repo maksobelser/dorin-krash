@@ -260,6 +260,12 @@ const Zvok = (() => {
       const n = note(79);
       [0, 2, 4, 6].forEach((k, i) => zvoncek(mtof(n[k]), { t: 0.5, g: 0.05, cez: 0.18 + i * 0.05 }));
     },
+    // Prožen laserski »piu« ob vsakem zadetku vrtinca.
+    laserskiZadetek(i = 0) {
+      const n = note(74), f = mtof(n[i % n.length]);
+      ton({ f: f * 1.8, doF: f * 0.5, tip: 'triangle', t: 0.13, g: 0.09, napad: 0.003 });
+      sumi({ t: 0.05, g: 0.04, od: 4200, do: 1100, q: 2 });
+    },
     // nova Dora: čaroben arpeggio navzgor
     nastala() {
       const n = note(72);

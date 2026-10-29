@@ -17,6 +17,10 @@ const ELEMENTI = [
 // Posebna bomba: nastane, ko poravnaš 4 ali več enakih (v vrsto ali v obliki L/T).
 // Ko jo premakneš, Dora s strelami iz oči razbije svojo vrsto in vse okoli sebe.
 const DORA = { ime: 'Dora', emoji: '👧', barva: '#ff8fab', slika: 'slike/dora.svg' };
+// Redkejša laserska Dora: 5+ v skupini ali četrti val verige. Premor šteje le veljavne poteze.
+// Na plošči je lahko samo ena; ob premiku z očmi zadene različna naključna polja.
+const DORA_LASER = { ime: 'Laserska Dora', emoji: '🌀', barva: '#4df6df', slika: 'slike/dora-laser.svg',
+  ujemanje: 5, veriga: 4, premor: 6, zadetki: 24, trajanje: 1800 };
 // Dora na čolnu: cela postava z veslom (portret zgoraj je za ploščico)
 const DORA_COLN = { ime: 'Dora', emoji: '🚣‍♀️', slika: 'slike/dora-coln.svg' };
 
