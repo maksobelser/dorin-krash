@@ -1,6 +1,7 @@
 // Generativna vesela glasba (Web Audio, brez datotek).
 // Vsaka »pesem« ima naključno durovo tonaliteto, tempo, zaporedje akordov, vzorce in melodijo.
-// Slog: poskočen bas, ukulele na zadnji dobi, zvončki in piščalka, ploskanje, tamburin; vedno v duru.
+// Slog: mehak in igriv, brez trdih udarcev (ni šuma, ploskanja ali lesenih zvokov): okrogel bas,
+// nežno brenkanje, zvončki, piščalka in »bloop« mehurčki na zadnji dobi; vedno v duru.
 // Pesem gre skozi dele (uvod, A, B, most …); po zadnjem delu se rodi nova.
 // Zemljevid je bolj sproščen (marimba, mehkejši ritem), igra bolj poskočna.
 
@@ -10,7 +11,7 @@ const Glasba = (() => {
   let vklopljena = true;
   try { vklopljena = localStorage.getItem(KLJUC) !== '0'; } catch (_) {}
 
-  let ctx = null, izhod = null, odmev = null, sum = null;
+  let ctx = null, izhod = null, odmev = null;
   let tece = false, casovnik = null;
   let zeljeni = 'zemljevid', pesem = null;
   let korak = 0, naslednji = 0, napetost = 0;
@@ -103,13 +104,6 @@ const Glasba = (() => {
     s.gain.value = delez;
     v.connect(s).connect(odmev);
   }
-  function sumNode(t, trajanje) {
-    const src = ctx.createBufferSource();
-    src.buffer = sum;
-    src.start(t, Math.random() * 1.5);
-    src.stop(t + trajanje + 0.05);
-    return src;
-  }
   function osc(tip, f, t, konec) {
     const o = ctx.createOscillator();
     o.type = tip;
@@ -118,67 +112,42 @@ const Glasba = (() => {
     return o;
   }
 
+  // mehak utrip: nizek sinus brez klika
   function kick(t, g) {
     const o = ctx.createOscillator(), v = ctx.createGain();
-    o.frequency.setValueAtTime(130, t);
-    o.frequency.exponentialRampToValueAtTime(52, t + 0.09);
-    ovoj(v, t, 0.003, g, 0.22);
+    o.frequency.setValueAtTime(95, t);
+    o.frequency.exponentialRampToValueAtTime(48, t + 0.12);
+    ovoj(v, t, 0.012, g, 0.26);
     o.connect(v).connect(izhod);
-    o.start(t); o.stop(t + 0.3);
+    o.start(t); o.stop(t + 0.32);
   }
-  // ploskanje: trije hitri sunki šuma
-  function plosk(t, g) {
-    const fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'bandpass'; fl.frequency.value = 1400; fl.Q.value = 1.2;
-    fl.connect(v).connect(izhod);
-    posli(v, 0.15);
-    v.gain.setValueAtTime(0.0001, t);
-    [0, 0.011, 0.022].forEach(z => {
-      v.gain.setValueAtTime(g, t + z);
-      v.gain.exponentialRampToValueAtTime(g * 0.2, t + z + 0.009);
-    });
-    v.gain.setValueAtTime(g * 0.7, t + 0.03);
-    v.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-    sumNode(t, 0.18).connect(fl);
-  }
-  function hat(t, g) {
-    const n = sumNode(t, 0.05), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'highpass'; fl.frequency.value = 8000;
-    ovoj(v, t, 0.002, g, 0.03);
-    n.connect(fl).connect(v).connect(izhod);
-  }
-  function tamburin(t, g) {
-    const n = sumNode(t, 0.14), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'bandpass'; fl.frequency.value = 9000; fl.Q.value = 2;
-    ovoj(v, t, 0.004, g, 0.12);
-    n.connect(fl).connect(v).connect(izhod);
-  }
-  // lesena kocka
-  function kocka(t, f, g) {
+  // mehurček: kratek sinus, ki zdrsne navzgor (igriv nadomestek ploska)
+  function bloop(t, f, g) {
     const o = ctx.createOscillator(), v = ctx.createGain();
     o.frequency.setValueAtTime(f, t);
-    o.frequency.exponentialRampToValueAtTime(f * 0.8, t + 0.05);
-    ovoj(v, t, 0.001, g, 0.06);
+    o.frequency.exponentialRampToValueAtTime(f * 1.6, t + 0.09);
+    ovoj(v, t, 0.012, g, 0.14);
     o.connect(v).connect(izhod);
-    o.start(t); o.stop(t + 0.1);
+    posli(v, 0.25);
+    o.start(t); o.stop(t + 0.2);
   }
   // poskočen, okrogel bas (kot tuba)
   function bas(t, midi, trajanje, g) {
     const f = mtof(midi);
     const fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'lowpass'; fl.Q.value = 3;
-    fl.frequency.setValueAtTime(1400, t);
-    fl.frequency.exponentialRampToValueAtTime(380, t + 0.12);
+    fl.type = 'lowpass'; fl.Q.value = 0.7;
+    fl.frequency.setValueAtTime(700, t);
+    fl.frequency.exponentialRampToValueAtTime(320, t + 0.15);
     v.gain.setValueAtTime(0.0001, t);
-    v.gain.exponentialRampToValueAtTime(g, t + 0.012);
+    v.gain.exponentialRampToValueAtTime(g, t + 0.03);
     v.gain.exponentialRampToValueAtTime(g * 0.5, t + trajanje * 0.7);
     v.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.05);
     fl.connect(v).connect(izhod);
     const konec = t + trajanje + 0.08;
-    const a = osc('square', f, t, konec), b = osc('triangle', f * 2, t, konec);
+    const a = osc('triangle', f, t, konec), b = osc('sine', f * 2, t, konec);
     a.frequency.setValueAtTime(f * 0.97, t);
     a.frequency.exponentialRampToValueAtTime(f, t + 0.03);
-    const bg = ctx.createGain(); bg.gain.value = 0.4;
+    const bg = ctx.createGain(); bg.gain.value = 0.25;
     a.connect(fl); b.connect(bg).connect(fl);
   }
   // ukulele: brenkanje akorda (nota za noto, hitro)
@@ -187,19 +156,19 @@ const Glasba = (() => {
       const z = t + (navzdol ? i : note.length - 1 - i) * 0.014;
       const f = mtof(m);
       const fl = ctx.createBiquadFilter(), v = ctx.createGain();
-      fl.type = 'lowpass'; fl.Q.value = 1;
-      fl.frequency.setValueAtTime(4200, z);
-      fl.frequency.exponentialRampToValueAtTime(700, z + 0.18);
-      ovoj(v, z, 0.003, g, 0.32);
+      fl.type = 'lowpass'; fl.Q.value = 0.5;
+      fl.frequency.setValueAtTime(2200, z);
+      fl.frequency.exponentialRampToValueAtTime(600, z + 0.2);
+      ovoj(v, z, 0.01, g, 0.36);
       fl.connect(v).connect(izhod);
-      posli(v, 0.12);
-      osc('sawtooth', f, z, z + 0.4).connect(fl);
+      posli(v, 0.2);
+      osc('triangle', f, z, z + 0.45).connect(fl);
     });
   }
   function marimba(t, midi, g, trajanje = 0.5) {
     const f = mtof(midi), v = ctx.createGain(), v2 = ctx.createGain();
-    ovoj(v, t, 0.003, g, trajanje);
-    ovoj(v2, t, 0.002, g * 0.5, 0.07);
+    ovoj(v, t, 0.008, g, trajanje);
+    ovoj(v2, t, 0.008, g * 0.15, 0.08);
     v.connect(izhod); v2.connect(izhod);
     posli(v, 0.2);
     osc('sine', f, t, t + trajanje + 0.05).connect(v);
@@ -210,10 +179,10 @@ const Glasba = (() => {
     const f = mtof(midi);
     const nos = osc('sine', f, t, t + 0.9), mod = osc('sine', f * 3.5, t, t + 0.9);
     const mg = ctx.createGain(), v = ctx.createGain();
-    mg.gain.setValueAtTime(f * 1.2, t);
-    mg.gain.exponentialRampToValueAtTime(f * 0.05, t + 0.3);
+    mg.gain.setValueAtTime(f * 0.45, t);
+    mg.gain.exponentialRampToValueAtTime(f * 0.02, t + 0.25);
     mod.connect(mg).connect(nos.frequency);
-    ovoj(v, t, 0.002, g, 0.8);
+    ovoj(v, t, 0.008, g, 0.8);
     nos.connect(v).connect(izhod);
     posli(v, 0.35);
   }
@@ -234,7 +203,7 @@ const Glasba = (() => {
     lg.gain.setValueAtTime(0, t);
     lg.gain.linearRampToValueAtTime(f * 0.012, t + 0.18);
     lfo.connect(lg).connect(o.frequency);
-    const g2 = ctx.createGain(); g2.gain.value = 0.12;
+    const g2 = ctx.createGain(); g2.gain.value = 0.06;
     o.connect(v); o2.connect(g2).connect(v);
   }
 
@@ -298,21 +267,20 @@ const Glasba = (() => {
     const fill = zadnjiTakt && s >= 12 && del !== 'most';
     const korakSek = 60 / ps.tempo / 4;
 
-    // --- bobni ---
+    // --- ritem (mehak: utrip, mehurčki, marimba namesto bobnov) ---
+    const ton5 = ps.glasovi[0];
     if (del === 'most') {
-      // odmor: samo ploskanje in lesena kocka, zvončki igrajo akord navzgor
-      if (s === 4 || s === 12) plosk(t, 0.3);
-      if (s % 4 === 2) kocka(t, 1200, 0.07);
-      if (s % 2 === 0) zvoncek(t, ps.glasovi[(s / 2) % ps.glasovi.length] + 12, 0.035);
+      // odmor: mehurčki in zvončki igrajo akord navzgor
+      if (s === 4 || s === 12) bloop(t, mtof(ton5), 0.05);
+      if (s % 2 === 0) zvoncek(t, ps.glasovi[(s / 2) % ps.glasovi.length] + 12, 0.03);
     } else {
-      if (ps.boben[s] === 'x' && !fill) kick(t, igra ? 0.7 : 0.5);
-      if ((s === 4 || s === 12) && del !== 'uvod') plosk(t, igra ? 0.32 : 0.22);
-      if (s % 2 === 0) hat(t, (s % 4 === 2 ? 0.12 : 0.06) * (igra ? 1 : 0.7));
-      if ((del === 'b' || del === 'a2' || napetost > 0.5) && s % 4 === 2) tamburin(t, 0.06);
-      if (napetost > 0.5 && s % 2 === 1) hat(t, 0.05);
-      if (del === 'uvod' && s % 4 === 0) kocka(t, s % 8 ? 900 : 1200, 0.08);
+      if (ps.boben[s] === 'x' && !fill) kick(t, igra ? 0.45 : 0.35);
+      if ((s === 4 || s === 12) && del !== 'uvod') bloop(t, mtof(ton5 - 12), igra ? 0.06 : 0.045);
+      if ((del === 'b' || del === 'a2' || napetost > 0.5) && s % 4 === 2) marimba(t, ps.glasovi[2] + 12, 0.035, 0.18);
+      if (napetost > 0.5 && s % 8 === 6) bloop(t, mtof(ton5), 0.035);
+      if (del === 'uvod' && s % 4 === 0) marimba(t, ps.glasovi[(s / 4) % ps.glasovi.length], 0.06, 0.3);
     }
-    if (fill) kocka(t, 800 + (s - 12) * 200, 0.12);
+    if (fill) marimba(t, ps.glasovi[(s - 12) % ps.glasovi.length] + 12, 0.06, 0.25);
 
     // --- bas ---
     const vzorec = del === 'b' ? ps.basB : ps.basA;
@@ -323,14 +291,14 @@ const Glasba = (() => {
       const m = c === 'O' ? ton + 12 : c === '5' ? ton + 7 : c === '3' ? ton + ak[1] : ton;
       let d = 1;
       while (d < 2 && vzorec[(s + d) % 16] === '.') d++;
-      bas(t, m, d * korakSek * 0.9, igra ? 0.32 : 0.27);
+      bas(t, m, d * korakSek * 0.9, igra ? 0.3 : 0.26);
     }
 
     // --- ukulele / marimba (akordi) ---
     if (del !== 'most') {
       const uv = del === 'b' || del === 'a2' ? ps.ukeB : ps.uke;
       if (uv[s] === 'x') {
-        if (igra || del !== 'uvod') ukulele(t, ps.glasovi, igra ? 0.045 : 0.04, s % 4 !== 2);
+        if (igra || del !== 'uvod') ukulele(t, ps.glasovi, igra ? 0.04 : 0.035, s % 4 !== 2);
         if (!igra && s % 8 === 0) marimba(t, ps.glasovi[0] - 12, 0.08, 0.6);
       }
     }
@@ -357,7 +325,7 @@ const Glasba = (() => {
     if (ctx) return true;
     const j = Zvok.jedro();
     if (!j) return false;
-    ({ ctx, izhod, odmev, sum } = j);
+    ({ ctx, izhod, odmev } = j);
     return true;
   }
 
@@ -398,7 +366,7 @@ const Glasba = (() => {
     },
     // 'zemljevid' ali 'igra': nova pesem v pravem slogu začne ob naslednjem taktu
     nacin(n) { zeljeni = n; },
-    // 0–1: v igri, ko zmanjkuje potez, več hi-hatov in tamburina
+    // 0–1: v igri, ko zmanjkuje potez, več marimbe in mehurčkov
     napetost(v) { napetost = v; },
     // začasno potiša glasbo (fanfara ob zmagi, poraz)
     utisaj(sek) {
