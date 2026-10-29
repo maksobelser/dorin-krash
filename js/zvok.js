@@ -286,6 +286,18 @@ const Zvok = (() => {
       ton({ f: mtof(m), tip: 'square', t: 0.06, g: 0.05, filter: 3000 });
       ton({ f: mtof(m + 7), tip: 'square', t: 0.09, g: 0.05, cez: 0.05, filter: 3000 });
     },
+    // Lasten kratek kitarski motiv za Vladovo proslavo (brez posnetka ali citata pesmi).
+    kitara() {
+      if (typeof Glasba !== 'undefined') Glasba.utisaj(2.5);
+      const n = note(55);
+      [0, 2, 4, 6, 4, 2, 0].forEach((k, i) => {
+        const f = mtof(n[k]), cez = i * 0.16;
+        ton({ f, tip: 'triangle', t: 0.65, g: 0.14, cez, napad: 0.003, filter: 2600, odmev: 0.15 });
+        ton({ f: f * 2, t: 0.22, g: 0.035, cez, napad: 0.002 });
+        sumi({ t: 0.025, g: 0.025, od: 3600, do: 1100, cez, q: 1.2 });
+      });
+      [0, 2, 4].forEach((k, i) => ton({ f: mtof(n[k]), tip: 'triangle', t: 1.1, g: 0.1, cez: 1.35 + i * 0.04, napad: 0.003, odmev: 0.25 }));
+    },
     // zmaga: funky fanfara pihal v tonaliteti glasbe
     zmaga() {
       if (typeof Glasba !== 'undefined') Glasba.utisaj(3.2);

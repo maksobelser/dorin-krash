@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Vlado Kreslin s klobukom igra črno kitaro">
+  <style>
+    .roka { transform-origin: 90px 154px; animation: brenk 0.6s ease-in-out infinite; }
+    .nota { animation: pesem 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+    .druga { animation-delay: -0.8s; } .tretja { animation-delay: -1.6s; }
+    @keyframes brenk { 50% { transform: rotate(-12deg); } }
+    @keyframes pesem { 0% { opacity: 0; transform: translateY(12px) rotate(-8deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-24px) rotate(12deg); } }
+    @media (prefers-reduced-motion: reduce) { .roka, .nota { animation: none; } }
+  </style>
+  <!-- Lastna ilustracija za igro; brez uporabe fotografije ali ovitka albuma. -->
+  <ellipse cx="125" cy="245" rx="72" ry="7" fill="#492b64" opacity=".18"/>
+  <g stroke="#2a1b14" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Hlače in odrski čevlji. -->
+    <path d="M95 191 L91 234 L113 237 L127 200 L135 237 L157 234 L157 191Z" fill="#242932"/>
+    <path d="M91 231 Q76 234 76 244 L114 244 L115 234Z M135 233 L136 244 L174 244 Q174 233 156 231Z" fill="#171e27"/>
+    <path d="M81 240 H110 M141 240 H168" stroke="#738087" stroke-width="2.5"/>
+    <!-- Bela srajca, temen suknjič in kitarski pas. -->
+    <path d="M80 135 Q99 122 123 124 Q149 123 171 137 L168 200 Q126 215 83 199Z" fill="#293844"/>
+    <path d="M105 125 L122 166 L145 125 L146 192 L109 192Z" fill="#fff8e7"/>
+    <path d="M105 124 L94 145 L108 149 L104 164 L121 188 L116 142Z M145 125 L159 146 L146 150 L151 163 L126 188 L136 141Z" fill="#1a2631" stroke-width="3"/>
+    <path d="M91 134 L155 199" stroke="#131c24" stroke-width="11"/>
+    <path d="M91 134 L155 199" stroke="#b88c4b" stroke-width="3"/>
+    <path d="M113 112 L112 130 Q124 145 138 130 L137 111" fill="#efc5a1"/>
+    <!-- Obraz, srebrni zalizci in kratka brada. -->
+    <ellipse cx="85" cy="90" rx="9" ry="13" fill="#efc5a1"/>
+    <ellipse cx="164" cy="90" rx="9" ry="13" fill="#efc5a1"/>
+    <path d="M85 67 Q124 44 165 67 L162 99 Q157 128 125 131 Q95 127 88 100Z" fill="#f3cdae"/>
+    <path d="M86 69 L94 73 L94 99 L87 94Z M164 69 L155 73 L155 99 L163 94Z" fill="#c4c1b6" stroke-width="2.5"/>
+    <path d="M94 103 Q106 122 124 122 Q144 121 156 103 Q149 132 125 133 Q101 131 94 103Z" fill="#d7d0bc" stroke-width="2.5"/>
+    <path d="M99 80 Q106 75 114 79 M136 79 Q145 74 152 80" fill="none" stroke="#89867a" stroke-width="4"/>
+    <path d="M100 87 Q106 82 113 87 M136 87 Q143 82 151 87" fill="none" stroke-width="3"/>
+    <circle cx="108" cy="88" r="2.9" fill="#547576" stroke="none"/>
+    <circle cx="143" cy="88" r="2.9" fill="#547576" stroke="none"/>
+    <path d="M123 87 L118 102 Q122 108 130 103" fill="none" stroke="#ba8c71" stroke-width="2.5"/>
+    <path d="M110 111 Q125 121 141 109" fill="none" stroke-width="3"/>
+    <path d="M116 112 Q126 115 136 111" stroke="#fff" stroke-width="2.5"/>
+    <path d="M97 95 L103 97 M149 97 L155 94 M109 69 L117 68 M131 68 L141 69" fill="none" stroke="#c69a7e" stroke-width="2"/>
+    <!-- Značilen klobuk z zlatim trakom. -->
+    <g transform="rotate(-5 125 50)">
+      <path d="M84 59 L91 22 Q103 15 121 23 Q143 14 158 24 L166 59Z" fill="#202a32"/>
+      <path d="M89 44 Q124 51 161 44 L164 58 Q126 68 86 57Z" fill="#c79c55" stroke-width="3"/>
+      <path d="M94 50 L99 54 M105 51 L110 55 M116 52 L121 56 M128 52 L133 56 M140 51 L145 55 M151 50 L156 53" stroke="#eacb87" stroke-width="2"/>
+      <path d="M63 57 Q121 70 183 55 Q188 64 177 69 Q126 85 74 71 Q59 68 63 57Z" fill="#1c242d"/>
+      <path d="M69 62 Q122 76 177 62 M97 28 L95 39" fill="none" stroke="#475661" stroke-width="2.5"/>
+    </g>
+    <!-- Roka na vratu kitare. -->
+    <path d="M163 142 L179 161 L198 151" fill="none" stroke="#2a1b14" stroke-width="22"/>
+    <path d="M163 142 L179 161 L198 151" fill="none" stroke="#293844" stroke-width="14"/>
+    <!-- Akustična kitara: vse strune, prečke in mostiček delijo isto os. -->
+    <g transform="rotate(-23 132 178)">
+      <defs>
+        <path id="trup-kitare" d="M158 164 C166 153 154 140 142 143 C130 145 131 157 119 156 C108 155 112 138 99 138 C81 136 72 153 73 174 C72 195 81 212 99 211 C113 211 108 194 119 192 C131 191 130 204 142 205 C155 208 166 194 158 183 Q153 174 158 164Z"/>
+      </defs>
+      <!-- Večji spodnji del trupa, ožji pas in manjši del ob vratu. -->
+      <use href="#trup-kitare" fill="#192127"/>
+      <use href="#trup-kitare" transform="translate(118 174) scale(.91) translate(-118 -174)" fill="none" stroke="#d9c494" stroke-width="2"/>
+      <path d="M82 173 Q79 152 94 147 M85 190 Q88 202 98 203" fill="none" stroke="#46525b" stroke-width="3"/>
+      <!-- Vrat in ubiralka sta vzporedna s strunami, glava ima šest vijakov. -->
+      <path d="M146 167 L216 167 L217 181 L146 181Z" fill="#624734" stroke-width="3"/>
+      <path d="M149 169 L216 169 L216 179 L149 179Z" fill="#302c29" stroke="none"/>
+      <path d="M215 164 L237 163 L239 183 L215 184Z" fill="#242d35" stroke-width="3"/>
+      <g stroke="#b4b6ab" stroke-width="2.5">
+        <path d="M219 164 V159 M226 163 V158 M233 163 V158 M220 184 V189 M227 184 V189 M234 183 V188"/>
+      </g>
+      <g fill="#eee3c6" stroke="#5b5444" stroke-width="1">
+        <ellipse cx="219" cy="158" rx="2.6" ry="1.8"/><ellipse cx="226" cy="157" rx="2.6" ry="1.8"/><ellipse cx="233" cy="157" rx="2.6" ry="1.8"/>
+        <ellipse cx="220" cy="190" rx="2.6" ry="1.8"/><ellipse cx="227" cy="190" rx="2.6" ry="1.8"/><ellipse cx="234" cy="189" rx="2.6" ry="1.8"/>
+      </g>
+      <!-- Ena odprtina z nežno rozeto; ploščica pod njo varuje les. -->
+      <path d="M132 184 Q147 179 149 187 Q148 197 139 196 L130 189Z" fill="#11171c" stroke="#434b50" stroke-width="1"/>
+      <circle cx="130" cy="174" r="13" fill="#080e13" stroke="#dcc89a" stroke-width="1.7"/>
+      <circle cx="130" cy="174" r="15.4" fill="none" stroke="#bba878" stroke-width="1"/>
+      <rect x="97" y="165" width="9" height="19" rx="2" fill="#644d36" stroke="#161b1e" stroke-width="1.5"/>
+      <path d="M104 168 V181" stroke="#fff0cb" stroke-width="1.7"/>
+      <g stroke="#bdb79e" stroke-width=".8">
+        <path d="M155 168 V180 M163 168 V180 M171 168 V180 M179 168 V180 M187 168 V180 M195 168 V180 M203 168 V180 M211 168 V180"/>
+      </g>
+      <g fill="#e5ddc9" stroke="none"><circle cx="167" cy="174" r="1"/><circle cx="183" cy="174" r="1"/><circle cx="199" cy="174" r="1"/></g>
+      <!-- Šest ravnih strun od sedla do glave. -->
+      <path d="M103 170 L231 170 M103 171.5 L231 171.5 M103 173 L231 173 M103 174.5 L231 174.5 M103 176 L231 176 M103 177.5 L231 177.5" fill="none" stroke="#e4d6ad" stroke-width=".55"/>
+      <!-- Nekaj obrabe na črnem laku, stran od odprtine in strun. -->
+      <path d="M91 152 L96 154 M88 194 L93 196 M121 199 L128 202" fill="none" stroke="#a4824e" stroke-width="1.6"/>
+    </g>
+    <path d="M188 151 Q183 143 188 139 Q191 137 195 143 L202 139 Q210 141 207 148 L199 157Z" fill="#f3cdae" stroke-width="3"/>
+    <!-- Brenkajoča roka se premika neodvisno od kitare. -->
+    <g class="roka">
+      <path d="M87 143 Q74 153 86 170 L112 183" fill="none" stroke="#2a1b14" stroke-width="23"/>
+      <path d="M87 143 Q74 153 86 170 L108 181" fill="none" stroke="#293844" stroke-width="15"/>
+      <path d="M103 172 Q111 169 120 176 L128 184 Q130 190 124 192 L108 188 Q100 183 103 172Z" fill="#f3cdae" stroke-width="3"/>
+      <path d="M115 178 L122 183 M112 181 L119 187" stroke="#c59576" stroke-width="1.5"/>
+    </g>
+  </g>
+  <g fill="#fff5b2" stroke="#765194" stroke-width="1.5" paint-order="stroke" font-family="Arial, sans-serif" font-weight="bold">
+    <text class="nota" x="34" y="108" font-size="32">♪</text>
+    <text class="nota druga" x="195" y="80" font-size="38">♫</text>
+    <text class="nota tretja" x="214" y="121" font-size="26">♪</text>
+  </g>
+</svg>

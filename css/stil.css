@@ -542,6 +542,9 @@ button.zvok {
 @keyframes skok { 50% { transform: translateY(-14px) rotate(-3deg); } }
 @keyframes sij { 50% { transform: scale(1.12); filter: drop-shadow(0 0 30px #ffd60a); } }
 @keyframes lik-gor { from { transform: scale(.2); opacity: 0; } }
+.zmaga-lik.koncert > span { transform-origin: 50% 92%; animation: koncert 1.2s ease-in-out infinite; }
+@keyframes koncert { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg) translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .zmaga-lik.koncert, .zmaga-lik.koncert > span { animation: none; } }
 @keyframes vskok { from { transform: scale(.3); opacity: 0; } }
 
 .konfeti { position: absolute; inset: 0; pointer-events: none; }

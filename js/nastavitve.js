@@ -38,6 +38,7 @@ const DORA_COLN = { ime: 'Dora', emoji: '🚣‍♀️', slika: 'slike/dora-coln
 const PROSLAVE = [
   { besedilo: 'Mičko dela stojo!', emoji: '🧍', animacija: 'skok', slika: 'slike/micko-stoja.svg' },
   { besedilo: 'Urbi Bog!',         emoji: '😇', animacija: 'sij',   slika: 'slike/urban-bog.svg?v=2' },
+  { ime: 'Vlado Kreslin', besedilo: 'Vlado Kreslin zaigra!', emoji: '🎸', animacija: 'koncert', slika: 'slike/vlado-kreslin.svg?v=2', zvok: 'kitara' },
 ];
 
 // Zemljevid: Mirt pri domu na začetku, ob hišicah se izmenjujeta Mirt in Tupko v različnih pozah.

@@ -231,7 +231,8 @@ function zaslonZmage({ st, tocke, bonus, zvezdice, zadnja }) {
   $('zmaga-pod').textContent = p.besedilo;
   const podnapis = bonus ? `<small>bonus za poteze: ${bonus}</small>` : '';
   stej(0, tocke, 1400, n => { $('zmaga-tocke').innerHTML = `${n} točk` + podnapis; });
-  Zvok.zmaga();
+  if (p.zvok && typeof Zvok[p.zvok] === 'function') Zvok[p.zvok]();
+  else Zvok.zmaga();
   const lik = $('zmaga-lik');
   lik.className = 'zmaga-lik ' + p.animacija;
   lik.innerHTML = `<span>${vsebina(p)}</span>`;

@@ -6,7 +6,7 @@ Dorin Candy Crush, za njen rojstni dan (sobota, 31. 10. 2026, ob 18:00). Načrt 
 
 ## Trenutno stanje (29. 10. 2026 zvečer)
 
-Igra je v živo in deluje od začetka do konca. Različica v repozitoriju: `?v=64` v `index.html`.
+Igra je v živo in deluje od začetka do konca. Različica v repozitoriju: `?v=66` v `index.html`.
 
 **Narejeno**
 
@@ -16,7 +16,7 @@ Igra je v živo in deluje od začetka do konca. Različica v repozitoriju: `?v=6
   - 24 stopenj, 6 elementov (burek, rakija, pivo, aperol, uteži, domačica) in življenja (5, +1 vsakih 20 minut);
   - Dorina bomba: začetna bomba na vsaki stopnji in nova iz verige 3+; ob eksploziji laserji v križ, udarni val in napis BUM;
   - **Laserska Dora:** skupina 5+ ali četrti val verige ustvari turkizen žeton namesto ene navadne bombe. Med pojavoma mora miniti 6 veljavnih potez, na plošči je lahko samo ena; premor se začne znova ob novi stopnji. Val, ki sproža posebne žetone, ne ustvari laserske Dore. Ob premiku se zavrti za 360° in s pari prožnih očesnih žarkov zadene 24 različnih naključnih polj; zadete bombe se sprožijo verižno. Pravila in trajanje so v `DORA_LASER` v `js/nastavitve.js`.
-  - proslavi Mičko (stoja) in Urbi Bog (sončna očala, verižica, palec gor).
+  - tri proslave v krogu: Mičko (stoja), Urbi Bog (sončna očala, verižica, palec gor) in Vlado Kreslin (lastna SVG-ilustracija s klobukom in črno kitaro, brenkanje, lebdeče note in lasten sintetiziran kitarski motiv).
 - **Zaslon zmage:** zvezdice, točke ter gumbi Naprej, Ponovi in Izzovi (deljenje rezultata).
 - **3D zemljevid:** vrteč se svet ob Grosupeljščici, Dora v čolnu, Mirt in Tupko v pozah.
   - Podnevi: piknik in gora s ferato, po kateri hodijo Dora, Mirt in prijatelja.
