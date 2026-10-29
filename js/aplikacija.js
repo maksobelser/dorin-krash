@@ -25,10 +25,8 @@ function shrani() {
 const KLJUC_IGRALCA = 'dorin-kras-igralec';
 let igralec = null;
 try { igralec = JSON.parse(localStorage.getItem(KLJUC_IGRALCA)); } catch (_) {}
-if (!igralec || !/^[a-z0-9]{8,32}$/.test(igralec.id || '')) {
-  const nakljucno = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => (b % 36).toString(36)).join('');
-  igralec = { id: nakljucno, ime: '' };
-}
+const novId = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => (b % 36).toString(36)).join('');
+if (!igralec || !/^[a-z0-9]{8,32}$/.test(igralec.id || '')) igralec = { id: novId(), ime: '' };
 function shraniIgralca() {
   try { localStorage.setItem(KLJUC_IGRALCA, JSON.stringify(igralec)); } catch (_) {}
 }
@@ -45,7 +43,10 @@ async function lestvicaStreznik() {
       ? await fetch('api/lestvica', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: igralec.id, ime: igralec.ime, ...mojRezultat() }) })
       : await fetch('api/lestvica');
     if (!odgovor.ok) return null;
-    return (await odgovor.json()).igralci || null;
+    const podatki = await odgovor.json();
+    // Ime že obstaja na lestvici: od zdaj ta telefon piše v tisti vpis.
+    if (podatki.jaz && podatki.jaz !== igralec.id) { igralec.id = podatki.jaz; shraniIgralca(); }
+    return podatki.igralci || null;
   } catch (_) { return null; }
 }
 
@@ -582,7 +583,7 @@ for (let i = 0; i < 18; i++) {
 Plosca.init($('plosca'), $('plosca-ovoj'));
 $('play').addEventListener('click', igraj);
 $('vpis').addEventListener('submit', igraj);
-$('nisem-jaz').addEventListener('click', () => { igralec.ime = ''; shraniIgralca(); osveziVpis(); $('vpis-ime').value = ''; $('vpis-ime').focus(); });
+$('nisem-jaz').addEventListener('click', () => { igralec = { id: novId(), ime: '' }; shraniIgralca(); osveziVpis(); $('vpis-ime').value = ''; $('vpis-ime').focus(); });
 $('odpri-lestvico').addEventListener('click', () => odpriLestvico('vstop'));
 
 // Domači zaslon: Android/Chrome ponudi namestitev z enim klikom, iPhone pokaže navodila (Apple gumba ne dovoli)
