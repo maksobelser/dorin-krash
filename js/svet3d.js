@@ -18,7 +18,7 @@ const Svet3D = (() => {
   })();
 
   let ovoj, renderer, scene, camera, svet, tla, vodaMat, kanu, doraNaColnu, sonce;
-  let oznake = [], zastavica;
+  let oznake = [], cilj = null;
   let n = 0, odklenjeno = 1, zvezdice = {}, onStopnja = () => {};
   let kot = 0, ciljKot = 0, hitrost = 0, tece = false, zankaTece = false, zadnji = 0, cas = 0;
   let kanuKot = 0, kanuOd = 0, kanuDo = 0;
@@ -36,7 +36,7 @@ const Svet3D = (() => {
   let noc = false, mirtovi = [], hemi, oknoMat, luc, dnevni, nocni, metulji = [], oci = [], kresnice = [], temni = [];
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
 
-  // 0 = dom, 1..n = stopnje, n+1 = zastavica; za mostom je malo več prostora
+  // 0 = dom, 1..n = stopnje, n+1 = cilj; za mostom je malo več prostora
   const MOST = 8.42, PIKNIK = 6.5;
   const kotStopnje = st => (st + (st > MOST ? 1.2 : 0)) * KORAK;
   const xNa = th => 2.6 * Math.sin(th * 9.5);
@@ -652,6 +652,182 @@ const Svet3D = (() => {
       p.s.material.color.copy(c);
     });
     r.dj.material.color.setHSL((cas * 0.15) % 1, 0.4, 0.85);
+  }
+
+  // ---------- Cilj: balonski lok čez potok, šahovnica na vodi in navijači; ponoči lučke, reflektorja in ognjemet ----------
+
+  function zgradiCilj(th, proste) {
+    const xc = xNa(th), pol = SIRINA / 2 + 0.9, VIS = 4.6;
+    const naLoku = a => new THREE.Vector3(-Math.cos(a) * pol, Math.sin(a) * VIS, 0);
+    const lok = new THREE.Group();
+    // balonski lok: pari balonov v petih barvah, od tal do tal
+    const barve = [0xff2d87, 0xffd23f, 0x2ec4b6, 0xffffff, 0x8f4dff];
+    const balonGeo = new THREE.SphereGeometry(0.34, 12, 9);
+    // vsaka barva svoj material s sijem, da lok ponoči žari (glej nastaviNoc)
+    const baloni = barve.map(b => mat(b, { emissive: new THREE.Color(b).multiplyScalar(0.004), side: THREE.DoubleSide }));
+    for (let i = 0; i <= 30; i++) {
+      const v = naLoku(Math.PI * i / 30);
+      [-0.2, 0.2].forEach((z, j) => {
+        const b = new THREE.Mesh(balonGeo, baloni[(i + j * 2) % barve.length]);
+        b.position.set(v.x, v.y + 0.3, z);
+        b.scale.set(1, 1.12, 1);
+        lok.add(b);
+      });
+    }
+    // zastavice pod lokom
+    const zastGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.17, 0, 0), new THREE.Vector3(0.17, 0, 0), new THREE.Vector3(0, -0.38, 0)]);
+    zastGeo.computeVertexNormals();
+    const sirZast = pol * 0.8;
+    for (let i = 0; i <= 12; i++) {
+      const x = -sirZast + 2 * sirZast * i / 12;
+      const z = new THREE.Mesh(zastGeo, baloni[i % barve.length]);
+      z.position.set(x, 2.7 - 0.45 * (1 - (x / sirZast) ** 2), 0);
+      lok.add(z);
+    }
+    // šahovnica čez vodo
+    const sah = document.createElement('canvas');
+    sah.width = 256; sah.height = 32;
+    const gs = sah.getContext('2d');
+    for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { gs.fillStyle = (i + j) % 2 ? '#1d1d1d' : '#ffffff'; gs.fillRect(i * 16, j * 16, 16, 16); }
+    const crta = new THREE.Mesh(new THREE.PlaneGeometry(SIRINA + 0.8, (SIRINA + 0.8) / 8), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sah), color: 0xe8e8e8 }));
+    crta.rotation.x = -Math.PI / 2;
+    crta.position.y = 0.11;
+    lok.add(crta);
+    postaviNaPotok(lok, th, R, xc);
+    svet.add(lok);
+
+    // tabla CILJ visi z vrha loka in se rahlo ziba
+    const pl = document.createElement('canvas');
+    pl.width = 512; pl.height = 160;
+    const g = pl.getContext('2d');
+    for (let i = 0; i < 32; i++) for (let j = 0; j < 2; j++) {
+      g.fillStyle = (i + j) % 2 ? '#1d1d1d' : '#ffffff';
+      g.fillRect(i * 16, j * 16, 16, 16);
+      g.fillRect(i * 16, 128 + j * 16, 16, 16);
+    }
+    g.fillStyle = '#ff2d87';
+    g.fillRect(0, 32, 512, 96);
+    g.font = '900 84px "Lilita One", "Arial Black", sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.lineWidth = 10;
+    g.strokeStyle = '#7a1f45';
+    g.strokeText('🏁 CILJ 🏁', 256, 84);
+    g.fillStyle = '#fff';
+    g.fillText('🏁 CILJ 🏁', 256, 84);
+    const tabla = new THREE.Group();
+    const platno = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.06), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(pl), side: THREE.DoubleSide }));
+    platno.position.y = -0.75;
+    const vrvica = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 4), mat(0x333333));
+    vrvica.position.y = -0.1;
+    tabla.add(vrvica, platno);
+    const nihalo = new THREE.Group();
+    nihalo.add(tabla);
+    tabla.position.y = VIS + 0.05;
+    tabla.position.z = 0.45;
+    postaviNaPotok(nihalo, th, R, xc);
+    nihalo.userData.dinamicno = true;
+    svet.add(nihalo);
+
+    // navijači s transparenti tik pred ciljem, na bregu proti sredini zaslona (drugi breg je ob ovinku izven slike)
+    const stran = xNa(th) > 0 ? -1 : 1;
+    const navijaci = [['slike/navijaci-sam-gas.svg', -0.05, SIRINA / 2 + 2.5], ['slike/navijaci-ide-dora.svg', -0.01, pol + 3.6]].map(([slika, d, odmik], i) => {
+      const thN = th + d, x = xNa(thN) + stran * odmik;
+      const sp = lik({ slika }, 1);
+      sp.scale.set(4.5, 3, 1);
+      sp.userData.svetel = true;
+      svet.add(sp);
+      proste.push([thN, x]);
+      return { s: sp, baza: tocka(thN, x, R + 1.5), n: normala(thN), faza: i * 1.3 };
+    });
+    ovire.push([th, xc, 2.4, pol + 5.2], [th - 0.05, xNa(th - 0.05), 2, SIRINA / 2 + 5]);
+    proste.push([th, xc - pol], [th, xc + pol]);
+
+    // ponoči: veriga lučk po loku, sij za tablo, reflektorja in ognjemet
+    const lucke = [];
+    for (let i = 0; i <= 18; i++) {
+      const v = naLoku(Math.PI * i / 18).add(new THREE.Vector3(0, 0.3, 0.42));
+      const l = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, color: 0xffd27a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+      l.scale.setScalar(1.15);
+      l.position.copy(v);
+      l.userData.svetel = true;
+      lucke.push(l);
+    }
+    const nocLok = new THREE.Group();
+    nocLok.add(...lucke);
+    const sij = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, color: 0xff7ab0, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+    sij.scale.setScalar(9);
+    sij.position.set(0, VIS * 0.6, -0.4);
+    const voda = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, color: 0xffc070, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+    voda.scale.setScalar(7);
+    voda.position.set(0, 0.3, 0.6);
+    sij.userData.svetel = voda.userData.svetel = true;
+    nocLok.add(sij, voda);
+    const zarekGeo = new THREE.ConeGeometry(1.1, 9, 16, 1, true).translate(0, -4.5, 0).rotateX(Math.PI);
+    const reflektorja = [-1, 1].map(s => {
+      const r = new THREE.Mesh(zarekGeo, new THREE.MeshBasicMaterial({ color: s < 0 ? 0xff7ab0 : 0x7ad8ff, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
+      r.position.set(s * (pol + 0.9), 0.2, -0.3);
+      nocLok.add(r);
+      return { r, s };
+    });
+    const ognjemet = [0, 1, 2].map(() => {
+      const iskre = Array.from({ length: 16 }, () => {
+        const k = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+        k.scale.setScalar(0.55);
+        k.userData.svetel = true;
+        nocLok.add(k);
+        return k;
+      });
+      return { iskre, t: 99, center: new THREE.Vector3(), barva: new THREE.Color() };
+    });
+    postaviNaPotok(nocLok, th, R, xc);
+    nocLok.userData.dinamicno = true;
+    nocni.add(nocLok);
+
+    cilj = { th, baloni, nihalo: tabla, navijaci, lucke, sij, reflektorja, ognjemet, naslednji: 0 };
+  }
+
+  function animirajCilj() {
+    if (!cilj) return;
+    // le, ko je cilj blizu kamere
+    if (Math.abs(kot - cilj.th) * R > 40) return;
+    cilj.nihalo.rotation.z = Math.sin(cas * 1.4) * 0.05;
+    cilj.navijaci.forEach(v => {
+      const skok = Math.abs(Math.sin(cas * 4.2 + v.faza)) * 0.32;
+      v.s.position.copy(v.baza).addScaledVector(v.n, skok);
+      v.s.material.rotation = Math.sin(cas * 4.2 + v.faza) * 0.04;
+      v.s.material.color.setHex(noc ? 0xffe6c8 : 0xffffff);
+    });
+    if (!noc) return;
+    // lučke tečejo v valu po loku
+    cilj.lucke.forEach((l, i) => {
+      const val = 0.5 + 0.5 * Math.sin(cas * 5 - i * 0.7);
+      l.material.opacity = 0.35 + 0.65 * val;
+      l.material.color.setHSL((0.12 + (i % 3) * 0.33 + cas * 0.05) % 1, 0.9, 0.65);
+    });
+    cilj.sij.material.opacity = 0.45 + Math.sin(cas * 2) * 0.08;
+    cilj.reflektorja.forEach(({ r, s }, i) => { r.rotation.z = s * (0.35 + Math.sin(cas * 0.9 + i * 2) * 0.3); });
+    // ognjemet: vsakih nekaj sekund pok nad lokom
+    if (cas > cilj.naslednji) {
+      const o = cilj.ognjemet.find(o => o.t > 1.8);
+      if (o) {
+        o.t = 0;
+        o.center.set((Math.random() - 0.5) * 7, 6.5 + Math.random() * 2.5, -1 - Math.random() * 2);
+        o.barva.setHSL(Math.random(), 1, 0.62);
+      }
+      cilj.naslednji = cas + 0.8 + Math.random() * 1.6;
+    }
+    cilj.ognjemet.forEach(o => {
+      if (o.t > 1.8) return;
+      o.t += 1 / 60;
+      const t = o.t, sir = 2.6 * (1 - Math.pow(1 - Math.min(t / 1.2, 1), 3));
+      o.iskre.forEach((k, i) => {
+        const a = i / o.iskre.length * Math.PI * 2;
+        k.position.set(o.center.x + Math.cos(a) * sir, o.center.y + Math.sin(a) * sir - t * t * 0.9, o.center.z);
+        k.material.color.copy(o.barva);
+        k.material.opacity = Math.max(0, 1 - t / 1.8);
+      });
+    });
   }
 
   // ---------- Prigode ob poti: race, baloni, šotor z ognjem, Tupko na gugalnici ----------
@@ -1322,18 +1498,8 @@ const Svet3D = (() => {
     zgradiMost(MOST * KORAK, proste);
     zgradiPiknik(proste);
     zgradiRave();
+    zgradiCilj(konec, proste);
     zgradiPrigode(proste);
-
-    // Zastavica na koncu
-    zastavica = new THREE.Group();
-    const drog = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 4, 8), mat(0xffffff));
-    drog.position.y = 2;
-    const platno = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.1), mat(0xff3366, { side: THREE.DoubleSide }));
-    platno.position.set(0.9, 3.4, 0);
-    zastavica.add(drog, platno);
-    postavi(zastavica, konec, xNa(konec) + 3.2);
-    zastavica.userData.dinamicno = true;
-    svet.add(zastavica);
 
     // Drevesa, grmi, kamni, lokvanji
     const dummy = new THREE.Object3D();
@@ -1613,6 +1779,7 @@ const Svet3D = (() => {
     oknoMat.color.setHex(noc ? 0xffe08a : 0xbfe9ff);
     oknoMat.emissive.setHex(noc ? 0xffb43a : 0x334455);
     if (lucMat) lucMat.emissive.setHex(noc ? 0xffc866 : 0x332a10);
+    if (cilj) cilj.baloni.forEach(m => m.emissive.copy(m.color).multiplyScalar(noc ? 0.55 : 0.004));
     vodaMat.uniforms.uNoc.value = noc ? 1 : 0;
     temni.forEach(o => o.material.color.setHex(noc ? 0x6a76a0 : 0xffffff));
     mirtovi.forEach(m => { m.s.material.map = noc ? m.noc : m.dan; m.s.material.color.setHex(noc ? 0xb4bfec : 0xffffff); });
@@ -1766,6 +1933,7 @@ const Svet3D = (() => {
     animirajPiknik(dt);
     animirajRave();
     animirajPrigode();
+    animirajCilj();
     animirajDanInNoc();
     posodobiDelce(dt);
     liki.forEach(l => {
@@ -1800,7 +1968,6 @@ const Svet3D = (() => {
       v.scale.setScalar(1.1 + f * 1.6);
       v.children[0].material.opacity = potovanje ? 0 : 0.75 * (1 - f);
     });
-    zastavica.children[1].rotation.y = Math.sin(cas * 3) * 0.25;
     if (Math.abs(kot - kotSence) > 0.0003 || potovanje || odklep) {
       renderer.shadowMap.needsUpdate = true;
       kotSence = kot;

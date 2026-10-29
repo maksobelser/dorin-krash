@@ -6,7 +6,7 @@ Dorin Candy Crush, za njen rojstni dan (sobota, 31. 10. 2026, ob 18:00). Načrt 
 
 ## Trenutno stanje (29. 10. 2026 zvečer)
 
-Igra je v živo in deluje od začetka do konca. Zadnja različica: `?v=57` v `index.html`.
+Igra je v živo in deluje od začetka do konca. Zadnja različica: `?v=61` v `index.html`.
 
 **Narejeno**
 
@@ -19,6 +19,7 @@ Igra je v živo in deluje od začetka do konca. Zadnja različica: `?v=57` v `in
 - **3D zemljevid:** vrteč se svet ob Grosupeljščici, Dora v čolnu, Mirt in Tupko v pozah.
   - Podnevi: piknik in gora s ferato, po kateri hodijo Dora, Mirt in prijatelja.
   - Ponoči: rave, ogenj s kolegi in osvetljen joga studio z gongom.
+  - Na cilju balonski lok s tablo CILJ, šahovnica čez potok in navijači s transparentoma »IDE DORAA!« in »SAM GASSS!«; ponoči lok žari, lučke tečejo, reflektorja in ognjemet.
   - Če WebGL ne dela, se pokaže 2D zemljevid.
 - **Glasba in zvok:** generativna, mehka in igriva glasba ter sintetizirani zvoki brez datotek. Na iPhonu se sliši tudi, ko je vklopljen tihi način.
 - **Skupna lestvica:**
