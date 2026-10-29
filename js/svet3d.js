@@ -1306,6 +1306,8 @@ const Svet3D = (() => {
     zgradiDanInNoc(od, doKota, proste);
     // liki, ki se ponoči potemnijo (Dora, napisi in nočni liki ostanejo svetli)
     zlepiStaticno();
+    zlepiStaticno(dnevni);
+    zlepiStaticno(nocni);
     svet.traverse(o => { if (o.isSprite && !o.userData.svetel) temni.push(o); });
     nastaviNoc(noc);
   }
@@ -1314,9 +1316,9 @@ const Svet3D = (() => {
 
   // Vse mirujoče mreže z navadnim Lambert materialom zlije v eno mrežo z barvami v ogliščih;
   // ostale (teksture, svetila, Phong) zlije po materialu. Gibljivi predmeti imajo userData.dinamicno.
-  function zlepiStaticno() {
+  function zlepiStaticno(koren = svet) {
     svet.updateMatrixWorld(true);
-    const inv = new THREE.Matrix4().copy(svet.matrixWorld).invert();
+    const inv = new THREE.Matrix4().copy(koren.matrixWorld).invert();
     const skupine = new Map(), odstrani = [];
     const obisci = o => {
       if (o.userData.dinamicno) return;
@@ -1332,7 +1334,7 @@ const Svet3D = (() => {
       }
       o.children.forEach(obisci);
     };
-    svet.children.slice().forEach(obisci);
+    koren.children.slice().forEach(obisci);
     odstrani.forEach(o => o.parent.remove(o));
     skupine.forEach(({ m, navaden, deli }) => {
       const geos = deli.map(d => {
@@ -1365,7 +1367,7 @@ const Svet3D = (() => {
       mreza.castShadow = deli.some(d => d.senca);
       mreza.receiveShadow = true;
       mreza.frustumCulled = false;
-      svet.add(mreza);
+      koren.add(mreza);
     });
   }
 
@@ -1447,7 +1449,7 @@ const Svet3D = (() => {
     });
 
     // Kresnice (ponoči)
-    for (let i = 0; i < 50 * (doKota - od) / 2.24; i++) {
+    for (let i = 0; i < 24 * (doKota - od) / 2.24; i++) {
       const [th, x] = nakljucnoObPoti(SIRINA / 2 - 1, 12);
       const k = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, color: 0xd9ff6a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
       k.scale.setScalar(0.45);
