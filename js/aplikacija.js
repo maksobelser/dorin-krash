@@ -567,6 +567,31 @@ $('play').addEventListener('click', igraj);
 $('vpis').addEventListener('submit', igraj);
 $('nisem-jaz').addEventListener('click', () => { igralec.ime = ''; shraniIgralca(); osveziVpis(); $('vpis-ime').value = ''; $('vpis-ime').focus(); });
 $('odpri-lestvico').addEventListener('click', () => odpriLestvico('vstop'));
+
+// Domači zaslon: Android/Chrome ponudi namestitev z enim klikom, iPhone pokaže navodila (Apple gumba ne dovoli)
+let namestitev = null;
+const zeNamescena = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const iPhone = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+$('na-domaci').hidden = zeNamescena() || !matchMedia('(pointer: coarse)').matches;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); namestitev = e; $('na-domaci').hidden = zeNamescena(); });
+window.addEventListener('appinstalled', () => { $('na-domaci').hidden = true; namestitev = null; });
+$('na-domaci').addEventListener('click', async () => {
+  if (namestitev) {
+    namestitev.prompt();
+    const { outcome } = await namestitev.userChoice;
+    if (outcome === 'accepted') $('na-domaci').hidden = true;
+    namestitev = null;
+    return;
+  }
+  okno({
+    naslov: 'Na domači zaslon',
+    zapri: true,
+    besedilo: iPhone
+      ? '1. Spodaj v Safariju tapni gumb Deli (kvadratek s puščico ⬆️).<br>2. Izberi »Dodaj na začetni zaslon«.<br>3. Tapni »Dodaj«. Dorin Kraš bo med aplikacijami.'
+      : '1. Zgoraj desno v brskalniku tapni ⋮ (meni).<br>2. Izberi »Dodaj na začetni zaslon« ali »Namesti aplikacijo«.<br>3. Potrdi. Dorin Kraš bo med aplikacijami.',
+    gumbi: [{ tekst: 'Razumem' }],
+  });
+});
 $('pokal').addEventListener('click', () => odpriLestvico('zemljevid'));
 $('dan-noc').addEventListener('click', () => {
   nastaviNoc(!noc);

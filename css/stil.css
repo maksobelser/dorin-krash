@@ -39,7 +39,7 @@ body[data-zaslon="vstop"] { background: linear-gradient(180deg, #62c6f5 0%, #9fd
 /* ---------- Bonboni, ki padajo v ozadju ---------- */
 
 .sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
-#zaslon-vstop .card { margin: auto 0; flex: none; }
+#zaslon-vstop .card { margin: auto 0; flex: none; padding-bottom: 56px; }
 .drop img { width: 100%; height: 100%; display: block; }
 body:not([data-zaslon="vstop"]) .sky { display: none; }
 .drop {
@@ -765,3 +765,4 @@ button.majhen:active { box-shadow: 0 1px 0 #0b6c7c; }
 /* hitrost: ploščice in padajoče stvari na svojih plasteh (animira jih samo grafični čip) */
 .ploscica, .drop { will-change: transform; }
 #zaslon-vstop .explora span { -webkit-text-stroke: 4px #5c1233; paint-order: stroke fill; }
+button.povezava.domaci { display: block; margin: 14px auto 0; font-size: 15px; }
