@@ -239,6 +239,14 @@ const Zvok = (() => {
       zvoncek(f * 2, { t: 0.5, g: 0.04 + Math.min(kombo, 5) * 0.012, cez: 0.03 });
       sumi({ t: 0.04, g: 0.06, od: 6000, do: 3000, q: 1.5 });
     },
+    // gong / pojoča skleda iz joga studia: mehki delni toni z dolgim izzvenevanjem
+    gong(g = 0.1) {
+      const f = typeof Glasba !== 'undefined' ? 440 * Math.pow(2, (Glasba.lestvica(45)[0] - 69) / 12) : 110;
+      ton({ f, t: 6, g, napad: 0.04, odmev: 0.5 });
+      ton({ f: f * 1.004, t: 5.5, g: g * 0.6, napad: 0.05, odmev: 0.5 });
+      ton({ f: f * 2.76, t: 3.6, g: g * 0.3, napad: 0.03, odmev: 0.6 });
+      ton({ f: f * 5.4, t: 1.8, g: g * 0.1, napad: 0.02, odmev: 0.6 });
+    },
     // naboj pred Dorino eksplozijo: hiter dvig tona
     polni() {
       ton({ f: 220, doF: 1800, tip: 'sawtooth', t: 0.26, g: 0.07, filter: 2500 });

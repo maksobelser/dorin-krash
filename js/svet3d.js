@@ -31,7 +31,7 @@ const Svet3D = (() => {
   let ovire = [], kotSence = -1;
   const vOviri = (th, x, r = 0) => ovire.some(([t, xx, a, b]) => Math.abs((th - t) * R) < a + r && Math.abs(x - xx) < b + r);
   // Prigode ob poti (naključno razporejene) in Tupkovi »mjav«
-  let race = [], sprehod = null, baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
+  let race = [], sprehod = null, joga = null, baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
   // Dan in noč
   let noc = false, mirtovi = [], hemi, oknoMat, luc, dnevni, nocni, metulji = [], oci = [], kresnice = [], temni = [];
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
@@ -870,9 +870,105 @@ const Svet3D = (() => {
       sprehod = { pot, gor, druzba };
       zasedi(th, x, 2.4, 2.4);
     }
+
+    // Ponoči: osvetljen joga studio, v njem Dorini frendici (drevo in lotos), sveče, lampijončka in gong
+    const mestoStudia = st => st !== stGore && mestoNaBregu(st, SIRINA / 2 + 3.3, 2.8);
+    const stStudia = [...stopnje].reverse().find(mestoStudia);
+    const mStudio = stStudia && mestoStudia(stStudia);
+    if (mStudio) {
+      const [th, x] = mStudio;
+      const g = new THREE.Group();
+      const kos = (geo, m, px, py, pz) => { const o = new THREE.Mesh(geo, m); o.position.set(px, py, pz); g.add(o); return o; };
+      const les = mat(0x9a6b3e), temenLes = mat(0x6b4426);
+      const toplo = new THREE.MeshBasicMaterial({ color: 0xf2c27e });
+      kos(new THREE.BoxGeometry(4.4, 0.3, 3.2), les, 0, 0.15, 0);                          // ploščad
+      kos(new THREE.BoxGeometry(4.1, 0.02, 2.9), new THREE.MeshBasicMaterial({ color: 0xc98f55 }), 0, 0.31, 0); // osvetljena tla
+      // odprt paviljon brez strehe, da se od zgoraj vidi noter: svetleča zadnja stena, nizki stranski steni, tram spredaj
+      kos(new THREE.BoxGeometry(4.4, 2.3, 0.14), toplo, 0, 1.45, -1.53);                   // rižev papir
+      for (const px of [-1.1, 0, 1.1]) kos(new THREE.BoxGeometry(0.08, 2.3, 0.16), temenLes, px, 1.45, -1.5);
+      kos(new THREE.BoxGeometry(4.5, 0.12, 0.2), temenLes, 0, 2.62, -1.5);
+      for (const px of [-2.15, 2.15]) {
+        kos(new THREE.BoxGeometry(0.14, 0.9, 3.2), les, px, 0.75, 0);                      // nizki stranski steni
+        kos(new THREE.CylinderGeometry(0.07, 0.07, 2.4, 6), temenLes, px, 1.5, 1.5);       // sprednja stebra
+        kos(new THREE.BoxGeometry(0.1, 0.1, 3.1), temenLes, px, 2.66, 0);                  // stranska trama
+      }
+      kos(new THREE.BoxGeometry(4.5, 0.12, 0.14), temenLes, 0, 2.66, 1.5);                 // sprednji tram
+      // lučke na sprednjem tramu
+      const zarnica = new THREE.MeshBasicMaterial({ color: 0xffe08a });
+      for (let i = 0; i < 9; i++) {
+        const px = -2 + i * 0.5;
+        kos(new THREE.SphereGeometry(0.06, 6, 4), zarnica, px, 2.52 - Math.sin(i / 8 * Math.PI) * 0.18, 1.52);
+      }
+      // podloge za jogo
+      kos(new THREE.BoxGeometry(0.8, 0.04, 1.7), new THREE.MeshBasicMaterial({ color: 0x9b5de5 }), -0.95, 0.33, 0.25);
+      kos(new THREE.BoxGeometry(0.8, 0.04, 1.7), new THREE.MeshBasicMaterial({ color: 0x2ec4b6 }), 0.95, 0.33, 0.25);
+      // gong na lesenem okvirju v kotu
+      for (const px of [1.25, 2.0]) kos(new THREE.CylinderGeometry(0.05, 0.05, 1.9, 6), temenLes, px, 1.25, -1.0);
+      kos(new THREE.CylinderGeometry(0.05, 0.05, 0.9, 6), temenLes, 1.625, 2.15, -1.0).rotation.z = Math.PI / 2;
+      const zlato = new THREE.MeshBasicMaterial({ color: 0xe0a83a });
+      const gong = kos(new THREE.CylinderGeometry(0.34, 0.34, 0.05, 20), zlato, 1.625, 1.55, -1.0);
+      gong.rotation.x = Math.PI / 2;
+      const izbokl = kos(new THREE.SphereGeometry(0.1, 10, 6), new THREE.MeshBasicMaterial({ color: 0xffd36b }), 1.625, 1.55, -0.96);
+      izbokl.scale.z = 0.5;
+      // sveče ob sprednjem robu (plamenčki migetajo)
+      const plamenMat = new THREE.MeshBasicMaterial({ color: 0xffc04d });
+      const plameni = [];
+      for (const px of [-1.8, -0.6, 0.6, 1.8]) {
+        kos(new THREE.CylinderGeometry(0.07, 0.07, 0.22, 8), new THREE.MeshBasicMaterial({ color: 0xfff3e0 }), px, 0.42, 1.4);
+        const pl = kos(new THREE.ConeGeometry(0.05, 0.14, 6), plamenMat, px, 0.6, 1.4);
+        pl.userData.dinamicno = true;
+        plameni.push(pl);
+      }
+      // papirnata lampijončka pod streho
+      const lampMat = new THREE.MeshBasicMaterial({ color: 0xffb35c });
+      for (const px of [-1.75, -0.55]) {
+        kos(new THREE.CylinderGeometry(0.01, 0.01, 0.4, 3), temenLes, px, 2.42, -1.3);
+        kos(new THREE.SphereGeometry(0.2, 12, 8), lampMat, px, 2.12, -1.3).scale.y = 1.25;
+      }
+      postavi(g, th, x);
+      nocni.add(g);
+      g.updateMatrixWorld(true);
+      const vSvet = (px, py, pz) => g.localToWorld(new THREE.Vector3(px, py, pz));
+      const sijaj = (poz, velikost, barva, moc = 1) => {
+        const sj = new THREE.Sprite(new THREE.SpriteMaterial({ map: teksturaKroga, color: barva, transparent: true, opacity: moc, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+        sj.scale.setScalar(velikost);
+        sj.position.copy(poz);
+        sj.userData.svetel = true;
+        nocni.add(sj);
+        return sj;
+      };
+      sijaj(vSvet(0, 1.4, -1.3), 7, 0xffb060, 0.4);                // topel sij za frendicama
+      [-1.75, -0.55].forEach(px => sijaj(vSvet(px, 2.12, -1.25), 1.4, 0xffa040));
+      const sijSvec = sijaj(vSvet(0, 0.5, 1.6), 2.4, 0xffc060, 0.5);
+      // frendici: drevo in lotos na podlogah
+      const jogini = [['joga-drevo', -0.95, 2.4], ['joga-lotos', 0.95, 1.9]].map(([ime, px, v]) => {
+        const sp = lik({ slika: `slike/${ime}.svg` }, v);
+        sp.position.copy(vSvet(px, 0.32 + v / 2, 0.3));
+        sp.userData.svetel = true;
+        sp.material.color.setHex(0xffe6c8);
+        nocni.add(sp);
+        return { s: sp, v };
+      });
+      joga = { th, plameni, sijSvec, jogini, gongCas: 4 };
+      zasedi(th, x, 2.8, 2.6);
+    }
   }
 
   function animirajPrigode() {
+    if (joga && noc) {
+      // mirno dihanje, migetanje sveč in občasen mehak gong, glasnejši, ko je studio blizu
+      joga.jogini.forEach((j, i) => {
+        const dih = 1 + Math.sin(cas * 0.9 + i * 1.7) * 0.025;
+        j.s.scale.set(j.v / Math.sqrt(dih), j.v * dih, 1);
+      });
+      joga.plameni.forEach((p, i) => p.scale.set(1, 0.85 + Math.sin(cas * 11 + i * 2.1) * 0.15 + Math.sin(cas * 23 + i) * 0.08, 1));
+      joga.sijSvec.material.opacity = 0.45 + Math.sin(cas * 9) * 0.06 + Math.sin(cas * 21) * 0.04;
+      const blizu = Math.max(0, 1 - Math.abs(kot - joga.th) * R / 22);
+      if (cas > joga.gongCas) {
+        joga.gongCas = cas + 14 + Math.random() * 6;
+        if (blizu > 0.05 && typeof Zvok !== 'undefined' && Zvok.gong) Zvok.gong(0.12 * blizu);
+      }
+    }
     if (sprehod) {
       // skupinica gre počasi gor do vrha in nazaj dol, eden za drugim
       const { pot, gor, druzba } = sprehod, n = pot.length - 1;
