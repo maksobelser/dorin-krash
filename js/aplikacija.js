@@ -245,7 +245,24 @@ function zaslonZmage({ st, tocke, bonus, zvezdice, zadnja }) {
   $('zmaga-naprej').textContent = zadnja ? 'Na zemljevid' : 'Naprej';
   $('zmaga-naprej').onclick = () => { $('zmaga').classList.remove('odprto'); odpriZemljevid(); };
   $('zmaga-ponovi').onclick = () => { $('zmaga').classList.remove('odprto'); zacniStopnjo(st); };
+  $('zmaga-deli').onclick = deliRezultat;
   $('zmaga').classList.add('odprto');
+}
+
+// Izziv prijateljem: sistemsko deljenje (telefon), sicer kopiraj v odložišče
+async function deliRezultat() {
+  const r = mojRezultat();
+  const url = location.origin + location.pathname;
+  const besedilo = `Na Dorinem Krašu imam ⭐ ${r.zvezdice} in ${stevilo(r.tocke)} točk (${doStopnje(r.stopnja)}). Me premagaš? 🏆`;
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Dorin Kraš', text: besedilo, url }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  try {
+    await navigator.clipboard.writeText(`${besedilo} ${url}`);
+    okno({ naslov: 'Kopirano!', besedilo: 'Izziv je v odložišču. Prilepi ga prijateljem v klepet.', gumbi: [{ tekst: 'Super' }] });
+  } catch (_) {
+    okno({ naslov: 'Izzovi prijatelje', besedilo: `${besedilo}<br>${url}`, gumbi: [{ tekst: 'Zapri' }] });
+  }
 }
 
 // ---------- Zemljevid ----------

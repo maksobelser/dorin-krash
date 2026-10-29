@@ -415,7 +415,7 @@ button.zvok {
   box-shadow: 0 0 0 0.6cqw #fff, 0 0 2cqw #fff;
 }
 @keyframes izbrana { 50% { transform: scale(1.12); } }
-.ploscica.namig .element { animation: namig 1s ease-in-out infinite; }
+.ploscica.namig .element { animation: namig 1s ease-in-out infinite; box-shadow: 0 0 0 3px #fff, 0 0 14px 4px rgba(255,255,255,.9); }
 @keyframes namig { 50% { transform: scale(1.14) rotate(7deg); } }
 .ploscica.ne .element { animation: ne .3s; }
 @keyframes ne { 25% { translate: -6% 0; } 75% { translate: 6% 0; } }
@@ -766,3 +766,19 @@ button.majhen:active { box-shadow: 0 1px 0 #0b6c7c; }
 .ploscica, .drop { will-change: transform; }
 #zaslon-vstop .explora span { -webkit-text-stroke: 4px #5c1233; paint-order: stroke fill; }
 button.povezava.domaci { display: block; margin: 14px auto 0; font-size: 15px; }
+
+/* podnapis kombinacije pod velikim napisom */
+.plavajoce-pod {
+  position: absolute; left: 50%; top: calc(42% + clamp(34px, 10vw, 48px)); translate: -50% 0;
+  padding: 3px 12px; border-radius: 999px; background: #8e1048; color: #fff;
+  font-family: var(--naslov); font-size: 18px; white-space: nowrap;
+  pointer-events: none; z-index: 3; animation: plava-pod 1s ease-out forwards;
+}
+@keyframes plava-pod { 0% { opacity: 0; scale: .5; } 25% { opacity: 1; scale: 1.1; } 45% { scale: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* deli rezultat: bel gumb s temnim robom, viden na modro-roza ozadju zmage */
+button.deli {
+  background: #fff; color: #0b6c7c; border: 3px solid #0b6c7c;
+  box-shadow: 0 4px 0 #0b6c7c, 0 6px 12px rgba(0,0,0,.2); text-shadow: none; font-size: 18px; padding: 10px 18px;
+}
+button.deli:active { box-shadow: 0 1px 0 #0b6c7c; }

@@ -3,9 +3,9 @@
 
 const Plosca = (() => {
   const N = 8;
-  const CAS = { menjava: 200, pok: 260, padec: 320, namig: 6000 };
+  const CAS = { menjava: 200, pok: 260, padec: 320, namig: 5000 };
   const TOCKE_NA_ELEMENT = 20;
-  const KOMBO_BESEDILA = ['', '', 'Super!', 'Odlično!', 'Bravo, Dora!', 'Noro!', 'Dorin kraš!'];
+  const KOMBO_BESEDILA = ['', '', 'Super!', 'Kraš!', 'Dora power!', 'Noro dobro!', 'Dorin kraš!'];
   const POHVALE = ['Super!', 'Bravo!', 'Odlično!', 'Wow!', 'Fantastično!', 'Na zdravje!', 'Sladko!'];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -219,7 +219,7 @@ const Plosca = (() => {
         const [b] = sprozene;
         plavajoceTocke(razstreljeno.size * TOCKE_NA_ELEMENT * kombo, Math.floor(b / N), b % N);
       } else if (kombo >= 2) {
-        obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)], kombo >= 4 ? 'vroce' : '');
+        obvestilo(KOMBO_BESEDILA[Math.min(kombo, KOMBO_BESEDILA.length - 1)], kombo >= 4 ? 'vroce' : '', `kombo ×${kombo}`);
       } else if (skupine.some(sk => sk.length >= 5)) {
         obvestilo('Fantastično!', 'roza');
       } else if (nove.length || pok.size >= 6) {
@@ -387,14 +387,21 @@ const Plosca = (() => {
     await sleep(400);
   }
 
-  function obvestilo(besedilo, razred = '') {
-    ovoj.querySelectorAll('.plavajoce').forEach(x => x.remove()); // vedno samo en napis
+  function obvestilo(besedilo, razred = '', podnapis = '') {
+    ovoj.querySelectorAll('.plavajoce, .plavajoce-pod').forEach(x => x.remove()); // vedno samo en napis
     const o = document.createElement('div');
     o.className = 'plavajoce ' + razred;
     o.style.setProperty('--rot', (Math.random() * 10 - 5).toFixed(1) + 'deg');
     o.textContent = besedilo;
     ovoj.appendChild(o);
     setTimeout(() => o.remove(), 1000);
+    if (podnapis) {
+      const p = document.createElement('div');
+      p.className = 'plavajoce-pod';
+      p.textContent = podnapis;
+      ovoj.appendChild(p);
+      setTimeout(() => p.remove(), 1000);
+    }
   }
 
   function pocistiNamig() {
