@@ -81,8 +81,9 @@ body:not([data-zaslon="vstop"]) .sky { display: none; }
   box-shadow: 0 0 0 5px var(--turkizna), 0 8px 0 5px #0b6c7c, 0 24px 50px rgba(0,0,0,.3);
 }
 #zaslon-vstop h1 {
-  color: #ff3d8b; -webkit-text-stroke: 7px #5c1233; paint-order: stroke fill;
-  text-shadow: 0 4px 0 #5c1233, 0 8px 14px rgba(0,0,0,.25);
+  /* obris iz senc deluje v vseh brskalnikih (tudi Safari na telefonu) */
+  color: #ff2e7e;
+  text-shadow: 3px 0px 0 #5c1233, -3px 0px 0 #5c1233, 0px 3px 0 #5c1233, 0px -3px 0 #5c1233, 2px 2px 0 #5c1233, -2px 2px 0 #5c1233, 2px -2px 0 #5c1233, -2px -2px 0 #5c1233, 3px 2px 0 #5c1233, -3px 2px 0 #5c1233, 3px -2px 0 #5c1233, -3px -2px 0 #5c1233, 0 6px 0 #5c1233, 0 7px 0 #5c1233, 0 12px 16px rgba(0,0,0,.3);
 }
 .tupko-vstop { position: absolute; right: -14px; bottom: -34px; width: 96px; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.2)); }
 .mirt-vstop { position: absolute; left: -16px; bottom: -30px; width: 104px; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.2)); }
