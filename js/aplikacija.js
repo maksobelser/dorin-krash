@@ -70,7 +70,7 @@ async function odpriLestvico(odkod) {
     <li class="${p.id === igralec.id ? 'jaz' : ''} ${i === 0 ? 'prvi' : ''}" style="animation-delay:${i * 70}ms">
       <span class="mesto">${['🥇', '🥈', '🥉'][i] || i + 1}</span>
       <span class="kdo">${varno(p.ime)}<small>${doStopnje(p.stopnja || 0)}</small></span>
-      <span class="rezultat"><b>★ ${p.zvezdice}</b><small>${p.tocke} točk</small></span>
+      <span class="rezultat"><b>${stevilo(p.tocke || 0)}</b><small>točk</small></span>
     </li>`).join('') || '<li><span class="mesto">🏝️</span><span class="kdo">Še nihče. Bodi prvi!</span></li>';
 }
 
@@ -86,9 +86,9 @@ function osveziVpis() {
 const stevilo = n => n.toLocaleString('sl-SI');
 function osveziRezultat() {
   const r = mojRezultat();
-  $('pokal-rezultat').innerHTML = r.zvezdice ? `⭐ ${r.zvezdice} <small>${stevilo(r.tocke)}</small>` : 'Lestvica';
-  $('moj-rezultat').hidden = !igralec.ime || !r.zvezdice;
-  $('moj-rezultat').textContent = `⭐ ${r.zvezdice}  ·  ${stevilo(r.tocke)} točk`;
+  $('pokal-rezultat').innerHTML = r.tocke ? `${stevilo(r.tocke)} <small>točk</small>` : 'Lestvica';
+  $('moj-rezultat').hidden = !igralec.ime || !r.tocke;
+  $('moj-rezultat').textContent = `${stevilo(r.tocke)} točk`;
 }
 
 function igraj(e) {
@@ -253,7 +253,7 @@ function zaslonZmage({ st, tocke, bonus, zvezdice, zadnja }) {
 async function deliRezultat() {
   const r = mojRezultat();
   const url = location.origin + location.pathname;
-  const besedilo = `Na Dorinem Krašu imam ⭐ ${r.zvezdice} in ${stevilo(r.tocke)} točk (${doStopnje(r.stopnja)}). Me premagaš? 🏆`;
+  const besedilo = `Na Dorinem Krašu imam ${stevilo(r.tocke)} točk (${doStopnje(r.stopnja)}). Me premagaš? 🏆`;
   try {
     if (navigator.share) { await navigator.share({ title: 'Dorin Kraš', text: besedilo, url }); return; }
   } catch (e) { if (e && e.name === 'AbortError') return; }

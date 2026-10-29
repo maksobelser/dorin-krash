@@ -14,7 +14,7 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 
 ## Igra
 
-- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek, uglašeni na glasbo), `js/glasba.js` (generativna vesela glasba v duru: vsaka pesem ima svojo tonaliteto, tempo, akorde in vzorce), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln, most, podnevi piknik in ferata, ponoči rave in kolegi s pivom ob ognju, ponoči Mirt spi, gleda film ali je na telefonu; statični predmeti se zlepijo v nekaj mrež zaradi hitrosti na telefonu), `js/aplikacija.js` (zasloni, vpis z imenom, lestvica, 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
+- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek, uglašeni na glasbo), `js/glasba.js` (generativna vesela glasba v duru: vsaka pesem ima svojo tonaliteto, tempo, akorde in vzorce), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln, most, podnevi piknik in gora, po kateri se sprehajajo Dora, Mirt in prijatelja, ponoči rave in kolegi s pivom ob ognju, ponoči Mirt spi, gleda film ali je na telefonu; statični predmeti se zlepijo v nekaj mrež zaradi hitrosti na telefonu), `js/aplikacija.js` (zasloni, vpis z imenom, lestvica (samo točke), 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
 - Slike in stopnje se menjajo samo v `js/nastavitve.js`.
 - Brez ES modulov (`type="module"`), ker se ne naložijo, ko `index.html` odpreš z dvoklikom.
 

@@ -7,7 +7,7 @@
 
 const URL_BAZE = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const ZETON = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-const RANG = 'dorin-kras:lestvica';    // urejena množica: točkovanje = zvezdice * 1e7 + točke
+const RANG = 'dorin-kras:lestvica';    // urejena množica: razvrščeno po točkah
 const PODATKI = 'dorin-kras:igralci';  // zgoščena tabela: id → JSON
 const NAJVEC = 50;
 
@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
       };
       await redis([
         ['HSET', PODATKI, id, JSON.stringify(igralec)],
-        ['ZADD', RANG, String(igralec.zvezdice * 1e7 + igralec.tocke), id],
+        ['ZADD', RANG, String(igralec.tocke), id],
       ]);
     } else if (req.method !== 'GET') {
       return res.status(405).json({ napaka: 'samo-get-ali-post' });

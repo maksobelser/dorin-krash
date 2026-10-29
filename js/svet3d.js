@@ -31,7 +31,7 @@ const Svet3D = (() => {
   let ovire = [], kotSence = -1;
   const vOviri = (th, x, r = 0) => ovire.some(([t, xx, a, b]) => Math.abs((th - t) * R) < a + r && Math.abs(x - xx) < b + r);
   // Prigode ob poti (naključno razporejene) in Tupkovi »mjav«
-  let race = [], baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
+  let race = [], sprehod = null, baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
   // Dan in noč
   let noc = false, mirtovi = [], hemi, oknoMat, luc, dnevni, nocni, metulji = [], oci = [], kresnice = [], temni = [];
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
@@ -661,11 +661,11 @@ const Svet3D = (() => {
     const stopnje = [];
     for (let st = 2; st < n; st++) if (Math.abs(st - MOST) > 1.6 && !vPikniku(st)) stopnje.push(st + 0.5);
     stopnje.sort(() => Math.random() - 0.5);
-    const mestoNaBregu = (st, odmik) => {
+    const mestoNaBregu = (st, odmik, prostor = 1.6) => {
       for (const sp of [-stranHise(Math.floor(st)), stranHise(Math.floor(st))]) {
         for (const d of [0, 0.03, -0.03]) {
           const th = kotStopnje(st) + d, x = xNa(th) + sp * odmik;
-          if (!vOviri(th, x, 1.6)) return [th, x];
+          if (!vOviri(th, x, prostor)) return [th, x];
         }
       }
       return null;
@@ -815,55 +815,65 @@ const Svet3D = (() => {
       gugalnica = nihalo;
     }
 
-    // Ferata: skalna stena z jeklenico; podnevi plezalca s čeladama in pohodnika ob vznožju
-    const mFer = stopnje[6] && mestoNaBregu(stopnje[6], SIRINA / 2 + 5.2);
-    if (mFer) {
-      const [th, x] = mFer;
+    // Gora s potjo v serpentinah: podnevi se Dora, Mirt in dva prijatelja sprehajajo gor in dol
+    const mestoGore = st => mestoNaBregu(st, SIRINA / 2 + 2.7, 3.2);
+    const stGore = stopnje.slice(6).find(mestoGore);
+    const mGora = stGore && mestoGore(stGore);
+    if (mGora) {
+      const [th, x] = mGora;
       const g = new THREE.Group();
-      const kamen = new THREE.MeshLambertMaterial({ map: teksturaKamna(false) });
-      [[0, 2.6, 0, 4.2, 5.2, 2.6, 0.04], [-1.3, 5.4, -0.2, 2.6, 2.4, 2.2, -0.12], [1.1, 6.1, -0.3, 2.0, 2.0, 1.8, 0.18], [1.9, 1.4, 0.5, 1.6, 2.8, 1.6, -0.2]]
-        .forEach(([px, py, pz, w, h, d, rz]) => {
-          const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), kamen);
-          b.position.set(px, py, pz);
-          b.rotation.set(0.05, rz * 2, rz);
-          b.castShadow = true;
-          g.add(b);
-        });
-      const vrh = new THREE.Mesh(new THREE.ConeGeometry(1.2, 1.4, 5), mat(0x4f9d3a));
-      vrh.position.set(-1.3, 7.2, -0.2);
-      g.add(vrh);
-      // jeklenica v cik-caku po sprednji strani
-      const tocke = [[-1.6, 0.6], [1.0, 2.6], [-0.8, 4.4], [0.9, 6.4]].map(([px, py]) => new THREE.Vector3(px, py, 1.42));
-      const jeklo = mat(0x5c6670);
-      for (let i = 0; i < tocke.length - 1; i++) {
-        const a = tocke[i], b = tocke[i + 1], dolz = a.distanceTo(b);
-        const vrv = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, dolz, 4), jeklo);
-        vrv.position.copy(a).add(b).multiplyScalar(0.5);
-        vrv.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
-        g.add(vrv);
-      }
+      const RG = 1.95, HG = 5.6;
+      const stozec = (r, h, barva, px, py, pz, seg = 9) => {
+        const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), new THREE.MeshLambertMaterial({ color: barva, flatShading: true }));
+        m.position.set(px, py, pz);
+        m.castShadow = true;
+        g.add(m);
+        return m;
+      };
+      stozec(1.5, 3.4, 0x3f8f3a, 0.9, 1.7, -1.7);           // manjši sosednji vrh zadaj
+      stozec(RG, HG, 0x5aa845, 0, HG / 2, 0);              // travnata gora
+      stozec(0.86, 2.4, 0x8f949b, 0, HG - 1.2 + 0.01, 0);   // skalni vrh
+      stozec(0.4, 1.1, 0xffffff, 0, HG - 0.55 + 0.02, 0);   // sneg
+      stozec(0.38, 0.6, 0xffffff, 0.9, 3.12, -1.7, 7);
+      [[1.9, 0.6], [-1.9, 0.9], [-1.6, -1.3]].forEach(([px, pz]) => {
+        stozec(0.38, 1.1, 0x2f7d3b, px, 0.55, pz, 6);
+      });
+      // pot po sprednji strani v cik-caku
+      const naPoti = (u, ven = 0) => {
+        const y = 0.15 + u * 3.9, a = 0.8 * Math.sin(u * Math.PI * 3);
+        const rr = RG * (1 - y / HG) + 0.05 + ven;
+        return new THREE.Vector3(rr * Math.sin(a), y, rr * Math.cos(a));
+      };
+      const krivulja = new THREE.CatmullRomCurve3(Array.from({ length: 40 }, (_, i) => naPoti(i / 39)));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(krivulja, 90, 0.09, 4), mat(0xd9b77e)));
       postavi(g, th, x);
       svet.add(g);
       g.updateMatrixWorld(true);
-      [['slike/plezalec-1.svg', 0.45], ['slike/plezalec-2.svg', 0.78]].forEach(([slika, k]) => {
-        const i = Math.floor(k * (tocke.length - 1)), f = k * (tocke.length - 1) - i;
-        const lok = tocke[i].clone().lerp(tocke[i + 1], f).add(new THREE.Vector3(0, -0.6, 0.5));
-        const pl = lik({ slika }, 2.0);
-        pl.position.copy(g.localToWorld(lok));
-        dnevni.add(pl);
-      });
-      [['slike/pohodnik-1.svg', -1.8, 2.6], ['slike/pohodnik-2.svg', -3.0, 1.2]].forEach(([slika, du, dx]) => {
-        const t = th + du / R, xx = x + (x > xNa(th) ? -dx : dx);
-        const ph = lik({ slika }, 2.4);
-        ph.position.copy(tocka(t, xx, R + 1.15));
-        dnevni.add(ph);
-        liki.push({ s: ph, baza: ph.position.clone(), n: normala(t), faza: Math.random() * 20, v: 2.4 });
-      });
-      zasedi(th, x, 3.2, 3.2);
+      // točke poti v svetu (za sprehajalce), malo pred pobočjem
+      const pot = Array.from({ length: 80 }, (_, i) => g.localToWorld(naPoti(i / 79, 0.3)));
+      const gor = normala(th);
+      const druzba = [[{ slika: 'slike/dora-explora.svg' }, 1.5], [MIRT_POZE[0], 1.5], [{ slika: 'slike/pohodnik-1.svg' }, 1.4], [{ slika: 'slike/pohodnik-2.svg' }, 1.4]]
+        .map(([e, v]) => {
+          const sp = lik(e, v);
+          dnevni.add(sp);
+          return { s: sp, v };
+        });
+      sprehod = { pot, gor, druzba };
+      zasedi(th, x, 2.4, 2.4);
     }
   }
 
   function animirajPrigode() {
+    if (sprehod) {
+      // skupinica gre počasi gor do vrha in nazaj dol, eden za drugim
+      const { pot, gor, druzba } = sprehod, n = pot.length - 1;
+      const glava = 0.32 + 0.68 * (0.5 - 0.5 * Math.cos(cas * 0.07));
+      druzba.forEach((d, i) => {
+        const u = Math.max(0, glava - i * 0.1) * n, k = Math.min(n - 1, Math.floor(u));
+        d.s.position.copy(pot[k]).lerp(pot[k + 1], u - k)
+          .addScaledVector(gor, d.v * 0.48 + Math.abs(Math.sin(cas * 4 + i)) * 0.08);
+      });
+    }
     race.forEach(r => {
       const u = Math.sin(cas * 0.11 + r.faza) * 5;               // položaj vzdolž potoka (enote)
       const smer = Math.cos(cas * 0.11 + r.faza) > 0 ? 1 : -1;   // kam plavajo
