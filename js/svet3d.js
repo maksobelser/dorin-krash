@@ -28,7 +28,7 @@ const Svet3D = (() => {
   let liki = [], delci = [], teksturaKroga, teksturaZvezde, napisPlatno, napisTekstura, brazdaCas = 0;
   let zar = null, dimCas = 0, balin = null, valovi = [];
   // Ovire: [th, x, pol dolžine vzdolž potoka, pol širine] v enotah; hiše, liki in prigode se jim izognejo
-  let ovire = [];
+  let ovire = [], kotSence = -1;
   const vOviri = (th, x, r = 0) => ovire.some(([t, xx, a, b]) => Math.abs((th - t) * R) < a + r && Math.abs(x - xx) < b + r);
   // Prigode ob poti (naključno razporejene) in Tupkovi »mjav«
   let race = [], baloni = [], ogenj = null, gugalnica = null, lucMat = null, tupki = [], oblacek = null, mjavCas = 3;
@@ -98,8 +98,9 @@ const Svet3D = (() => {
 
   // ---------- Teksture iz emojijev in napisov ----------
 
+  const teksture_ = {};
   function teksturaLika(e, velikost = 128) {
-    if (e.slika) return new THREE.TextureLoader().load(e.slika);
+    if (e.slika) return teksture_[e.slika] || (teksture_[e.slika] = new THREE.TextureLoader().load(e.slika));
     const c = document.createElement('canvas');
     c.width = c.height = velikost;
     const g = c.getContext('2d');
@@ -522,6 +523,7 @@ const Svet3D = (() => {
     const letalka = plosca(0x2ec4b6);
     letalka.position.set(0, 0.12, 2.1);
     igrisce.add(letalka);
+    letalka.userData.dinamicno = true;
     balin = { k: letalka, t: 0 };
     [th, x] = mesto(5.4, 1.3);
     postaviNaPotok(igrisce, th, R, x);
@@ -582,7 +584,7 @@ const Svet3D = (() => {
     };
     stopnje.slice(0, 2).forEach((st, i) => {
       const druzina = [raca(true), raca(false), raca(false), raca(false)];
-      druzina.forEach(d => svet.add(d));
+      druzina.forEach(d => { d.userData.dinamicno = true; svet.add(d); });
       race.push({ druzina, th: kotStopnje(st) + 0.035, pas: (i % 2 ? 1 : -1) * 1.0, faza: Math.random() * 10 });
     });
 
@@ -612,8 +614,9 @@ const Svet3D = (() => {
         vrv.position.set(sx * 1.2, 0.75, sz * 1.2);
         g.add(vrv);
       }
+      g.userData.dinamicno = true;
       svet.add(g);
-      baloni.push({ g, th: kotStopnje(st) + 0.08, x: xNa(kotStopnje(st)) + (i ? 7 : -7), faza: Math.random() * 10 });
+      baloni.push({ g, th: kotStopnje(st) + 0.08, x: xNa(kotStopnje(st)) + (i ? 12 : -12), faza: Math.random() * 10 });
     });
 
     // Šotor s tabornim ognjem; Tupko spi ob ognju
@@ -637,6 +640,7 @@ const Svet3D = (() => {
       plamen.position.set(1, 0.5, 0.6);
       const jedro = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.5, 6), new THREE.MeshBasicMaterial({ color: 0xffe066 }));
       jedro.position.set(1, 0.4, 0.6);
+      plamen.userData.dinamicno = jedro.userData.dinamicno = true;
       g.add(plamen, jedro);
       postavi(g, th, x);
       svet.add(g);
@@ -670,6 +674,7 @@ const Svet3D = (() => {
         g.add(k);
       });
       const nihalo = new THREE.Group();
+      nihalo.userData.dinamicno = true;
       nihalo.position.set(0.3, 3.55, 0);
       for (const sz of [-0.32, 0.32]) {
         const vrv = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.4, 4), mat(0xd9c39a));
@@ -703,7 +708,7 @@ const Svet3D = (() => {
     });
     baloni.forEach(b => {
       const x = b.x + Math.sin(cas * 0.07 + b.faza) * 3;
-      b.g.position.copy(tocka(b.th, x, R + 17 + Math.sin(cas * 0.5 + b.faza) * 0.8));
+      b.g.position.copy(tocka(b.th, x, R + 24 + Math.sin(cas * 0.5 + b.faza) * 0.8));
       b.g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normala(b.th));
     });
     if (ogenj) {
@@ -870,6 +875,7 @@ const Svet3D = (() => {
     teksture();
     dnevni = new THREE.Group();   // samo podnevi (metulji)
     nocni = new THREE.Group();    // samo ponoči (oči, kresnice, sij ognja, Mirt s svetilko)
+    dnevni.userData.dinamicno = nocni.userData.dinamicno = true;
     svet.add(dnevni, nocni);
     const konec = kotStopnje(n + 1);
 
@@ -995,10 +1001,11 @@ const Svet3D = (() => {
 
       // Plošček stopnje na vodi
       const disk = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.4, 40), new THREE.MeshPhongMaterial({ shininess: 90 }));
-      const obroc = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.13, 12, 40), new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 90 }));
+      const obroc = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.13, 8, 32), new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 90 }));
       obroc.rotation.x = Math.PI / 2;
       obroc.position.y = 0.2;
       const plosk = new THREE.Group();
+      plosk.userData.dinamicno = true;
       plosk.add(disk, obroc);
       disk.castShadow = true;
       postavi(plosk, th, xNa(th), R + 0.2);
@@ -1022,6 +1029,7 @@ const Svet3D = (() => {
       const g = new THREE.Group();
       g.add(v);
       g.userData.faza = i / 3;
+      g.userData.dinamicno = true;
       svet.add(g);
       return g;
     });
@@ -1038,6 +1046,7 @@ const Svet3D = (() => {
     platno.position.set(0.9, 3.4, 0);
     zastavica.add(drog, platno);
     postavi(zastavica, konec, xNa(konec) + 3.2);
+    zastavica.userData.dinamicno = true;
     svet.add(zastavica);
 
     // Drevesa, grmi, kamni, lokvanji
@@ -1096,7 +1105,9 @@ const Svet3D = (() => {
     if (krosnje.length) svet.add(instance(krosnjaGeo, mat(0xffffff), krosnje, barveK));
     if (smreke.length) svet.add(instance(smrekaGeo, mat(0xffffff), smreke, barveS));
     svet.add(instance(new THREE.IcosahedronGeometry(1, 0).translate(0, 0.6, 0), mat(0xffffff), grmi, barveG));
-    svet.add(instance(new THREE.DodecahedronGeometry(1, 0), mat(0x9aa0a6), kamni));
+    const kamenje = instance(new THREE.DodecahedronGeometry(1, 0), mat(0x9aa0a6), kamni);
+    kamenje.castShadow = false;
+    svet.add(kamenje);
     const lokvanj = instance(new THREE.CylinderGeometry(1, 1, 0.05, 14, 1, false, 0.3, Math.PI * 2 - 0.6), mat(0x3f9b3a), lokvanji);
     lokvanj.castShadow = false;
     svet.add(lokvanj);
@@ -1113,18 +1124,79 @@ const Svet3D = (() => {
       barveC.push(new THREE.Color(cvetje[i % cvetje.length]));
     }
     const cvetGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.05, 5).translate(0, 0.14, 0);
-    const sredicaGeo = new THREE.SphereGeometry(0.1, 6, 4).translate(0, 0.18, 0);
+    const sredicaGeo = new THREE.OctahedronGeometry(0.1).translate(0, 0.18, 0);
     const cvet = instance(cvetGeo, mat(0xffffff), cvetovi, barveC);
     const sredica = instance(sredicaGeo, mat(0xffc300), cvetovi);
     cvet.castShadow = sredica.castShadow = false;
     svet.add(cvet, sredica);
 
     kanu = zgradiKanu();
+    kanu.userData.dinamicno = true;
     svet.add(kanu);
     zgradiDanInNoc(od, doKota, proste);
     // liki, ki se ponoči potemnijo (Dora, napisi in nočni liki ostanejo svetli)
+    zlepiStaticno();
     svet.traverse(o => { if (o.isSprite && !o.userData.svetel) temni.push(o); });
     nastaviNoc(noc);
+  }
+
+  // ---------- Zlepljanje statičnih predmetov (manj klicev risanja = gladko na telefonu) ----------
+
+  // Vse mirujoče mreže z navadnim Lambert materialom zlije v eno mrežo z barvami v ogliščih;
+  // ostale (teksture, svetila, Phong) zlije po materialu. Gibljivi predmeti imajo userData.dinamicno.
+  function zlepiStaticno() {
+    svet.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(svet.matrixWorld).invert();
+    const skupine = new Map(), odstrani = [];
+    const obisci = o => {
+      if (o.userData.dinamicno) return;
+      if (o.isMesh && !o.isInstancedMesh && !Array.isArray(o.material)) {
+        const m = o.material;
+        if (!m.isShaderMaterial && !m.transparent && !m.vertexColors && (m.isMeshLambertMaterial || m.isMeshPhongMaterial)) {
+          const navaden = m.isMeshLambertMaterial && !m.map && m.emissive.getHex() === 0;
+          const kljuc = navaden ? 'lambert' + m.side : m.uuid;
+          if (!skupine.has(kljuc)) skupine.set(kljuc, { m, navaden, deli: [] });
+          skupine.get(kljuc).deli.push({ geo: o.geometry, mx: new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld), barva: m.color, senca: o.castShadow });
+          odstrani.push(o);
+        }
+      }
+      o.children.forEach(obisci);
+    };
+    svet.children.slice().forEach(obisci);
+    odstrani.forEach(o => o.parent.remove(o));
+    skupine.forEach(({ m, navaden, deli }) => {
+      const geos = deli.map(d => {
+        const g = d.geo.index ? d.geo.toNonIndexed() : d.geo.clone();
+        g.applyMatrix4(d.mx);
+        return g;
+      });
+      const skupaj = geos.reduce((a, g) => a + g.attributes.position.count, 0);
+      const poz = new Float32Array(skupaj * 3), nor = new Float32Array(skupaj * 3);
+      const imaUv = !navaden && geos.every(g => g.attributes.uv);
+      const uv = imaUv ? new Float32Array(skupaj * 2) : null;
+      const bar = navaden ? new Float32Array(skupaj * 3) : null;
+      let i = 0;
+      geos.forEach((g, k) => {
+        const n = g.attributes.position.count;
+        poz.set(g.attributes.position.array, i * 3);
+        nor.set(g.attributes.normal.array, i * 3);
+        if (uv) uv.set(g.attributes.uv.array, i * 2);
+        if (bar) { const c = deli[k].barva; for (let j = 0; j < n; j++) bar.set([c.r, c.g, c.b], (i + j) * 3); }
+        i += n;
+        g.dispose();
+      });
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(poz, 3));
+      geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+      if (uv) geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      if (bar) geo.setAttribute('color', new THREE.BufferAttribute(bar, 3));
+      const material = navaden ? new THREE.MeshLambertMaterial({ vertexColors: true, side: m.side }) : m;
+      const mreza = new THREE.Mesh(geo, material);
+      mreza.castShadow = deli.some(d => d.senca);
+      mreza.receiveShadow = true;
+      mreza.frustumCulled = false;
+      svet.add(mreza);
+    });
   }
 
   // ---------- Dan in noč ----------
@@ -1433,6 +1505,10 @@ const Svet3D = (() => {
       v.children[0].material.opacity = potovanje ? 0 : 0.75 * (1 - f);
     });
     zastavica.children[1].rotation.y = Math.sin(cas * 3) * 0.25;
+    if (Math.abs(kot - kotSence) > 0.0003 || potovanje || odklep) {
+      renderer.shadowMap.needsUpdate = true;
+      kotSence = kot;
+    }
     renderer.render(scene, camera);
   }
 
@@ -1445,10 +1521,13 @@ const Svet3D = (() => {
     if (!renderer) {
       ovoj = vsebnik;
       n = podatki.stStopenj;
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // telefon: nižja ločljivost risanja (1,5×) je skoraj enako ostra in pol cenejša
+      const telefon = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, telefon ? 1.5 : 2));
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
+      renderer.shadowMap.autoUpdate = false; // sence se preračunajo samo, ko se svet premakne
       ovoj.appendChild(renderer.domElement);
       zgradi();
       priklopiVnos(renderer.domElement);
@@ -1480,5 +1559,12 @@ const Svet3D = (() => {
 
   function ustavi() { tece = false; }
 
-  return { podprt, prikazi, ustavi, nastaviNoc };
+  // za merjenje hitrosti: klici risanja in trikotniki zadnje slike
+  const merilo = (podrobno) => podrobno ? (() => {
+    const v = [];
+    scene.traverse(o => { if (o.isMesh) { const g = o.geometry, t = (g.index ? g.index.count : g.attributes.position.count) / 3 * (o.count || 1); v.push([o.geometry.type, o.isInstancedMesh ? o.count : 1, Math.round(t), o.castShadow ? 'S' : '']); } });
+    return v.sort((a, b) => b[2] - a[2]).slice(0, 25);
+  })() : renderer && { ...renderer.info.render, predmeti: (() => { let n = 0; scene.traverse(() => n++); return n; })(), dpr: renderer.getPixelRatio() };
+
+  return { podprt, prikazi, ustavi, nastaviNoc, merilo };
 })();
