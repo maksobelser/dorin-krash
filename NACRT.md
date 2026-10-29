@@ -17,12 +17,12 @@ Dizajn: sijoč, risankast 3D videz, kot je značilen za ta žanr, z rečno in tr
 
 - [x] Spletna aplikacija (Vercel: https://dorin-krash.vercel.app)
 - [x] Skupni repo → `AGENTS.md`
-- [x] Osnovna igra (base game) — veja `igra`, začasne slike
-- [x] Zemljevid stopenj (level roadmap): Grosupeljščica, Dora na kanuju — veja `igra`, 12 stopenj
-- [x] Življenja → zavzetost + ura (5 življenj, +1 vsakih 20 minut) — veja `igra`
-- [ ] Prijava (sign-up)
-- [ ] Lestvica najboljših (leaderboard)
-- [ ] Možnost namestitve na telefon (PWA: ikona na domačem zaslonu)
+- [x] Osnovna igra (base game)
+- [x] Zemljevid stopenj (level roadmap): 3D Grosupeljščica, Dora na kanuju, 24 stopenj
+- [x] Življenja → zavzetost + ura (5 življenj, +1 vsakih 20 minut)
+- [x] Prijava (sign-up): samo vpis imena, brez gesla
+- [x] Lestvica najboljših (leaderboard): Upstash Redis prek Vercela, samo točke, eno ime = en vpis
+- [x] Možnost namestitve na telefon (PWA: ikona na domačem zaslonu)
 
 **Dodatno:** prijava z Google računom
 
@@ -71,4 +71,4 @@ faca, tupko kot element (je zdaj na zemljevidu), VLADO!, Liši, Pom (bombo je pr
 
 - Kdo pripravi slike: 6 elementov, Dora (bomba), Mičko, Urbi, Mirt, Tupko v pozah, Dora na kanuju?
 - Kaj mora biti narejeno do sobote, 31. 10., ob 18:00?
-- Prijava in lestvica potrebujeta strežnik in bazo (npr. Supabase ali Firebase). To je večji kos dela; predlog je, da pride po soboti.
+- ~~Prijava in lestvica potrebujeta strežnik in bazo.~~ Rešeno 29. 10.: vpis z imenom in lestvica v Upstash Redis.

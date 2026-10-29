@@ -14,7 +14,7 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 
 ## Igra
 
-- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek, uglašeni na glasbo), `js/glasba.js` (generativna vesela glasba v duru: vsaka pesem ima svojo tonaliteto, tempo, akorde in vzorce), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln, most, podnevi piknik in gora z jeklenico, po kateri hodijo Dora, Mirt in prijatelja s čeladami in samovarovalnim kompletom, ponoči rave, kolegi s pivom ob ognju in osvetljen joga studio z gongom, ponoči Mirt spi, gleda film ali je na telefonu; statični predmeti se zlepijo v nekaj mrež zaradi hitrosti na telefonu), `js/aplikacija.js` (zasloni, vpis z imenom, lestvica (samo točke), 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
+- Datoteke: `index.html` (zasloni), `css/stil.css`, `js/nastavitve.js` (elementi, liki, stopnje, življenja), `js/zvok.js` (zvočni učinki, sintetizirani z Web Audio, brez datotek, uglašeni na glasbo), `js/glasba.js` (generativna vesela glasba v duru: vsaka pesem ima svojo tonaliteto, tempo, akorde in vzorce), `js/plosca.js` (mehanika in učinki na plošči), `js/svet3d.js` (3D zemljevid: vrteči se svet, potok, čoln, most, podnevi piknik in gora z jeklenico, po kateri hodijo Dora, Mirt in prijatelja s čeladami in samovarovalnim kompletom, ponoči rave, kolegi s pivom ob ognju in osvetljen joga studio z gongom, ponoči Mirt spi, gleda film ali je na telefonu; statični predmeti se zlepijo v nekaj mrež zaradi hitrosti na telefonu), `js/aplikacija.js` (zasloni, vpis z imenom, lestvica (samo točke, eno ime = en vpis), 2D zemljevid kot rezerva, življenja, shranjevanje, zaslon zmage).
 - Slike in stopnje se menjajo samo v `js/nastavitve.js`.
 - Brez ES modulov (`type="module"`), ker se ne naložijo, ko `index.html` odpreš z dvoklikom.
 
@@ -23,8 +23,15 @@ Projekt: **Dorin Kraš**, Dorin Candy Crush. Načrt je v `NACRT.md`, pravila sod
 - Mehanika je kot pri Candy Crushu (menjava, trije v vrsto, padanje, stopnje na zemljevidu, življenja). Elementi, posebni elementi, videz in stopnje so naši (glej `NACRT.md`). Ne uporabljamo slik, logotipa ali grafike iz Candy Crusha.
 - Ne dodajaj avtorsko zaščitene glasbe ali slik, za katere nimamo dovoljenja.
 
+## Trenutno stanje
+
+Kaj je narejeno, kaj ni preverjeno in kaj je odprto: `README.md`, razdelek »Trenutno stanje«. Ko končaš večji kos, ga posodobi.
+
 ## Delo z gitom
 
-- `main` gre takoj v živo. Večje spremembe na svojo vejo, majhni popravki lahko na `main`.
+- `main` gre takoj v živo (https://dorin-krash.vercel.app). Pushaj samo na `main`, veje `igra` ne uporabljaj (zastarela).
+- Vercel brezplačno dovoli 100 objav na dan: popravke združi v en commit in pushaj redko, ne po vsaki malenkosti.
+- Ob spremembi JS ali CSS povečaj `?v=N` v `index.html` (vseh 7 pojavitev).
 - Pred pushem preveri, da se `index.html` odpre v brskalniku brez napak v konzoli.
-- Brez gesel, ključev in osebnih podatkov v repoju.
+- Brez gesel, ključev in osebnih podatkov v repoju. Mapa `Fotke/` (prave fotografije) ne sme v repo.
+- Ključev v Redisu (`dorin-kras:lestvica`, `dorin-kras:igralci`, `dorin-kras:imena`) ne preimenuj in ne briši: v njih so pravi rezultati.
