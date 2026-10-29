@@ -1,11 +1,12 @@
-// Generativna funky glasba (Web Audio, brez datotek).
-// Vsaka »pesem« ima naključno tonaliteto, tempo, zaporedje akordov, basovske in bobnarske vzorce
-// ter melodični motiv. Pesem gre skozi dele (uvod, A, B, premor …); po zadnjem delu se rodi nova.
-// Zemljevid ima mirnejši slog (rhodes, mehak bas), igra bolj funky (slap bas, clav, 16-inke).
+// Generativna vesela glasba (Web Audio, brez datotek).
+// Vsaka »pesem« ima naključno durovo tonaliteto, tempo, zaporedje akordov, vzorce in melodijo.
+// Slog: poskočen bas, ukulele na zadnji dobi, zvončki in piščalka, ploskanje, tamburin; vedno v duru.
+// Pesem gre skozi dele (uvod, A, B, most …); po zadnjem delu se rodi nova.
+// Zemljevid je bolj sproščen (marimba, mehkejši ritem), igra bolj poskočna.
 
 const Glasba = (() => {
   const KLJUC = 'dorin-kras-glasba';
-  const GLASNOST = 0.42;
+  const GLASNOST = 0.38;
   let vklopljena = true;
   try { vklopljena = localStorage.getItem(KLJUC) !== '0'; } catch (_) {}
 
@@ -13,100 +14,88 @@ const Glasba = (() => {
   let tece = false, casovnik = null;
   let zeljeni = 'zemljevid', pesem = null;
   let korak = 0, naslednji = 0, napetost = 0;
-  let kljucZadnji = 0, molZadnji = true; // za efekte, tudi ko glasba ne igra
+  let kljucZadnji = 0; // za efekte, tudi ko glasba ne igra
 
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
   const izberi = a => a[Math.floor(Math.random() * a.length)];
   const p = v => Math.random() < v;
 
-  // ---------- Glasbena teorija ----------
+  // ---------- Glasbena teorija (samo dur) ----------
 
-  const AKORDI = {
-    m7: [0, 3, 7, 10], m9: [0, 3, 7, 10, 14], m11: [0, 3, 7, 10, 14, 17],
-    d9: [0, 4, 7, 10, 14], d13: [0, 4, 10, 14, 21], d7s9: [0, 4, 7, 10, 15],
-    M7: [0, 4, 7, 11], M9: [0, 4, 7, 11, 14],
-  };
-  // [stopnja v poltonih od tonike, akord]; mol: ali melodija uporablja molovo pentatoniko
-  const NAPREDKI = {
-    igra: [
-      { mol: true, a: [[0, 'm9'], [5, 'd9']] },
-      { mol: true, a: [[0, 'd9'], [0, 'd9'], [10, 'd9'], [5, 'd13']] },
-      { mol: true, a: [[0, 'm9'], [8, 'M7'], [10, 'd9'], [0, 'm9']] },
-      { mol: true, a: [[0, 'm11'], [3, 'M7'], [5, 'm9'], [10, 'd9']] },
-      { mol: true, a: [[0, 'd7s9'], [0, 'd7s9'], [5, 'd9'], [7, 'd9']] },
-      { mol: false, a: [[2, 'm9'], [7, 'd13'], [0, 'M9'], [9, 'm9']] },
-    ],
-    zemljevid: [
-      { mol: false, a: [[0, 'M9'], [9, 'm9'], [2, 'm9'], [7, 'd13']] },
-      { mol: false, a: [[0, 'M7'], [5, 'M9'], [4, 'm7'], [9, 'm9']] },
-      { mol: true, a: [[0, 'm9'], [5, 'd9']] },
-      { mol: false, a: [[5, 'M9'], [4, 'm7'], [2, 'm9'], [0, 'M9']] },
-      { mol: true, a: [[0, 'm9'], [3, 'M9'], [8, 'M7'], [7, 'd7s9']] },
-    ],
-  };
-  const PENTA = { mol: [0, 3, 5, 7, 10], dur: [0, 2, 4, 7, 9] };
+  const AKORDI = { dur: [0, 4, 7], mol: [0, 3, 7], dur6: [0, 4, 7, 9], sus: [0, 5, 7] };
+  // [stopnja v poltonih od tonike, akord]
+  const NAPREDKI = [
+    [[0, 'dur'], [7, 'dur'], [9, 'mol'], [5, 'dur']],   // I V vi IV
+    [[0, 'dur'], [5, 'dur'], [7, 'dur'], [5, 'dur']],   // I IV V IV
+    [[0, 'dur'], [9, 'mol'], [5, 'dur'], [7, 'dur']],   // I vi IV V
+    [[5, 'dur'], [7, 'dur'], [0, 'dur'], [0, 'dur6']],  // IV V I I
+    [[0, 'dur'], [5, 'dur'], [0, 'dur'], [7, 'sus']],   // I IV I V
+    [[0, 'dur6'], [2, 'mol'], [7, 'dur'], [0, 'dur']],  // I ii V I
+  ];
+  const PENTA = [0, 2, 4, 7, 9];
+  const SVETLE_TONALITETE = [0, 2, 5, 7, 9, 10]; // C, D, F, G, A, B
 
   // ---------- Vzorci (16 korakov na takt) ----------
-  // bas: R tonika, O oktava, 5 kvinta, 7 septima, 3 terca, G mrtva nota, A kromatični prehod, . pavza
+  // bas: R tonika, O oktava, 5 kvinta, 3 terca, . pavza
   const BAS = {
-    igra: ['R..R..O.R.7.5..A', 'R.GR..R.O..R.7GA', 'R...R.OR..5.7.R.', 'R.R..OR.G.R.5.7A', 'R..O..R.GR..5O7.', 'RG.R.O.RG.R.7.5A', 'R..R.G.O..R.G7.5'],
-    zemljevid: ['R.......5...R...', 'R.....R...5.7...', 'R...5...O...7.5.', 'R......R..5.....', 'R.....5.R...3...'],
+    igra: ['R.O.R.O.5.O.R.O.', 'R..R5...R..R5.3.', 'R.5.O.5.R.5.O.5.', 'R...5...R.R.5...', 'R.R.5...O.O.5.3.'],
+    zemljevid: ['R...5...R...5...', 'R.....5.R...5...', 'R...O...5...O...', 'R...3...5...3...'],
   };
   const BOBEN = {
-    igra: ['x.....x...x.....', 'x..x....x.x.....', 'x.....x.x.....x.', 'x..x..x...x..x..', 'x.x...x...x..x..'],
-    zemljevid: ['x.......x.......', 'x.........x.....', 'x.....x...x.....'],
+    igra: ['x...x...x...x...', 'x.....x.x.......', 'x...x...x..x....', 'x..x....x.x.....'],
+    zemljevid: ['x.......x.......', 'x.....x...x.....', 'x.......x..x....'],
   };
-  // tipke: x kratek udarec, L dolg akord
-  const TIPKE = {
-    igra: ['..x...x...x..x..', '.x..x...x.x...x.', '..x..x....x..x..', 'x..x..x...x.x...', '...x..x...x..x..'],
-    zemljevid: ['L.........L.....', 'L.......L.......', 'L.....x...L.....', 'L.........x.x...'],
+  // ukulele: x udarec akorda, s brenkanje navzdol
+  const UKULELE = {
+    igra: ['..x...x...x...x.', 'x.x.x.x.x.x.x.x.', '..x.x...x.x..x..', 'x..x..x...x.x...'],
+    zemljevid: ['x...x...x...x...', 'x.....x...x.....', '..x...x...x...x.'],
   };
-  const RITMI_MOTIVA = ['x..x.x..x...x.x.', 'x.x...x.x..x....', '..x.x.x...x..x..', 'x...x.x.x.x.....', 'x..x..x.....x.x.'];
+  const RITMI = ['x.x.x...x.x.x...', 'x...x.x.x...x...', 'x.x.x.x.x.......', 'x..x..x.x.x.x...', 'x.x...x.x.x.....'];
 
-  function motiv(mol) {
-    // dva takta: naključen sprehod po pentatoniki
-    const lest = mol ? PENTA.mol : PENTA.dur;
+  function melodija(dolgo) {
+    // dva takta: sprehod po durovi pentatoniki, začne in konča na akordnem tonu
     const note = [];
-    let st = 2 + Math.floor(Math.random() * 3);
+    let st = izberi([2, 4, 5]);
     for (let takt = 0; takt < 2; takt++) {
-      const ritem = izberi(RITMI_MOTIVA);
+      const ritem = izberi(RITMI);
       for (let k = 0; k < 16; k++) {
         if (ritem[k] !== 'x') continue;
-        st += p(0.7) ? izberi([-1, 1]) : izberi([-2, 2]);
+        st += p(0.65) ? izberi([-1, 1]) : izberi([-2, 2, 1]);
         st = Math.max(0, Math.min(9, st));
-        note.push({ k: takt * 16 + k, st, d: izberi([1, 1, 2, 3]) });
+        note.push({ k: takt * 16 + k, st, d: izberi(dolgo ? [2, 2, 3] : [1, 2, 2]) });
       }
     }
-    if (note.length) note[note.length - 1].d = 4;
-    return { note, lest };
+    if (note.length) { note[note.length - 1].st = izberi([0, 5]); note[note.length - 1].d = 4; }
+    return note;
   }
 
   function novaPesem(nacin) {
     const igra = nacin === 'igra';
-    const napredek = izberi(NAPREDKI[nacin]);
-    const kljuc = Math.floor(Math.random() * 12);
+    const kljuc = izberi(SVETLE_TONALITETE);
     kljucZadnji = kljuc;
-    molZadnji = napredek.mol;
+    const shuffle = p(0.4);
     return {
-      nacin, igra, napredek, kljuc,
-      tempo: igra ? 102 + Math.random() * 14 : 86 + Math.random() * 12,
-      swing: igra ? 0.1 + Math.random() * 0.1 : 0.16 + Math.random() * 0.1,
+      nacin, igra, kljuc,
+      napredek: izberi(NAPREDKI), napredekB: izberi(NAPREDKI),
+      tempo: igra ? 120 + Math.random() * 14 : 104 + Math.random() * 12,
+      swing: shuffle ? 0.28 : 0.04,
       basA: izberi(BAS[nacin]), basB: izberi(BAS[nacin]),
-      boben: izberi(BOBEN[nacin]), tipke: izberi(TIPKE[nacin]), tipkeB: izberi(TIPKE[nacin]),
-      motiv: motiv(napredek.mol),
-      deli: igra ? ['uvod', 'a', 'b', 'a', 'premor', 'b', 'a2'] : ['uvod', 'a', 'b', 'premor', 'a', 'b'],
+      boben: izberi(BOBEN[nacin]), uke: izberi(UKULELE[nacin]), ukeB: izberi(UKULELE[nacin]),
+      melA: melodija(false), melB: melodija(true),
+      zvokA: izberi(['zvoncek', 'piscalka', 'marimba']), zvokB: izberi(['piscalka', 'zvoncek']),
+      deli: igra ? ['uvod', 'a', 'b', 'a', 'most', 'b', 'a2'] : ['uvod', 'a', 'b', 'most', 'a', 'b'],
       del: 0, vDelu: 0, takt: 0,
       akord: null, naslAkord: null, glasovi: null,
     };
   }
-  const dolzinaDela = d => (d === 'uvod' || d === 'premor' ? 4 : 8);
+  const dolzinaDela = d => (d === 'uvod' || d === 'most' ? 4 : 8);
 
   // ---------- Instrumenti ----------
 
-  function ovoj(g, t, napad, vrh, upad, konec = 0.0001) {
+  function ovoj(g, t, napad, vrh, upad) {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(vrh, t + napad);
-    g.gain.exponentialRampToValueAtTime(konec, t + napad + upad);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + napad + upad);
   }
   function posli(v, delez) {
     if (!delez) return;
@@ -121,211 +110,155 @@ const Glasba = (() => {
     src.stop(t + trajanje + 0.05);
     return src;
   }
+  function osc(tip, f, t, konec) {
+    const o = ctx.createOscillator();
+    o.type = tip;
+    o.frequency.value = f;
+    o.start(t); o.stop(konec);
+    return o;
+  }
 
   function kick(t, g) {
     const o = ctx.createOscillator(), v = ctx.createGain();
-    o.frequency.setValueAtTime(150, t);
-    o.frequency.exponentialRampToValueAtTime(44, t + 0.11);
-    ovoj(v, t, 0.003, g, 0.34);
+    o.frequency.setValueAtTime(130, t);
+    o.frequency.exponentialRampToValueAtTime(52, t + 0.09);
+    ovoj(v, t, 0.003, g, 0.22);
     o.connect(v).connect(izhod);
-    o.start(t); o.stop(t + 0.4);
+    o.start(t); o.stop(t + 0.3);
   }
-  function snare(t, g, odm = 0.12) {
-    const n = sumNode(t, 0.2), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'bandpass'; fl.frequency.value = 1900; fl.Q.value = 0.8;
-    ovoj(v, t, 0.002, g, 0.17);
-    n.connect(fl).connect(v).connect(izhod);
-    posli(v, odm);
-    const o = ctx.createOscillator(), vo = ctx.createGain();
-    o.type = 'triangle';
-    o.frequency.setValueAtTime(190, t);
-    o.frequency.exponentialRampToValueAtTime(150, t + 0.08);
-    ovoj(vo, t, 0.002, g * 0.5, 0.09);
-    o.connect(vo).connect(izhod);
-    o.start(t); o.stop(t + 0.15);
+  // ploskanje: trije hitri sunki šuma
+  function plosk(t, g) {
+    const fl = ctx.createBiquadFilter(), v = ctx.createGain();
+    fl.type = 'bandpass'; fl.frequency.value = 1400; fl.Q.value = 1.2;
+    fl.connect(v).connect(izhod);
+    posli(v, 0.15);
+    v.gain.setValueAtTime(0.0001, t);
+    [0, 0.011, 0.022].forEach(z => {
+      v.gain.setValueAtTime(g, t + z);
+      v.gain.exponentialRampToValueAtTime(g * 0.2, t + z + 0.009);
+    });
+    v.gain.setValueAtTime(g * 0.7, t + 0.03);
+    v.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    sumNode(t, 0.18).connect(fl);
   }
-  function hat(t, g, odprt) {
-    const n = sumNode(t, odprt ? 0.3 : 0.06), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'highpass'; fl.frequency.value = 7500;
-    ovoj(v, t, 0.002, g, odprt ? 0.28 : 0.035);
-    n.connect(fl).connect(v).connect(izhod);
-  }
-  function shaker(t, g) {
-    const n = sumNode(t, 0.1), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'bandpass'; fl.frequency.value = 6000; fl.Q.value = 1;
-    ovoj(v, t, 0.015, g, 0.06);
+  function hat(t, g) {
+    const n = sumNode(t, 0.05), fl = ctx.createBiquadFilter(), v = ctx.createGain();
+    fl.type = 'highpass'; fl.frequency.value = 8000;
+    ovoj(v, t, 0.002, g, 0.03);
     n.connect(fl).connect(v).connect(izhod);
   }
-  function cinela(t, g) {
-    const n = sumNode(t, 1.6), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'highpass'; fl.frequency.value = 5000;
-    ovoj(v, t, 0.003, g, 1.5);
+  function tamburin(t, g) {
+    const n = sumNode(t, 0.14), fl = ctx.createBiquadFilter(), v = ctx.createGain();
+    fl.type = 'bandpass'; fl.frequency.value = 9000; fl.Q.value = 2;
+    ovoj(v, t, 0.004, g, 0.12);
     n.connect(fl).connect(v).connect(izhod);
-    posli(v, 0.3);
   }
-  function bas(t, midi, trajanje, g, slap) {
+  // lesena kocka
+  function kocka(t, f, g) {
+    const o = ctx.createOscillator(), v = ctx.createGain();
+    o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(f * 0.8, t + 0.05);
+    ovoj(v, t, 0.001, g, 0.06);
+    o.connect(v).connect(izhod);
+    o.start(t); o.stop(t + 0.1);
+  }
+  // poskočen, okrogel bas (kot tuba)
+  function bas(t, midi, trajanje, g) {
     const f = mtof(midi);
     const fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'lowpass';
-    fl.Q.value = slap ? 7 : 2;
-    fl.frequency.setValueAtTime(slap ? 3000 : 1000, t);
-    fl.frequency.exponentialRampToValueAtTime(160 + f * 2, t + Math.min(0.2, trajanje));
+    fl.type = 'lowpass'; fl.Q.value = 3;
+    fl.frequency.setValueAtTime(1400, t);
+    fl.frequency.exponentialRampToValueAtTime(380, t + 0.12);
     v.gain.setValueAtTime(0.0001, t);
-    v.gain.exponentialRampToValueAtTime(g, t + 0.006);
-    v.gain.setValueAtTime(g * 0.8, t + trajanje * 0.8);
-    v.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.04);
+    v.gain.exponentialRampToValueAtTime(g, t + 0.012);
+    v.gain.exponentialRampToValueAtTime(g * 0.5, t + trajanje * 0.7);
+    v.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.05);
     fl.connect(v).connect(izhod);
-    ['sawtooth', 'square'].forEach((tip, i) => {
-      const o = ctx.createOscillator();
-      o.type = tip;
-      o.frequency.value = f;
-      o.detune.value = i ? -6 : 0;
-      o.connect(fl);
-      o.start(t); o.stop(t + trajanje + 0.06);
+    const konec = t + trajanje + 0.08;
+    const a = osc('square', f, t, konec), b = osc('triangle', f * 2, t, konec);
+    a.frequency.setValueAtTime(f * 0.97, t);
+    a.frequency.exponentialRampToValueAtTime(f, t + 0.03);
+    const bg = ctx.createGain(); bg.gain.value = 0.4;
+    a.connect(fl); b.connect(bg).connect(fl);
+  }
+  // ukulele: brenkanje akorda (nota za noto, hitro)
+  function ukulele(t, note, g, navzdol) {
+    note.forEach((m, i) => {
+      const z = t + (navzdol ? i : note.length - 1 - i) * 0.014;
+      const f = mtof(m);
+      const fl = ctx.createBiquadFilter(), v = ctx.createGain();
+      fl.type = 'lowpass'; fl.Q.value = 1;
+      fl.frequency.setValueAtTime(4200, z);
+      fl.frequency.exponentialRampToValueAtTime(700, z + 0.18);
+      ovoj(v, z, 0.003, g, 0.32);
+      fl.connect(v).connect(izhod);
+      posli(v, 0.12);
+      osc('sawtooth', f, z, z + 0.4).connect(fl);
     });
-    const sub = ctx.createOscillator(), sv = ctx.createGain();
-    sub.frequency.value = f;
-    sv.gain.setValueAtTime(0.0001, t);
-    sv.gain.exponentialRampToValueAtTime(g * 0.7, t + 0.008);
-    sv.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.04);
-    sub.connect(sv).connect(izhod);
-    sub.start(t); sub.stop(t + trajanje + 0.06);
-    if (slap) {
-      const n = sumNode(t, 0.03), hf = ctx.createBiquadFilter(), nv = ctx.createGain();
-      hf.type = 'highpass'; hf.frequency.value = 2500;
-      ovoj(nv, t, 0.001, g * 0.35, 0.02);
-      n.connect(hf).connect(nv).connect(izhod);
-    }
   }
-  function mrtvaNota(t, midi, g) {
-    const n = sumNode(t, 0.05), fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'bandpass'; fl.frequency.value = mtof(midi) * 3; fl.Q.value = 4;
-    ovoj(v, t, 0.002, g, 0.04);
-    n.connect(fl).connect(v).connect(izhod);
+  function marimba(t, midi, g, trajanje = 0.5) {
+    const f = mtof(midi), v = ctx.createGain(), v2 = ctx.createGain();
+    ovoj(v, t, 0.003, g, trajanje);
+    ovoj(v2, t, 0.002, g * 0.5, 0.07);
+    v.connect(izhod); v2.connect(izhod);
+    posli(v, 0.2);
+    osc('sine', f, t, t + trajanje + 0.05).connect(v);
+    osc('sine', f * 4, t, t + 0.1).connect(v2);
   }
-  // Rhodes: FM z mehko zvonasto začetno barvo
-  function rhodes(t, note, trajanje, g) {
-    const v = ctx.createGain();
+  // zvonček (igrača): svetel FM zvok
+  function zvoncek(t, midi, g) {
+    const f = mtof(midi);
+    const nos = osc('sine', f, t, t + 0.9), mod = osc('sine', f * 3.5, t, t + 0.9);
+    const mg = ctx.createGain(), v = ctx.createGain();
+    mg.gain.setValueAtTime(f * 1.2, t);
+    mg.gain.exponentialRampToValueAtTime(f * 0.05, t + 0.3);
+    mod.connect(mg).connect(nos.frequency);
+    ovoj(v, t, 0.002, g, 0.8);
+    nos.connect(v).connect(izhod);
+    posli(v, 0.35);
+  }
+  // piščalka: čist ton z vibratom in drsenjem v noto
+  function piscalka(t, midi, trajanje, g) {
+    const f = mtof(midi), v = ctx.createGain();
     v.gain.setValueAtTime(0.0001, t);
-    v.gain.exponentialRampToValueAtTime(g, t + 0.008);
-    v.gain.exponentialRampToValueAtTime(g * 0.45, t + 0.6);
-    v.gain.setValueAtTime(g * 0.45, t + Math.max(0.61, trajanje));
-    v.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.61, trajanje) + 0.25);
+    v.gain.exponentialRampToValueAtTime(g, t + 0.03);
+    v.gain.setValueAtTime(g, t + trajanje * 0.8);
+    v.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.06);
     v.connect(izhod);
     posli(v, 0.3);
-    const konec = t + Math.max(0.61, trajanje) + 0.3;
-    note.forEach(m => {
-      const f = mtof(m);
-      const nos = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain();
-      nos.frequency.value = f;
-      mod.frequency.value = f;
-      mg.gain.setValueAtTime(f * 1.4, t);
-      mg.gain.exponentialRampToValueAtTime(f * 0.08, t + 0.35);
-      mod.connect(mg).connect(nos.frequency);
-      nos.connect(v);
-      nos.start(t); mod.start(t);
-      nos.stop(konec); mod.stop(konec);
-    });
-  }
-  // Clav: kratek pulz skozi »wah« filter
-  function clav(t, note, g) {
-    const fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'bandpass'; fl.Q.value = 4;
-    fl.frequency.setValueAtTime(2600, t);
-    fl.frequency.exponentialRampToValueAtTime(800, t + 0.12);
-    ovoj(v, t, 0.002, g, 0.14);
-    fl.connect(v).connect(izhod);
-    posli(v, 0.1);
-    note.forEach(m => {
-      const o = ctx.createOscillator();
-      o.type = 'square';
-      o.frequency.value = mtof(m);
-      o.connect(fl);
-      o.start(t); o.stop(t + 0.18);
-    });
-  }
-  // Melodija: igra = »synth lead« z vibratom, zemljevid = vibrafon/zvonček
-  function vodilni(t, midi, trajanje, g, igra) {
-    const f = mtof(midi);
-    const v = ctx.createGain();
-    if (igra) {
-      const fl = ctx.createBiquadFilter();
-      fl.type = 'lowpass'; fl.frequency.value = 2400; fl.Q.value = 2;
-      v.gain.setValueAtTime(0.0001, t);
-      v.gain.exponentialRampToValueAtTime(g, t + 0.02);
-      v.gain.setValueAtTime(g, t + trajanje * 0.85);
-      v.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.08);
-      fl.connect(v).connect(izhod);
-      posli(v, 0.3);
-      const lfo = ctx.createOscillator(), lg = ctx.createGain();
-      lfo.frequency.value = 5.5;
-      lg.gain.setValueAtTime(0, t);
-      lg.gain.linearRampToValueAtTime(f * 0.006, t + 0.2);
-      lfo.connect(lg);
-      [['square', 0], ['sawtooth', 7]].forEach(([tip, c]) => {
-        const o = ctx.createOscillator();
-        o.type = tip;
-        o.frequency.value = f;
-        o.detune.value = c;
-        lg.connect(o.frequency);
-        o.connect(fl);
-        o.start(t); o.stop(t + trajanje + 0.1);
-      });
-      lfo.start(t); lfo.stop(t + trajanje + 0.1);
-    } else {
-      const nos = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain();
-      nos.frequency.value = f;
-      mod.frequency.value = f * 4;
-      mg.gain.setValueAtTime(f * 0.9, t);
-      mg.gain.exponentialRampToValueAtTime(f * 0.02, t + 0.5);
-      mod.connect(mg).connect(nos.frequency);
-      ovoj(v, t, 0.004, g, 1.1);
-      nos.connect(v).connect(izhod);
-      posli(v, 0.45);
-      nos.start(t); mod.start(t);
-      nos.stop(t + 1.2); mod.stop(t + 1.2);
-    }
-  }
-  function blazina(t, note, trajanje, g) {
-    const fl = ctx.createBiquadFilter(), v = ctx.createGain();
-    fl.type = 'lowpass'; fl.frequency.value = 1300;
-    v.gain.setValueAtTime(0.0001, t);
-    v.gain.exponentialRampToValueAtTime(g, t + 0.5);
-    v.gain.setValueAtTime(g, t + trajanje);
-    v.gain.exponentialRampToValueAtTime(0.0001, t + trajanje + 0.7);
-    fl.connect(v).connect(izhod);
-    posli(v, 0.4);
-    note.forEach(m => {
-      const o = ctx.createOscillator();
-      o.type = 'triangle';
-      o.frequency.value = mtof(m);
-      o.connect(fl);
-      o.start(t); o.stop(t + trajanje + 0.8);
-    });
+    const konec = t + trajanje + 0.1;
+    const o = osc('sine', f, t, konec), o2 = osc('triangle', f * 2, t, konec);
+    o.frequency.setValueAtTime(f * 0.94, t);
+    o.frequency.exponentialRampToValueAtTime(f, t + 0.05);
+    const lfo = osc('sine', 6, t, konec), lg = ctx.createGain();
+    lg.gain.setValueAtTime(0, t);
+    lg.gain.linearRampToValueAtTime(f * 0.012, t + 0.18);
+    lfo.connect(lg).connect(o.frequency);
+    const g2 = ctx.createGain(); g2.gain.value = 0.12;
+    o.connect(v); o2.connect(g2).connect(v);
   }
 
   // ---------- Sekvencer ----------
 
-  function glasovi(pesem, [stopnja, kakovost]) {
-    // akordni toni brez tonike, stisnjeni v obseg A3–C5
-    return AKORDI[kakovost].slice(1).map(i => {
-      let m = 48 + pesem.kljuc + stopnja + i;
-      while (m < 57) m += 12;
-      while (m >= 74) m -= 12;
+  function glasovi(ps, [stopnja, kakovost]) {
+    // akordni toni v obsegu ukulele (G4–A5)
+    return AKORDI[kakovost].map(i => {
+      let m = 60 + ps.kljuc + stopnja + i;
+      while (m < 67) m += 12;
+      while (m >= 81) m -= 12;
       return m;
     }).sort((a, b) => a - b);
   }
-  const basovaTonika = (pesem, stopnja) => {
-    let m = 33 + ((pesem.kljuc + stopnja) % 12);
-    if (m > 44) m -= 12;
+  const basovaTonika = (ps, stopnja) => {
+    let m = 36 + ((ps.kljuc + stopnja) % 12);
+    if (m > 46) m -= 12;
     return m;
   };
 
   function zacniTakt(ps) {
     // zamenjava zaslona (zemljevid ↔ igra): nova pesem v pravem slogu že ob naslednjem taktu
     if (ps.nacin !== zeljeni) ps = pesem = novaPesem(zeljeni);
-    const del = ps.deli[ps.del];
-    if (ps.vDelu >= dolzinaDela(del)) {
+    if (ps.vDelu >= dolzinaDela(ps.deli[ps.del])) {
       ps.vDelu = 0;
       ps.del++;
       if (ps.del >= ps.deli.length) {
@@ -333,97 +266,83 @@ const Glasba = (() => {
         return zacniTakt(pesem);
       }
     }
-    const a = ps.napredek.a;
+    const a = ps.deli[ps.del] === 'b' ? ps.napredekB : ps.napredek;
     ps.akord = a[ps.takt % a.length];
     ps.naslAkord = a[(ps.takt + 1) % a.length];
     ps.glasovi = glasovi(ps, ps.akord);
     return ps;
   }
 
+  function igrajMelodijo(ps, s, korakSek, del, t) {
+    const b = del === 'b';
+    const mel = b ? ps.melB : ps.melA;
+    const k32 = (ps.vDelu % 2) * 16 + s;
+    const visje = (del === 'a2' && ps.vDelu >= 4) || (b && ps.vDelu >= 6) ? 2 : 0; // proti koncu dela navzgor
+    const zvok = b ? ps.zvokB : ps.zvokA;
+    mel.forEach(n => {
+      if (n.k !== k32) return;
+      const st = n.st + visje;
+      const m = 72 + (ps.kljuc > 6 ? ps.kljuc - 12 : ps.kljuc) + PENTA[st % 5] + Math.floor(st / 5) * 12;
+      const g = ps.igra ? 1 : 0.85;
+      if (zvok === 'piscalka') piscalka(t, m, n.d * korakSek, 0.075 * g);
+      else if (zvok === 'zvoncek') zvoncek(t, m + 12, 0.06 * g);
+      else marimba(t, m, 0.11 * g);
+    });
+  }
   function igrajKorak(k, t) {
     let ps = pesem;
     const s = k % 16;
-    if (s === 0) { ps = zacniTakt(ps); }
+    if (s === 0) ps = zacniTakt(ps);
     const del = ps.deli[ps.del], igra = ps.igra;
     const zadnjiTakt = ps.vDelu === dolzinaDela(del) - 1 && ps.del < ps.deli.length - 1;
-    const fill = zadnjiTakt && s >= 12 && del !== 'premor';
+    const fill = zadnjiTakt && s >= 12 && del !== 'most';
     const korakSek = 60 / ps.tempo / 4;
 
     // --- bobni ---
-    if (s === 0 && ps.vDelu === 0 && del !== 'uvod' && del !== 'premor') cinela(t, igra ? 0.16 : 0.1);
-    if (del !== 'premor') {
-      if (ps.boben[s] === 'x' && !fill) kick(t, igra ? 0.85 : 0.6);
-      if (s === 4 || s === 12) snare(t, igra ? 0.42 : 0.24, igra ? 0.1 : 0.25);
-      else if (igra && del !== 'uvod' && [7, 9, 14, 15].includes(s) && p(0.22)) snare(t, 0.08, 0);
-    } else if (s === 0 && ps.vDelu % 2 === 0) kick(t, 0.35);
-    if (fill) snare(t, 0.14 + (s - 12) * 0.08, 0.05);
-    if (!fill) {
-      const gostota = igra ? (napetost > 0.5 || del === 'a2' ? 1 : 2) : 2;
-      if (s % gostota === 0) hat(t, (s % 4 === 2 ? 0.16 : 0.09) * (igra ? 1 : 0.7), false);
-      if (igra && (s === 14 || (del === 'a2' && s === 6))) hat(t, 0.1, true);
-      if ((napetost > 0.5 || del === 'b') && s % 2 === 1) shaker(t, 0.05);
+    if (del === 'most') {
+      // odmor: samo ploskanje in lesena kocka, zvončki igrajo akord navzgor
+      if (s === 4 || s === 12) plosk(t, 0.3);
+      if (s % 4 === 2) kocka(t, 1200, 0.07);
+      if (s % 2 === 0) zvoncek(t, ps.glasovi[(s / 2) % ps.glasovi.length] + 12, 0.035);
+    } else {
+      if (ps.boben[s] === 'x' && !fill) kick(t, igra ? 0.7 : 0.5);
+      if ((s === 4 || s === 12) && del !== 'uvod') plosk(t, igra ? 0.32 : 0.22);
+      if (s % 2 === 0) hat(t, (s % 4 === 2 ? 0.12 : 0.06) * (igra ? 1 : 0.7));
+      if ((del === 'b' || del === 'a2' || napetost > 0.5) && s % 4 === 2) tamburin(t, 0.06);
+      if (napetost > 0.5 && s % 2 === 1) hat(t, 0.05);
+      if (del === 'uvod' && s % 4 === 0) kocka(t, s % 8 ? 900 : 1200, 0.08);
     }
+    if (fill) kocka(t, 800 + (s - 12) * 200, 0.12);
 
     // --- bas ---
     const vzorec = del === 'b' ? ps.basB : ps.basA;
-    const c = del === 'premor' ? (s === 0 ? 'R' : '.') : vzorec[s];
+    const c = del === 'most' ? (s === 0 || s === 8 ? 'R' : '.') : vzorec[s];
     if (c !== '.') {
       const ton = basovaTonika(ps, ps.akord[0]);
       const ak = AKORDI[ps.akord[1]];
-      let m = null, slap = false;
-      if (c === 'R') m = ton;
-      else if (c === 'O') { m = ton + 12; slap = igra; }
-      else if (c === '5') m = ton + 7;
-      else if (c === '7') m = ton + (ak.includes(11) ? 11 : 10);
-      else if (c === '3') m = ton + (ak.includes(4) ? 4 : 3);
-      else if (c === 'A') m = basovaTonika(ps, ps.naslAkord[0]) - 1;
-      if (c === 'G') mrtvaNota(t, ton, igra ? 0.18 : 0.1);
-      else if (m !== null) {
-        // trajanje do naslednje note (največ 3 koraki), staccato
-        let d = 1;
-        while (d < 3 && vzorec[(s + d) % 16] === '.') d++;
-        const zamik = igra && p(0.12) ? 12 : 0; // občasno oktava višje
-        bas(t, m + zamik, d * korakSek * (igra ? 0.85 : 1.1), igra ? 0.3 : 0.26, slap || (zamik && igra));
+      const m = c === 'O' ? ton + 12 : c === '5' ? ton + 7 : c === '3' ? ton + ak[1] : ton;
+      let d = 1;
+      while (d < 2 && vzorec[(s + d) % 16] === '.') d++;
+      bas(t, m, d * korakSek * 0.9, igra ? 0.32 : 0.27);
+    }
+
+    // --- ukulele / marimba (akordi) ---
+    if (del !== 'most') {
+      const uv = del === 'b' || del === 'a2' ? ps.ukeB : ps.uke;
+      if (uv[s] === 'x') {
+        if (igra || del !== 'uvod') ukulele(t, ps.glasovi, igra ? 0.045 : 0.04, s % 4 !== 2);
+        if (!igra && s % 8 === 0) marimba(t, ps.glasovi[0] - 12, 0.08, 0.6);
       }
     }
 
-    // --- tipke ---
-    if (del !== 'uvod' || !igra) {
-      const tv = del === 'b' || del === 'a2' ? ps.tipkeB : ps.tipke;
-      const ch = del === 'premor' ? (s === 0 ? 'L' : '.') : tv[s];
-      if (ch === 'x') {
-        if (igra) {
-          clav(t, ps.glasovi.slice(0, 3), 0.045);
-          if (p(0.5)) rhodes(t, ps.glasovi, korakSek * 1.5, 0.05);
-        } else rhodes(t, ps.glasovi, korakSek * 2, 0.055);
-      } else if (ch === 'L') {
-        if (del === 'premor') blazina(t, ps.glasovi, korakSek * 15, 0.035);
-        rhodes(t, ps.glasovi, korakSek * (igra ? 6 : 12), igra ? 0.05 : 0.06);
-      }
-    }
-
-    // --- melodija (dela B in A2): klic in odgovor ---
-    if (del === 'b' || (del === 'a2' && ps.vDelu >= 4)) {
-      const krog = ps.vDelu % 8;           // 0–1 klic, 2–3 odgovor, 4–5 klic, 6–7 odgovor navzgor
-      const k32 = (krog % 2) * 16 + s;
-      const lest = ps.motiv.lest;
-      ps.motiv.note.forEach((n, i) => {
-        if (n.k !== k32) return;
-        let st = n.st;
-        const odgovor = krog === 2 || krog === 3 || krog === 6 || krog === 7;
-        if (odgovor && i >= ps.motiv.note.length - 2) st = Math.max(0, st - 2);
-        if (krog >= 6) st += 2;
-        const osnova = 72 + (ps.kljuc > 6 ? ps.kljuc - 12 : ps.kljuc);
-        const m = osnova + lest[st % 5] + Math.floor(st / 5) * 12;
-        vodilni(t, m, n.d * korakSek, igra ? 0.07 : 0.09, igra);
-      });
-    }
+    // --- melodija (A, B, A2; v uvodu ne) ---
+    if (del === 'a' || del === 'b' || del === 'a2') igrajMelodijo(ps, s, korakSek, del, t);
 
     if (s === 15) { ps.vDelu++; ps.takt++; }
   }
 
   function razporedi() {
-    if (!tece || !pesem) return;
+    if (!tece || !pesem || !vklopljena) return;
     if (naslednji < ctx.currentTime) naslednji = ctx.currentTime + 0.05; // po premoru ne lovi zamujenega
     while (naslednji < ctx.currentTime + 0.15) {
       const korakSek = 60 / pesem.tempo / 4;
@@ -450,17 +369,21 @@ const Glasba = (() => {
     tece = true;
     izhod.gain.cancelScheduledValues(ctx.currentTime);
     izhod.gain.setValueAtTime(0.0001, ctx.currentTime);
-    izhod.gain.exponentialRampToValueAtTime(GLASNOST, ctx.currentTime + 2);
+    izhod.gain.exponentialRampToValueAtTime(GLASNOST, ctx.currentTime + 1.5);
+    clearInterval(casovnik);
     casovnik = setInterval(razporedi, 25);
     razporedi();
   }
 
   function ustavi() {
-    if (!tece) return;
     tece = false;
     clearInterval(casovnik);
-    izhod.gain.cancelScheduledValues(ctx.currentTime);
-    izhod.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
+    casovnik = null;
+    if (!ctx) return;
+    // takoj utihne (tudi note, ki so že razporejene naprej)
+    izhod.gain.cancelScheduledValues(0);
+    izhod.gain.setValueAtTime(izhod.gain.value, ctx.currentTime);
+    izhod.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.12);
   }
 
   // ob prvem dotiku (ko se zvok sme vklopiti) začni igrati
@@ -469,30 +392,29 @@ const Glasba = (() => {
   return {
     get vklopljena() { return vklopljena; },
     nastavi(b) {
-      vklopljena = b;
-      try { localStorage.setItem(KLJUC, b ? '1' : '0'); } catch (_) {}
-      if (b) zacni(); else ustavi();
+      vklopljena = !!b;
+      try { localStorage.setItem(KLJUC, vklopljena ? '1' : '0'); } catch (_) {}
+      if (vklopljena) zacni(); else ustavi();
     },
     // 'zemljevid' ali 'igra': nova pesem v pravem slogu začne ob naslednjem taktu
     nacin(n) { zeljeni = n; },
-    // 0–1: v igri, ko zmanjkuje potez, več hi-hatov in shakerja
+    // 0–1: v igri, ko zmanjkuje potez, več hi-hatov in tamburina
     napetost(v) { napetost = v; },
     // začasno potiša glasbo (fanfara ob zmagi, poraz)
     utisaj(sek) {
-      if (!tece) return;
+      if (!tece || !vklopljena) return;
       const t = ctx.currentTime;
       izhod.gain.cancelScheduledValues(t);
       izhod.gain.setTargetAtTime(GLASNOST * 0.2, t, 0.08);
       izhod.gain.setTargetAtTime(GLASNOST, t + sek, 0.6);
     },
-    // pentatonika trenutne pesmi od note 'od' navzgor (za uglašene efekte)
+    // durova pentatonika trenutne pesmi od note 'od' navzgor (za uglašene efekte)
     lestvica(od) {
-      const lest = (pesem ? pesem.napredek.mol : molZadnji) ? PENTA.mol : PENTA.dur;
       const kljuc = pesem ? pesem.kljuc : kljucZadnji;
       let osnova = od + ((kljuc - od) % 12 + 12) % 12;
       if (osnova - od > 6) osnova -= 12;
       const izid = [];
-      for (let o = 0; o < 3; o++) lest.forEach(i => izid.push(osnova + o * 12 + i));
+      for (let o = 0; o < 3; o++) PENTA.forEach(i => izid.push(osnova + o * 12 + i));
       return izid;
     },
   };

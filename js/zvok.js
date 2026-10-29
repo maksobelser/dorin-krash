@@ -168,8 +168,8 @@ const Zvok = (() => {
     });
   }
 
-  // Note pentatonike, ki jo trenutno igra glasba (če glasbe ni, C-mol)
-  const note = od => (typeof Glasba !== 'undefined' ? Glasba.lestvica(od) : [0, 3, 5, 7, 10, 12, 15, 17, 19, 22, 24, 27].map(i => od + i));
+  // Note pentatonike, ki jo trenutno igra glasba (če glasbe ni, C-dur)
+  const note = od => (typeof Glasba !== 'undefined' ? Glasba.lestvica(od) : [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26].map(i => od + i));
 
   // ---------- Učinki ----------
 

@@ -581,13 +581,15 @@ $('zivljenja').addEventListener('click', oknoZivljenj);
 // Zvok: okno z dvema stikaloma (glasba, zvočni učinki)
 function ikonaZvoka() { $('zvok').textContent = Zvok.vklopljen || Glasba.vklopljena ? '🔊' : '🔇'; }
 function oknoZvoka() {
+  const kaj = Glasba.vklopljena || Zvok.vklopljen;
   okno({
     naslov: 'Zvok',
     zapri: true,
-    besedilo: 'Glasba se vsakič sestavi na novo.',
+    besedilo: `Glasba je ${Glasba.vklopljena ? 'vklopljena' : 'izklopljena'}, zvoki so ${Zvok.vklopljen ? 'vklopljeni' : 'izklopljeni'}.`,
     gumbi: [
-      { tekst: `🎵 Glasba: ${Glasba.vklopljena ? 'vklopljena' : 'izklopljena'}`, drugotni: !Glasba.vklopljena, akcija: () => { Glasba.nastavi(!Glasba.vklopljena); ikonaZvoka(); oknoZvoka(); } },
-      { tekst: `🔔 Zvoki: ${Zvok.vklopljen ? 'vklopljeni' : 'izklopljeni'}`, drugotni: !Zvok.vklopljen, akcija: () => { Zvok.nastavi(!Zvok.vklopljen); ikonaZvoka(); oknoZvoka(); } },
+      { tekst: kaj ? '🔇 Utišaj vse' : '🔊 Vklopi vse', akcija: () => { Glasba.nastavi(!kaj); Zvok.nastavi(!kaj); ikonaZvoka(); } },
+      { tekst: Glasba.vklopljena ? '🎵 Izklopi glasbo' : '🎵 Vklopi glasbo', drugotni: true, akcija: () => { Glasba.nastavi(!Glasba.vklopljena); ikonaZvoka(); oknoZvoka(); } },
+      { tekst: Zvok.vklopljen ? '🔔 Izklopi zvoke' : '🔔 Vklopi zvoke', drugotni: true, akcija: () => { Zvok.nastavi(!Zvok.vklopljen); ikonaZvoka(); oknoZvoka(); } },
     ],
   });
 }
