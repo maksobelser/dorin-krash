@@ -815,7 +815,7 @@ const Svet3D = (() => {
       gugalnica = nihalo;
     }
 
-    // Gora s potjo v serpentinah: podnevi se Dora, Mirt in dva prijatelja sprehajajo gor in dol
+    // Gora s potjo v serpentinah in jeklenico: podnevi Dora, Mirt in dva prijatelja s čeladami, pripeti, hodijo gor in dol
     const mestoGore = st => mestoNaBregu(st, SIRINA / 2 + 2.7, 3.2);
     const stGore = stopnje.slice(6).find(mestoGore);
     const mGora = stGore && mestoGore(stGore);
@@ -846,15 +846,24 @@ const Svet3D = (() => {
       };
       const krivulja = new THREE.CatmullRomCurve3(Array.from({ length: 40 }, (_, i) => naPoti(i / 39)));
       g.add(new THREE.Mesh(new THREE.TubeGeometry(krivulja, 90, 0.09, 4), mat(0xd9b77e)));
+      // jeklenica v višini pasu tik za sprehajalci, na kovinskih drogovih
+      const jeklo = mat(0x6b7580), visina = new THREE.Vector3(0, 0.55, 0);
+      const vrv = new THREE.CatmullRomCurve3(Array.from({ length: 40 }, (_, i) => naPoti(i / 39, 0.15).add(visina)));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(vrv, 90, 0.035, 4), jeklo));
+      for (let i = 0; i <= 12; i++) {
+        const drog = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.58, 4), jeklo);
+        drog.position.copy(naPoti(i / 12, 0.15)).addScaledVector(visina, 0.5);
+        g.add(drog);
+      }
       postavi(g, th, x);
       svet.add(g);
       g.updateMatrixWorld(true);
       // točke poti v svetu (za sprehajalce), malo pred pobočjem
       const pot = Array.from({ length: 80 }, (_, i) => g.localToWorld(naPoti(i / 79, 0.3)));
       const gor = normala(th);
-      const druzba = [[{ slika: 'slike/dora-explora.svg' }, 1.5], [MIRT_POZE[0], 1.5], [{ slika: 'slike/pohodnik-1.svg' }, 1.4], [{ slika: 'slike/pohodnik-2.svg' }, 1.4]]
+      const druzba = [['dora-ferata', 1.5], ['mirt-ferata', 1.5], ['pohodnik-ferata-1', 1.4], ['pohodnik-ferata-2', 1.4]]
         .map(([e, v]) => {
-          const sp = lik(e, v);
+          const sp = lik({ slika: `slike/${e}.svg` }, v);
           dnevni.add(sp);
           return { s: sp, v };
         });
