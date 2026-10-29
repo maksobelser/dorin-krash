@@ -6,10 +6,11 @@ Dorin Candy Crush, za njen rojstni dan (sobota, 31. 10. 2026, ob 18:00). Načrt 
 
 ## Trenutno stanje (29. 10. 2026 zvečer)
 
-Igra je v živo in deluje od začetka do konca. Različica v repozitoriju: `?v=63` v `index.html`.
+Igra je v živo in deluje od začetka do konca. Različica v repozitoriju: `?v=64` v `index.html`.
 
 **Narejeno**
 
+- **Znamka:** uradni [rdeči logotip Kraš](https://www.kras.hr/source/images/svg/kras_logo-footer-red.svg), shranjen v `slike/kras-logo.svg`, se uporablja v naslovu, napisih kombinacij/finala in navodilih za namestitev. V besedilnih metapodatkih in sistemskem deljenju ostane berljivo ime igre.
 - **Vstop:** odštevalnik do sobote, vpis z imenom, gumb za namestitev na domači zaslon (PWA).
 - **Igra:**
   - 24 stopenj, 6 elementov (burek, rakija, pivo, aperol, uteži, domačica) in življenja (5, +1 vsakih 20 minut);

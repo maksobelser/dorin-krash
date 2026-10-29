@@ -552,13 +552,14 @@ const Plosca = (() => {
     const o = document.createElement('div');
     o.className = 'plavajoce ' + razred;
     o.style.setProperty('--rot', (Math.random() * 10 - 5).toFixed(1) + 'deg');
-    o.textContent = besedilo;
+    o.innerHTML = napisKras(besedilo);
+    if (/kraš/i.test(besedilo)) o.classList.add('s-kras-logotipom');
     ovoj.appendChild(o);
     setTimeout(() => o.remove(), 1000);
     if (podnapis) {
       const p = document.createElement('div');
       p.className = 'plavajoce-pod' + (razred.includes('laser-obvestilo') ? ' laser-obvestilo' : '');
-      p.textContent = podnapis;
+      p.innerHTML = napisKras(podnapis);
       ovoj.appendChild(p);
       setTimeout(() => p.remove(), 1000);
     }

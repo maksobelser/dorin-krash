@@ -5,6 +5,16 @@
 // in v polje "slika" vpiši pot, npr. slika: 'slike/burek.png'.
 // Dokler je slika null, se pokaže emoji (začasno).
 
+// Uradni logotip: https://www.kras.hr/source/images/svg/kras_logo-footer-red.svg
+const KRAS_LOGOTIP = 'slike/kras-logo.svg';
+// Za vidne napise; besedilo najprej ubežimo, da imena/napisi ne postanejo HTML.
+// Metapodatki in sistemsko deljenje ostanejo navadno besedilo (ne podpirajo slik).
+function napisKras(besedilo) {
+  const varno = String(besedilo).replace(/[&<>"']/g, znak => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[znak]);
+  return varno.replace(/(^|[^\p{L}\p{N}_])(kraš(?:u|a|em)?)(?=$|[^\p{L}\p{N}_])/giu,
+    (_, pred, ime) => `${pred}<img class="kras-logo" src="${KRAS_LOGOTIP}" width="92" height="75" alt="${ime}" draggable="false">`);
+}
+
 const ELEMENTI = [
   { id: 'burek',    ime: 'Burek',    emoji: '🥧', barva: '#ff2d87', slika: 'slike/burek.svg?v=2' },
   { id: 'rakija',   ime: 'Rakija',   emoji: '🥃', barva: '#00b4ff', slika: 'slike/rakija.svg' },

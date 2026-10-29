@@ -605,8 +605,8 @@ $('na-domaci').addEventListener('click', async () => {
     naslov: 'Na domači zaslon',
     zapri: true,
     besedilo: iPhone
-      ? '1. Spodaj v Safariju tapni gumb Deli (kvadratek s puščico ⬆️).<br>2. Izberi »Dodaj na začetni zaslon«.<br>3. Tapni »Dodaj«. Dorin Kraš bo med aplikacijami.'
-      : '1. Zgoraj desno v brskalniku tapni ⋮ (meni).<br>2. Izberi »Dodaj na začetni zaslon« ali »Namesti aplikacijo«.<br>3. Potrdi. Dorin Kraš bo med aplikacijami.',
+      ? '1. Spodaj v Safariju tapni gumb Deli (kvadratek s puščico ⬆️).<br>2. Izberi »Dodaj na začetni zaslon«.<br>3. Tapni »Dodaj«. ' + napisKras('Dorin Kraš') + ' bo med aplikacijami.'
+      : '1. Zgoraj desno v brskalniku tapni ⋮ (meni).<br>2. Izberi »Dodaj na začetni zaslon« ali »Namesti aplikacijo«.<br>3. Potrdi. ' + napisKras('Dorin Kraš') + ' bo med aplikacijami.',
     gumbi: [{ tekst: 'Razumem' }],
   });
 });
