@@ -56,7 +56,7 @@ const LIKI_OB_POTI = [
   MIRT_POZE[4], TUPKO_POZE[2], MIRT_POZE[2], TUPKO_POZE[3], TUPKO_POZE[0],
 ];
 
-// Piknik ob Grosupeljščici: 10 prijateljev, žar in balinčki.
+// Piknik ob Grosupeljščici (med 6. in 7. stopnjo): 8 od teh 10 prijateljev, žar in balinčki.
 // Vrstni red: 1 žar, 2 pivo, 3 maha, 4 meče balinček, 5 pivo, 6 aperol, 7 sedi, 8 kitara, 9 maha, 10 meče balinček
 const PRIJATELJI = Array.from({ length: 10 }, (_, i) => ({ ime: 'Prijatelj', emoji: '🧑', slika: `slike/prijatelj-${String(i + 1).padStart(2, '0')}.svg` }));
 

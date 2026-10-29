@@ -37,7 +37,7 @@ const Svet3D = (() => {
   let vlece = false, zacY = 0, zacKot = 0, zadnjiY = 0, premaknil = 0;
 
   // 0 = dom, 1..n = stopnje, n+1 = zastavica; za mostom je malo več prostora
-  const MOST = 8.42, PIKNIK = 5;
+  const MOST = 8.42, PIKNIK = 6.5;
   const kotStopnje = st => (st + (st > MOST ? 1.2 : 0)) * KORAK;
   const xNa = th => 2.6 * Math.sin(th * 9.5);
   // Most čez potok (med stopnjama 8 in 9) in jasa s piknikom (okoli stopnje 5).
@@ -410,7 +410,7 @@ const Svet3D = (() => {
     for (let x = -P - K; x <= P + K; x += 2.5) proste.push([th, xNa(th) + x]);
   }
 
-  // ---------- Piknik: žar, odeja, hladilna torba, balinčki, 10 prijateljev ----------
+  // ---------- Piknik: žar, odeja, hladilna torba, balinčki, 8 prijateljev ----------
 
   function teksturaOdeje() {
     const c = document.createElement('canvas');
@@ -533,9 +533,10 @@ const Svet3D = (() => {
     dan.add(igrisce);
 
     // Prijatelji (velikost, u, d)
-    [[2.5, -5, 2.8], [2.5, -3.4, 4.8], [2.5, -7, 4.2], [2.5, 2.4, 1.8], [2.5, 0.8, 5.0],
-     [2.5, 0.4, 1.3], [2.2, -1.5, 2.6], [2.5, -1.4, 4.7], [2.5, 5.6, 3.6], [2.5, 8.4, 2.2]]
-      .forEach(([v, u, d], i) => {
+    // 8 prijateljev: [indeks slike, velikost, u, d]
+    [[0, 2.5, -5, 2.8], [1, 2.5, -3.4, 4.8], [2, 2.5, -7, 4.2], [3, 2.5, 2.4, 1.8], [4, 2.5, 0.8, 5.0],
+     [5, 2.5, 0.4, 1.3], [7, 2.5, -1.4, 4.7], [9, 2.5, 8.4, 2.2]]
+      .forEach(([i, v, u, d]) => {
         const [t, xx] = mesto(u, d);
         const s = lik(PRIJATELJI[i], v);
         s.position.copy(tocka(t, xx, R + v / 2 - 0.05));
@@ -611,10 +612,10 @@ const Svet3D = (() => {
 
     // plesalci: isti prijatelji kot na pikniku, v črnem
     const plesalci = [];
-    [[3.4, 0.8], [3.2, 3.0], [3.6, 5.0], [1.2, 1.8], [0.8, 4.2], [-1.2, 0.9], [-1.6, 3.2], [-3.8, 2.0], [-4.2, 4.6]]
+    [[3.4, 0.8], [3.2, 3.2], [1.2, 1.8], [0.8, 4.4], [-1.2, 0.9], [-1.6, 3.4], [-3.8, 2.2]]
       .forEach(([u, d], i) => {
         const [t, xx] = mesto(u, d);
-        const st = [1, 2, 3, 4, 5, 6, 7, 9, 10][i];
+        const st = [1, 2, 3, 4, 5, 6, 10][i];
         const v = 2.4;
         const sl = lik({ slika: `slike/rave-${String(st).padStart(2, '0')}.svg` }, v);
         sl.userData.svetel = true;
